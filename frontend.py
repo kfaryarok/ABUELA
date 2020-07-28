@@ -3,9 +3,8 @@
 
 # Imports
 from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtGui import QPixmap
+from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtWidgets import QWidget, QLineEdit, QLabel, QPushButton
-from win32api import GetSystemMetrics
 from utility import Utility
 
 
@@ -22,8 +21,8 @@ class App(QWidget):
 		super().__init__()
 
 		# Get screen data
-		self.screenWidth = Utility.getSettings()[0]
-		self.screenHeight = Utility.getSettings()[1]
+		self.screenWidth = Utility.getScreen()[0]
+		self.screenHeight = Utility.getScreen()[1]
 
 		# # Resize connection
 		# # Due to the resize function, all positioning in this
@@ -36,8 +35,8 @@ class App(QWidget):
 		self.setMinimumSize(int(self.screenWidth * self.settings["minRatio"]),
 		                    int(self.screenHeight * self.settings["minRatio"]))
 
-		# # Set icon
-		# self.setWindowIcon(QtGui.QIcon("resources\\logos.png"))
+		# Set icon
+		self.setWindowIcon(QIcon("resources\\logo.jpg"))
 
 		# Title
 		self.title = self.settings["windowTitle"]

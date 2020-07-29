@@ -2,7 +2,7 @@
 # coding: utf-8
 
 # Imports
-from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import pyqtSignal, Qt, QEvent
 from PyQt5.QtGui import QPixmap, QIcon, QFont
 from PyQt5.QtWidgets import QWidget, QLineEdit, QLabel, QPushButton, QPlainTextEdit
 from utility import Utility
@@ -54,8 +54,8 @@ class App(QWidget):
 		# will update the positioning and size of each element regardless
 		self.editorBox = self.makeTextBox()
 		self.editorBox.setFont(QFont(self.settings["editorFont"], self.settings["editorSize"]))
-		# self.shortShiftEnter = QShortcut(QKeySequence("Ctrl+Return"), self)
-		# self.shortShiftEnter.activated.connect(lambda: self.editorBox.insertPlainText(" \\\\\n"))
+		self.editorBox.setCursorWidth(self.settings["cursorWidth"])
+		self.editorBox.installEventFilter(self)
 
 		# Call GUI creation
 		self.initUI()
@@ -67,6 +67,13 @@ class App(QWidget):
 		# (A slide being the latest UI interface that needs to be drawn)
 		self.showEditor()
 		self.resizeElements()
+
+	def eventFilter(self, obj, event):
+		if obj is self.editorBox and event.type() == QEvent.KeyPress:
+			if event.key() in (Qt.Key_Return, Qt.Key_Enter):
+				self.editorBox.insertPlainText(" \\\\\n")
+				return True
+		return super(App, self).eventFilter(obj, event)
 
 	def initUI(self):
 		# Set the title

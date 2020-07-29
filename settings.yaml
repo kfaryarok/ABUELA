@@ -7,3 +7,4 @@ initX: 100
 initY: 100
 editorFont: Consolas
 editorSize: 20
+cursorWidth: 7

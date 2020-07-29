@@ -5,6 +5,7 @@
 from PyQt5.QtCore import pyqtSignal, Qt, QEvent
 from PyQt5.QtGui import QPixmap, QIcon, QFont
 from PyQt5.QtWidgets import QWidget, QLineEdit, QLabel, QPushButton, QPlainTextEdit
+from keyboard import is_pressed as isKeyPressed
 from utility import Utility
 
 
@@ -70,7 +71,7 @@ class App(QWidget):
 
 	def eventFilter(self, obj, event):
 		if obj is self.editorBox and event.type() == QEvent.KeyPress:
-			if event.key() in (Qt.Key_Return, Qt.Key_Enter):
+			if event.key() in (Qt.Key_Return, Qt.Key_Enter) and isKeyPressed("shift"):
 				self.editorBox.insertPlainText(" \\\\\n")
 				return True
 		return super(App, self).eventFilter(obj, event)

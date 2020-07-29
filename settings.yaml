@@ -5,3 +5,5 @@ screenRatio: 0.85
 minRatio: 0.45
 initX: 100
 initY: 100
+editorFont: Consolas
+editorSize: 20

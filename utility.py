@@ -1,5 +1,5 @@
 from win32api import GetSystemMetrics
-from yaml import load, dump
+from yaml import load, dump, SafeLoader
 
 
 class Utility:
@@ -9,7 +9,7 @@ class Utility:
 		# Open a connection to the settings file
 		filePointer = open("settings.yaml", "r")
 		# Pull the data from the file and convert it to a Python dict
-		settingData = load(filePointer.read())
+		settingData = load(filePointer.read(), Loader=SafeLoader)
 		# Close the connection so it is over-writable / usable
 		filePointer.close()
 		# Return the configuration data

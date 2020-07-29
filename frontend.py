@@ -71,7 +71,7 @@ class App(QWidget):
 
 	def eventFilter(self, obj, event):
 		if obj is self.editorBox and event.type() == QEvent.KeyPress:
-			if event.key() in (Qt.Key_Return, Qt.Key_Enter) and isKeyPressed("shift"):
+			if isKeyPressed("return") and isKeyPressed("shift"):
 				self.editorBox.insertPlainText(" \\\\\n")
 				return True
 		return super(App, self).eventFilter(obj, event)

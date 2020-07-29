@@ -1,6 +1,6 @@
-# AWBLE
+# ABUELA
 
-AWBLE is a LaTeX integrated development environment which attempts to solve all the painful problems with common LaTeX editors. AWBLE achieves this by including a live preview, command predictor, auto save, and many more features and tools in its advanced software.
+ABUELA is a LaTeX integrated development environment which attempts to solve all the painful problems with common LaTeX editors. ABUELA achieves this by including a live preview, command predictor, auto save, and many more features and tools in its advanced software.
 
 ## Installation
 

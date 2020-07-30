@@ -6,5 +6,6 @@ minRatio: 0.45
 initX: 100
 initY: 100
 editorFont: Consolas
-editorSize: 20
-cursorWidth: 7
+editorSize: 14
+cursorWidth: 2
+menuBarFont: Segoe UI

@@ -5,13 +5,13 @@
 from PyQt5 import QtGui
 from PyQt5.QtCore import pyqtSignal, Qt, QEvent
 from PyQt5.QtGui import QPixmap, QIcon, QFont
-from PyQt5.QtWidgets import QWidget, QLineEdit, QLabel, QPushButton, QPlainTextEdit
+from PyQt5.QtWidgets import QWidget, QLineEdit, QLabel, QPushButton, QPlainTextEdit, QMainWindow
 from keyboard import is_pressed as isKeyPressed
 from utility import Utility
 
 
 # Initialize class
-class App(QWidget):
+class App(QMainWindow):
 	# Pull settings
 	settings = Utility.getSettings()
 
@@ -40,7 +40,6 @@ class App(QWidget):
 		# Calculate gui size
 		self.width = int(self.screenWidth * self.settings["screenRatio"])
 		self.height = int(self.screenHeight * self.settings["screenRatio"])
-
 		# Initialize elements
 		# Default parameter values are all 0 because self.resizeElements
 		# will update the positioning and size of each element regardless
@@ -48,7 +47,12 @@ class App(QWidget):
 		self.editorBox.setFont(QFont(self.settings["editorFont"], self.settings["editorSize"]))
 		self.editorBox.setCursorWidth(self.settings["cursorWidth"])
 		self.editorBox.installEventFilter(self)
+		self.editorBox.setStyleSheet("border: 2px solid gray; background-color: rgb(30, 30, 30); color: white")
+		self.editorBox.move(0, 100)
 
+		self.mainMenu = self.makeMenu()
+		self.mainMenu.setFont(QFont(self.settings["menuBarFont"], 10))
+		self.mainMenu.setStyleSheet("background-color: rgb(100,100,100); spacing: 3px;")
 		# Call GUI creation
 		self.initUI()
 
@@ -61,6 +65,7 @@ class App(QWidget):
 		self.resizeEvent()
 
 	def eventFilter(self, obj, event):
+
 		if obj is self.editorBox and event.type() == QEvent.KeyPress:
 			# Key Binds
 			if isKeyPressed("return") and isKeyPressed("shift"):
@@ -103,6 +108,16 @@ class App(QWidget):
 		button.resize(width, height)
 		return button
 
+	def makeMenu(self):
+		mainMenu = self.menuBar()
+		fileMenu = mainMenu.addMenu('File')
+		editMenu = mainMenu.addMenu('Edit')
+		viewMenu = mainMenu.addMenu('View')
+		searchMenu = mainMenu.addMenu('Search')
+		toolsMenu = mainMenu.addMenu('Tools')
+		helpMenu = mainMenu.addMenu('Help')
+		return mainMenu
+
 	def showGUI(self):
 		# Show the GUI
 		self.show()
@@ -121,5 +136,5 @@ class App(QWidget):
 		self.height = self.frameGeometry().height()
 
 		# Update each element
-		self.editorBox.move(0, 0)
+		self.editorBox.move(0, self.mainMenu.height())
 		self.editorBox.resize(self.width / 2, self.height)

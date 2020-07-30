@@ -11,7 +11,8 @@ A Big, Useful, & Efficient LaTeX Application
 from PyQt5.QtWidgets import QApplication
 from gui import App
 
-# Start the app
-app = QApplication([])
-ex = App()
-app.exec_()
+if __name__ == "__main__":
+    # Start the app
+    app = QApplication([])
+    ex = App()
+    app.exec_()

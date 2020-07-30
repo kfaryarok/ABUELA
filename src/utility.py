@@ -7,7 +7,7 @@ class Utility:
 	@staticmethod
 	def getSettings():
 		# Open a connection to the settings file
-		filePointer = open("settings.yaml", "r")
+		filePointer = open("../settings.yaml", "r")
 		# Pull the data from the file and convert it to a Python dict
 		settingData = load(filePointer.read(), Loader=SafeLoader)
 		# Close the connection so it is over-writable / usable
@@ -18,7 +18,7 @@ class Utility:
 	@staticmethod
 	def setSettings(newSettings):
 		# Open a connection to the settings file
-		filePointer = open("settings.yaml", "w")
+		filePointer = open("../settings.yaml", "w")
 		# Convert and write new configuration data
 		filePointer.write(dump(newSettings))
 		# Close the connection so it is over-writable / usable

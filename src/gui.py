@@ -28,7 +28,7 @@ class App(QWidget):
 		                    int(self.screenHeight * self.settings["minRatio"]))
 
 		# Set icon
-		self.setWindowIcon(QIcon("resources\\logo.jpg"))
+		self.setWindowIcon(QIcon("../resources/logo.jpg"))
 
 		# Title
 		self.title = self.settings["windowTitle"]
@@ -64,7 +64,7 @@ class App(QWidget):
 		if obj is self.editorBox and event.type() == QEvent.KeyPress:
 			# Key Binds
 			if isKeyPressed("return") and isKeyPressed("shift"):
-				self.editorBox.insertPlainText(" \\\\\n")
+				self.editorBox.insertPlainText("\\\\\n")
 				return True
 		return super(App, self).eventFilter(obj, event)
 

@@ -2,6 +2,7 @@
 # coding: utf-8
 
 # Imports
+from PyQt5 import QtGui
 from PyQt5.QtCore import pyqtSignal, Qt, QEvent
 from PyQt5.QtGui import QPixmap, QIcon, QFont
 from PyQt5.QtWidgets import QWidget, QLineEdit, QLabel, QPushButton, QPlainTextEdit
@@ -11,9 +12,6 @@ from utility import Utility
 
 # Initialize class
 class App(QWidget):
-	# Resize PyQT signal
-	resized = pyqtSignal()
-
 	# Pull settings
 	settings = Utility.getSettings()
 
@@ -24,13 +22,6 @@ class App(QWidget):
 		# Get screen data
 		self.screenWidth = Utility.getScreen()[0]
 		self.screenHeight = Utility.getScreen()[1]
-
-		# # Resize connection
-		# # Due to the resize function, all positioning in this
-		# # constructor method will be set to (0, 0), and will
-		# # rely on the initial showing of the window to trigger
-		# # the resize function to move all the elements in to place.
-		# self.resized.connect(self.resizeElements)
 
 		# Set min size
 		self.setMinimumSize(int(self.screenWidth * self.settings["minRatio"]),
@@ -67,10 +58,11 @@ class App(QWidget):
 		# changes and updates all elements to the latest 'slide'.
 		# (A slide being the latest UI interface that needs to be drawn)
 		self.showEditor()
-		self.resizeElements()
+		self.resizeEvent()
 
 	def eventFilter(self, obj, event):
 		if obj is self.editorBox and event.type() == QEvent.KeyPress:
+			# Key Binds
 			if isKeyPressed("return") and isKeyPressed("shift"):
 				self.editorBox.insertPlainText(" \\\\\n")
 				return True
@@ -121,9 +113,9 @@ class App(QWidget):
 
 	def showEditor(self):
 		self.editorBox.show()
-		return self.resizeElements()
+		return self.resizeEvent()
 
-	def resizeElements(self):
+	def resizeEvent(self, event=None):
 		# Update window size variables
 		self.width = self.frameGeometry().width()
 		self.height = self.frameGeometry().height()

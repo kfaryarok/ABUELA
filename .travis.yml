@@ -1,26 +1,23 @@
 language: python
 
-# ==== LINUX ====
-dist: focal
-python: 3.8
-
-# ==== WIN32 ====
-matrix:
+jobs:
   include:
     - name: "Python 3.8 on Windows"
       os: windows
       language: shell
-      before-install:
+      before_install:
         - choco install python --version 3.8.5
         - python --version
         - python -m pip install --upgrade pip
         - pip3 install --upgrade pytest
       env: PATH=/c/Python38:/c/Python38/Scripts:$PATH
-
-before-install:
-  - python --version
-  - pip install -U pip
-  - pip install -U pytest
-install:
-  - pip install -r requirements.txt
-script: pytest
+    - name: "Python 3.8 on Focal Linux"
+      os: linux
+      dist: focal
+      before_install:
+        - python --version
+        - pip install -U pip
+        - pip install -U pytest
+      install:
+        - pip install -r requirements.txt
+      script: pytest

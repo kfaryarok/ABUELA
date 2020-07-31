@@ -54,5 +54,5 @@ class Compile:
 		"""
 		for proc in process_iter():
 			# check whether the process name matches
-			if proc.name().contains("pdflatex.exe"):
+			if proc.name().contains("pdflatex"):
 				proc.kill()

@@ -6,6 +6,11 @@ class Project:
 		self.fileName = fileName
 
 	def save(self, text, overwrite=False):
+		"""
+		Saves the text to the Project object's file
+		If overwrite is True, then it will overwrite the current project's file regardless of state.
+		If it is False, then it will only save if there isn't a file currently in place.
+		"""
 		if overwrite:
 			# Point to the file
 			file = open(self.fileName, "w")
@@ -23,6 +28,10 @@ class Project:
 				self.save(text, overwrite=True)
 
 	def open(self):
+		"""
+		Reads the data in the Project's file.
+		Returns the data as a string.
+		"""
 		# Point to the file
 		file = open(self.fileName, "r")
 		# Read the data

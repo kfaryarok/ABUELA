@@ -12,16 +12,19 @@ from utility import Utility
 
 # Initialize class
 class App(QWidget):
+	# Create instance of Utility for later usage
+	utils = Utility()
+
 	# Pull settings
-	settings = Utility.getSettings()
+	settings = utils.getSettings()
 
 	# Constructor
 	def __init__(self):
 		super().__init__()
 
 		# Get screen data
-		self.screenWidth = Utility.getScreen()[0]
-		self.screenHeight = Utility.getScreen()[1]
+		self.screenWidth = self.utils.getScreen()[0]
+		self.screenHeight = self.utils.getScreen()[1]
 
 		# Set min size
 		self.setMinimumSize(int(self.screenWidth * self.settings["minRatio"]),

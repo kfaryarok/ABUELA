@@ -1,5 +1,5 @@
 attrs==19.3.0
-iniconfig==1.0.0
+iniconfig==1.0.1
 colorama==0.4.3
 keyboard==0.13.5
 atomicwrites==1.4.0
@@ -8,6 +8,7 @@ psutil==5.7.2
 # pypiwin32==223
 PyQt5==5.15.0
 PyQt5-stubs==5.14.2.2
-pytest==6.0.0
+pytest==6.0.1
 # pywin32==228
 PyYAML==5.3.1
+pytest-pylint

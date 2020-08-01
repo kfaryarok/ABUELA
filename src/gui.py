@@ -26,7 +26,7 @@ class App(QWidget):
 	utils.clearCache()
 
 	# Open new project (remove this part and integrate Open File, when the Open File features is ready)
-	project = Project("..\\current.tex")
+	project = Project("../project/current.tex")
 
 	# Set default compiler live identifier number
 	live = 0
@@ -66,7 +66,7 @@ class App(QWidget):
 		self.editorBox.setCursorWidth(self.settings["cursorWidth"])
 		self.editorBox.installEventFilter(self)
 
-		self.editorCompiled = self.makePic("..\\resources\\canvas.jpg")
+		self.editorCompiled = self.makePic("../resources/canvas.jpg")
 
 		# Call GUI creation
 		self.initUI()
@@ -87,7 +87,7 @@ class App(QWidget):
 		"""
 		if obj is self.editorBox and event.type() == QEvent.KeyPress:
 			# Key Binds
-			# Shift + Return = Add \\ and newline
+			# Shift + Return = Add / and newline
 			if isKeyPressed("return") and isKeyPressed("shift"):
 				self.editorBox.insertPlainText("\\\\\n")
 				return True

@@ -16,8 +16,8 @@ class Utility:
 		Function which removes all files from the compile folder.
 		"""
 		try:
-			rmtree("..\\compile")
-			mkdir("..\\compile")
+			rmtree("../compile")
+			mkdir("../compile")
 		except:
 			return
 
@@ -68,6 +68,6 @@ class Utility:
 		"""
 		# Recurses until a file named [FILEPATH][PREFIX][RANDOM].[EXT] is not found (ergo can be used as a place to
 		# write files to)
-		# Example: getFileID("txt", "..\\compile\\", "compile")
+		# Example: getFileID("txt", "../compile/", "compile")
 		fileName = "{path}{pre}{num}.{ext}".format(path=filePath, pre=prefix, num=randint(0, 999999999999999), ext=ext)
 		return fileName if not exists(fileName) else self.getFileID(ext, filePath, prefix)

@@ -26,4 +26,9 @@ cursorWidth: 7
 liveQuality: 100
 
 # The speed (seconds) for the live-compiled update to occur
-liveUpdate: 0
+# Not recommended to go under the liveThreadRefresh time
+liveUpdate: 0.5
+
+# The speed (seconds) for each compiler thread to check for a new character
+# Not recommended to go under 0.3
+liveThreadRefresh: 0.3

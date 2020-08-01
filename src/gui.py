@@ -1,7 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# Imports
 from random import randint
 from threading import Thread
 from time import sleep, time
@@ -92,22 +88,20 @@ class App(QWidget):
 				self.editorBox.insertPlainText("\\\\\n")
 				return True
 
-			# Update project
-			self.project.save(self.editorBox.toPlainText(), overwrite=True)
-
 			# Compile
 			# Set the current live ID and pass it to the function
 			liveID = randint(0, 999999999999999)
 			self.live = liveID
 			# Set the time at which to call the live update
-			liveUpdate = time() + self.settings["liveUpdate"]
+			self.liveUpdate = time() + self.settings["liveUpdate"]
+
 			# Initialize the process
-			p = Thread(target=self.updateLive, args=[liveID, liveUpdate])
+			p = Thread(target=self.updateLive, args=[liveID])
 			p.setDaemon(True)
 			p.start()
 		return super(App, self).eventFilter(obj, event)
 
-	def updateLive(self, liveID, liveUpdate):
+	def updateLive(self, liveID):
 		"""
 		This function is used to compile and update the image
 		displaying the live version of the LaTeX source code.
@@ -124,12 +118,24 @@ class App(QWidget):
 		This function doesn't return any data, it calls directly on the editorCompiled attribute and updates the image.
 		"""
 		# Wait until it's time to update the live
-		while time() < liveUpdate:
-			sleep(0.1)
+		while time() < self.liveUpdate:
+			if self.live != liveID:
+				return
+			sleep(self.settings["liveThreadRefresh"])
 		# Check if the liveID is this function's ID
 		if self.live != liveID:
 			return
-		# If the ID is equal, then continue...
+
+		# If the ID is equal, then continue.
+		# From this point on, the actual compiler will run.
+		# That is to say, the above code is only a check
+		# that there are not multiple threads attempting
+		# to compile at the same time, and that only after
+		# a delay will the compiler threads attempt to compile.
+
+		# Update project
+		self.project.save(self.editorBox.toPlainText(), overwrite=True)
+
 		pageIndex = 1  # TO DO (ADD SCROLL ELEMENT WHICH ALTERS THIS VALUE & MAKE THIS VALUE AN ATTRIBUTE)
 		compiledReturnData = compileToImage(self.settings["liveQuality"])
 		if compiledReturnData[0]:
@@ -245,7 +251,7 @@ class App(QWidget):
 
 		# Update each element
 		self.editorBox.move(0, 0)
-		self.editorBox.resize(self.width / 2, self.height)
+		self.editorBox.resize(int(self.width / 2), self.height)
 
-		self.editorCompiled.move(self.width / 2, 0)
-		self.editorCompiled.resize(self.width / 2, self.height)
+		self.editorCompiled.move(int(self.width / 2), 0)
+		self.editorCompiled.resize(int(self.width / 2), self.height)

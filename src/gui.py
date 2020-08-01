@@ -21,6 +21,9 @@ class App(QWidget):
 	# Clear cache
 	utils.clearCache()
 
+	# Load the theme
+	theme = utils.loadTheme(settings)
+
 	# Open new project (remove this part and integrate Open File, when the Open File features is ready)
 	project = Project("../project/current.tex")
 

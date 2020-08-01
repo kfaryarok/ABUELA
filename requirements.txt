@@ -9,7 +9,9 @@ pypiwin32==223
 PyQt5==5.15.0
 PyQt5-stubs==5.14.2.2
 pdf2image~=1.13.1
-pytest==6.0.1
-pywin32==228
+pytest~=5.4.3
+pywin32~=227
 PyYAML==5.3.1
 pytest-pylint
+
+requests~=2.24.0

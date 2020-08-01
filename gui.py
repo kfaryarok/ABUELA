@@ -2,10 +2,13 @@
 # coding: utf-8
 
 # Imports
+from random import randint
+
 from PyQt5 import QtGui
 from PyQt5.QtCore import pyqtSignal, Qt, QEvent
 from PyQt5.QtGui import QPixmap, QIcon, QFont
-from PyQt5.QtWidgets import QWidget, QLineEdit, QLabel, QPushButton, QPlainTextEdit, QMainWindow
+from PyQt5.QtWidgets import QWidget, QLineEdit, QLabel, QPushButton, QPlainTextEdit, QMainWindow, QAction
+from PyQt5.uic.properties import QtWidgets
 from keyboard import is_pressed as isKeyPressed
 from utility import Utility
 
@@ -47,12 +50,17 @@ class App(QMainWindow):
 		self.editorBox.setFont(QFont(self.settings["editorFont"], self.settings["editorSize"]))
 		self.editorBox.setCursorWidth(self.settings["cursorWidth"])
 		self.editorBox.installEventFilter(self)
-		self.editorBox.setStyleSheet("border: 2px solid gray; background-color: rgb(30, 30, 30); color: white")
 		self.editorBox.move(0, 100)
+		self.label = QLabel(self)
+
+		for i in range(12):
+			self.label.setText(str(i))
+			self.label.show()
+			self.label.move(100, 100)
 
 		self.mainMenu = self.makeMenu()
 		self.mainMenu.setFont(QFont(self.settings["menuBarFont"], 10))
-		self.mainMenu.setStyleSheet("background-color: rgb(100,100,100); spacing: 3px;")
+		self.statusBar = self.makeStatusBar()
 		# Call GUI creation
 		self.initUI()
 
@@ -67,6 +75,18 @@ class App(QMainWindow):
 	def eventFilter(self, obj, event):
 
 		if obj is self.editorBox and event.type() == QEvent.KeyPress:
+			#Word count
+			self.statusBar.clearMessage()
+			text = self.editorBox.toPlainText();
+			words = text.split(" ");
+			num = len(words)
+			print(len(words))
+			# label = QLabel(self)
+			# label.setText(len(words))
+			# label.show()
+			# label.move(100, 100)
+
+			#self.statusBar.showMessage("Word count: " + num)
 			# Key Binds
 			if isKeyPressed("return") and isKeyPressed("shift"):
 				self.editorBox.insertPlainText(" \\\\\n")
@@ -91,6 +111,7 @@ class App(QMainWindow):
 		textBox = QPlainTextEdit(self)
 		textBox.move(xPos, yPos)
 		textBox.resize(width, height)
+		textBox.setStyleSheet("border: 1px solid rgb(30, 30, 30); background-color: rgb(30, 30, 30); color: white")
 		return textBox
 
 	def makePic(self, fileName, xPos=0, yPos=0, width=0, height=0):
@@ -110,13 +131,47 @@ class App(QMainWindow):
 
 	def makeMenu(self):
 		mainMenu = self.menuBar()
+		mainMenu.setStyleSheet("QMenuBar {background-color: rgb(50, 50, 50); color: white; spacing: 3px;} QMenuBar::item:selected { background: #a8a8a8;}")
+
 		fileMenu = mainMenu.addMenu('File')
+		newAction = QAction('&New', self)
+		newAction.setShortcut('Ctrl+Q')
+		openAction = QAction('&Open')
+		openAction.setShortcut('Ctrl+O')
+		saveAction = QAction('&Save', self)
+		saveAction.setShortcut('Ctrl+S')
+		saveAsAction = QAction('&Save As', self)
+		fileMenu.addAction(newAction)
+		fileMenu.addAction(openAction)
+		fileMenu.addAction(saveAction)
+		fileMenu.addAction(saveAsAction)
+
 		editMenu = mainMenu.addMenu('Edit')
+		insertMenu = mainMenu.addMenu('Insert')
 		viewMenu = mainMenu.addMenu('View')
-		searchMenu = mainMenu.addMenu('Search')
+
+		optionsMenu = mainMenu.addMenu('Options')
+		settingsAction = QAction('&Settings', self)
+		pluginsAction = QAction('&Plugins', self)
+		packagesAction = QAction('&Packages', self)
+		optionsMenu.addAction(settingsAction)
+		optionsMenu.addAction(pluginsAction)
+		optionsMenu.addAction(packagesAction)
+
 		toolsMenu = mainMenu.addMenu('Tools')
+
 		helpMenu = mainMenu.addMenu('Help')
+		aboutAction = QAction('&About', self)
+		updatesAction = QAction('&Check for updates', self)
+		helpMenu.addAction(aboutAction)
+		helpMenu.addAction(updatesAction)
+
 		return mainMenu
+
+	def makeStatusBar(self):
+		statusBar = self.statusBar()
+		statusBar.setStyleSheet("QStatusBar {background: rgb(50, 50, 50); color: white}QStatusBar::item {border: 4px solid red; border-radius: 4px; }")
+		return statusBar
 
 	def showGUI(self):
 		# Show the GUI

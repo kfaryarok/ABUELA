@@ -22,7 +22,7 @@ class Project:
 		else:
 			if exists(self.fileName):
 				# If the file exists, don't overwrite it
-				return False
+				return
 			else:
 				# If it doesn't exist, call the function again as if it is meant to overwrite it
 				self.save(text, overwrite=True)
@@ -30,6 +30,7 @@ class Project:
 	def open(self):
 		"""
 		Reads the data in the Project's file.
+
 		Returns the data as a string.
 		"""
 		# Point to the file

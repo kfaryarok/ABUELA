@@ -1,10 +1,29 @@
 # Settings File
 
+# The title of the GUI's window
 windowTitle: ABUELA
+
+# The ratio of the window resolution to the screen resolution
 screenRatio: 0.85
+
+# The ratio of the minimal window resolution to the screen resolution
 minRatio: 0.45
+
+# The initial coordinates of the GUI window
 initX: 100
 initY: 100
+
+# The editor's font
 editorFont: Consolas
+
+# The editor's font size
 editorSize: 20
+
+# The editor's cursor width
 cursorWidth: 7
+
+# The quality of the live-compiled image
+liveQuality: 100
+
+# The speed (seconds) for the live-compiled update to occur
+liveUpdate: 0

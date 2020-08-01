@@ -4,10 +4,12 @@ colorama==0.4.3
 keyboard==0.13.5
 atomicwrites==1.4.0
 packaging==20.4
-psutil==5.7.2
+psutil~=5.7.0
 pypiwin32==223
 PyQt5==5.15.0
 PyQt5-stubs==5.14.2.2
-pytest==6.0.0
-pywin32==228
+pytest~=5.4.3
+pywin32~=227
 PyYAML==5.3.1
+
+pdf2image~=1.13.1

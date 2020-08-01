@@ -1,6 +1,7 @@
+from os import mkdir
 from os.path import exists
 from random import randint
-
+from shutil import rmtree
 from win32api import GetSystemMetrics
 from yaml import load, dump, SafeLoader
 
@@ -9,6 +10,16 @@ class Utility:
 
 	def __init__(self):
 		pass
+
+	def clearCache(self):
+		"""
+		Function which removes all files from the compile folder.
+		"""
+		try:
+			rmtree("..\\compile")
+			mkdir("..\\compile")
+		except:
+			return
 
 	def getSettings(self):
 		"""
@@ -57,6 +68,6 @@ class Utility:
 		"""
 		# Recurses until a file named [FILEPATH][PREFIX][RANDOM].[EXT] is not found (ergo can be used as a place to
 		# write files to)
-		# Example: getFileID("txt", "compile\\", "compile")
+		# Example: getFileID("txt", "..\\compile\\", "compile")
 		fileName = "{path}{pre}{num}.{ext}".format(path=filePath, pre=prefix, num=randint(0, 999999999999999), ext=ext)
-		return fileName if exists(fileName) else self.getFileID(ext, filePath, prefix)
+		return fileName if not exists(fileName) else self.getFileID(ext, filePath, prefix)

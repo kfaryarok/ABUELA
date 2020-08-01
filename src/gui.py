@@ -7,7 +7,7 @@ from threading import Thread
 from time import sleep, time
 from PyQt5.QtCore import QEvent
 from PyQt5.QtGui import QPixmap, QIcon, QFont
-from PyQt5.QtWidgets import QWidget, QLineEdit, QLabel, QPushButton, QPlainTextEdit
+from PyQt5.QtWidgets import QWidget, QLineEdit, QLabel, QPushButton, QPlainTextEdit, QMainWindow, QAction
 from keyboard import is_pressed as isKeyPressed
 from compile import compileToImage
 from project import Project
@@ -15,7 +15,7 @@ from utility import Utility
 
 
 # Initialize class
-class App(QWidget):
+class App(QMainWindow):
 	# Create instance of Utility for later usage
 	utils = Utility()
 
@@ -65,6 +65,9 @@ class App(QWidget):
 		self.editorBox.setFont(QFont(self.settings["editorFont"], self.settings["editorSize"]))
 		self.editorBox.setCursorWidth(self.settings["cursorWidth"])
 		self.editorBox.installEventFilter(self)
+		self.mainMenu = self.makeMenu()
+		self.mainMenu.setFont(QFont(self.settings["menuBarFont"], 10))
+		self.statusBar = self.makeStatusBar()
 
 		self.editorCompiled = self.makePic("..\\resources\\canvas.jpg")
 
@@ -219,6 +222,51 @@ class App(QWidget):
 		button.move(xPos, yPos)
 		button.resize(width, height)
 		return button
+
+
+	def makeMenu(self):
+		mainMenu = self.menuBar()
+		mainMenu.setStyleSheet("QMenuBar {background-color: rgb(50, 50, 50); color: white; spacing: 3px;} QMenuBar::item:selected { background: #a8a8a8;}")
+
+		fileMenu = mainMenu.addMenu('File')
+		newAction = QAction('&New', self)
+		newAction.setShortcut('Ctrl+Q')
+		openAction = QAction('&Open')
+		openAction.setShortcut('Ctrl+O')
+		saveAction = QAction('&Save', self)
+		saveAction.setShortcut('Ctrl+S')
+		saveAsAction = QAction('&Save As', self)
+		fileMenu.addAction(newAction)
+		fileMenu.addAction(openAction)
+		fileMenu.addAction(saveAction)
+		fileMenu.addAction(saveAsAction)
+
+		editMenu = mainMenu.addMenu('Edit')
+		insertMenu = mainMenu.addMenu('Insert')
+		viewMenu = mainMenu.addMenu('View')
+
+		optionsMenu = mainMenu.addMenu('Options')
+		settingsAction = QAction('&Settings', self)
+		pluginsAction = QAction('&Plugins', self)
+		packagesAction = QAction('&Packages', self)
+		optionsMenu.addAction(settingsAction)
+		optionsMenu.addAction(pluginsAction)
+		optionsMenu.addAction(packagesAction)
+
+		toolsMenu = mainMenu.addMenu('Tools')
+
+		helpMenu = mainMenu.addMenu('Help')
+		aboutAction = QAction('&About', self)
+		updatesAction = QAction('&Check for updates', self)
+		helpMenu.addAction(aboutAction)
+		helpMenu.addAction(updatesAction)
+
+		return mainMenu
+
+	def makeStatusBar(self):
+		statusBar = self.statusBar()
+		statusBar.setStyleSheet("QStatusBar {background: rgb(50, 50, 50); color: white}QStatusBar::item {border: 4px solid red; border-radius: 4px; }")
+		return statusBar
 
 	def showGUI(self):
 		"""

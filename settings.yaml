@@ -27,3 +27,5 @@ liveQuality: 100
 
 # The speed (seconds) for the live-compiled update to occur
 liveUpdate: 0
+
+menuBarFont: Segoe UI

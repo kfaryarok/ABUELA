@@ -37,6 +37,13 @@ class Utility:
 		filePointer.close()
 		# Return the configuration data
 		return settingData
+
+	def getTheme(self):
+		filePointer = open("../Themes/Dark.yaml", "r")
+		themeData = load(filePointer.read(), Loader=SafeLoader)
+		filePointer.close()
+		return themeData
+
   
 	def setSettings(self, newSettings):
 		"""

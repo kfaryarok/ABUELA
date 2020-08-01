@@ -22,6 +22,9 @@ class App(QMainWindow):
 	# Pull settings
 	settings = utils.getSettings()
 
+	# Pull theme
+	theme = utils.getTheme()
+
 	# Clear cache
 	utils.clearCache()
 
@@ -89,6 +92,12 @@ class App(QMainWindow):
 		- Live Compile
 		"""
 		if obj is self.editorBox and event.type() == QEvent.KeyPress:
+			# Word count
+			self.statusBar.clearMessage()
+			text = self.editorBox.toPlainText();
+			words = text.split(" ");
+			num = len(words)
+			print(len(words))
 			# Key Binds
 			# Shift + Return = Add \\ and newline
 			if isKeyPressed("return") and isKeyPressed("shift"):
@@ -186,6 +195,7 @@ class App(QMainWindow):
 		textBox = QPlainTextEdit(self)
 		textBox.move(xPos, yPos)
 		textBox.resize(width, height)
+		textBox.setStyleSheet(self.theme["textBoxStyleSheet"])
 		return textBox
 
 	def makePic(self, fileName, xPos=0, yPos=0, width=0, height=0):
@@ -226,12 +236,12 @@ class App(QMainWindow):
 
 	def makeMenu(self):
 		mainMenu = self.menuBar()
-		mainMenu.setStyleSheet("QMenuBar {background-color: rgb(50, 50, 50); color: white; spacing: 3px;} QMenuBar::item:selected { background: #a8a8a8;}")
+		mainMenu.setStyleSheet(self.theme["menuBarStyleSheet"])
 
 		fileMenu = mainMenu.addMenu('File')
 		newAction = QAction('&New', self)
 		newAction.setShortcut('Ctrl+Q')
-		openAction = QAction('&Open')
+		openAction = QAction('&Open', self)
 		openAction.setShortcut('Ctrl+O')
 		saveAction = QAction('&Save', self)
 		saveAction.setShortcut('Ctrl+S')
@@ -265,7 +275,7 @@ class App(QMainWindow):
 
 	def makeStatusBar(self):
 		statusBar = self.statusBar()
-		statusBar.setStyleSheet("QStatusBar {background: rgb(50, 50, 50); color: white}QStatusBar::item {border: 4px solid red; border-radius: 4px; }")
+		statusBar.setStyleSheet(self.theme["statusBarStyleSheet"])
 		return statusBar
 
 	def showGUI(self):
@@ -292,7 +302,7 @@ class App(QMainWindow):
 		self.height = self.frameGeometry().height()
 
 		# Update each element
-		self.editorBox.move(0, 0)
+		self.editorBox.move(0, self.mainMenu.height())
 		self.editorBox.resize(self.width / 2, self.height)
 
 		self.editorCompiled.move(self.width / 2, 0)

@@ -29,6 +29,7 @@ class App(QWidget):
 
 	# Set default compiler live identifier number
 	live = 0
+	liveUpdate = 0
 
 	# Constructor
 	def __init__(self):
@@ -112,11 +113,6 @@ class App(QWidget):
 		:param liveID: An ID which is passed just before called. If the global live ID is not equal to this function's
 		live ID, then this function will terminate (another key was pressed, therefore this function is old and the
 		new function should compile together the new LaTeX source code)
-
-		:param liveUpdate: The timestamp to wait until to start execution of the function. This is used so that
-		if the user is typing a word or line, the next key the user presses will generate a new live ID, and
-		therefore within the time frame set by the update time, the new function will overwrite
-		ths current function's execution.
 
 		This function doesn't return any data, it calls directly on the editorCompiled attribute and updates the image.
 		"""

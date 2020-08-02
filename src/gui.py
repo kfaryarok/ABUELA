@@ -95,11 +95,12 @@ class App(QMainWindow):
 			# Word count
 			self.statusBar.clearMessage()
 			text = self.editorBox.toPlainText();
+			chars = len(text)
 			words = text.split(" ");
 			num = len(words)
-			print(len(words))
 			# Key Binds
 			# Shift + Return = Add \\ and newline
+			self.statusBar.showMessage("Word count: " + str(num) + ", Character count: " + str(chars))
 			if isKeyPressed("return") and isKeyPressed("shift"):
 				self.editorBox.insertPlainText("\\\\\n")
 				return True

@@ -89,6 +89,11 @@ class App(QMainWindow):
 		- Live Compile
 		"""
 		if obj is self.editorBox and event.type() == QEvent.KeyPress:
+			# Word count
+			text = self.editorBox.toPlainText();
+			words = text.split(" ")
+
+			self.statusBar.showMessage("Word count: " + str(len(words)) + " Character count: " + str(len(text)))
 			# Key Binds
 			# Shift + Return = Add / and newline
 			if isKeyPressed("return") and isKeyPressed("shift"):
@@ -189,6 +194,7 @@ class App(QMainWindow):
 		:return: Returns the created element.
 		"""
 		textBox = QPlainTextEdit(self)
+		textBox.setStyleSheet(self.theme["textBoxStyleSheet"])
 		textBox.move(xPos, yPos)
 		textBox.resize(width, height)
 		return textBox
@@ -231,7 +237,7 @@ class App(QMainWindow):
 
 	def makeMenu(self):
 		mainMenu = self.menuBar()
-		mainMenu.setStyleSheet("QMenuBar {background-color: rgb(50, 50, 50); color: white; spacing: 3px;} QMenuBar::item:selected { background: #a8a8a8;}")
+		mainMenu.setStyleSheet(self.theme["menuBarStyleSheet"])
 
 		fileMenu = mainMenu.addMenu('File')
 		newAction = QAction('&New', self)
@@ -270,7 +276,7 @@ class App(QMainWindow):
 
 	def makeStatusBar(self):
 		statusBar = self.statusBar()
-		statusBar.setStyleSheet("QStatusBar {background: rgb(50, 50, 50); color: white}QStatusBar::item {border: 4px solid red; border-radius: 4px; }")
+		statusBar.setStyleSheet(self.theme["statusBarStyleSheet"])
 		return statusBar
 
 	def showGUI(self):
@@ -297,7 +303,7 @@ class App(QMainWindow):
 		self.height = self.frameGeometry().height()
 
 		# Update each element
-		self.editorBox.move(0, 0)
+		self.editorBox.move(0, self.statusBar.height())
 		self.editorBox.resize(int(self.width / 2), self.height)
 
 		self.editorCompiled.move(int(self.width / 2), 0)

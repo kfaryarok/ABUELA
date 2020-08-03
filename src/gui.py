@@ -1,7 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# Imports
 from random import randint
 from threading import Thread
 from time import sleep, time
@@ -22,17 +18,18 @@ class App(QMainWindow):
 	# Pull settings
 	settings = utils.getSettings()
 
-	# Pull theme
-	theme = utils.getTheme()
-
 	# Clear cache
 	utils.clearCache()
 
+	# Load the theme
+	theme = utils.loadTheme(settings)
+
 	# Open new project (remove this part and integrate Open File, when the Open File features is ready)
-	project = Project("..\\current.tex")
+	project = Project("../project/current.tex")
 
 	# Set default compiler live identifier number
 	live = 0
+	liveUpdate = 0
 
 	# Constructor
 	def __init__(self):
@@ -72,7 +69,7 @@ class App(QMainWindow):
 		self.mainMenu.setFont(QFont(self.settings["menuBarFont"], 10))
 		self.statusBar = self.makeStatusBar()
 
-		self.editorCompiled = self.makePic("..\\resources\\canvas.jpg")
+		self.editorCompiled = self.makePic("../resources/canvas.jpg")
 
 		# Call GUI creation
 		self.initUI()
@@ -92,35 +89,26 @@ class App(QMainWindow):
 		- Live Compile
 		"""
 		if obj is self.editorBox and event.type() == QEvent.KeyPress:
-			# Word count
-			self.statusBar.clearMessage()
-			text = self.editorBox.toPlainText();
-			chars = len(text)
-			words = text.split(" ");
-			num = len(words)
 			# Key Binds
-			# Shift + Return = Add \\ and newline
-			self.statusBar.showMessage("Word count: " + str(num) + ", Character count: " + str(chars))
+			# Shift + Return = Add / and newline
 			if isKeyPressed("return") and isKeyPressed("shift"):
 				self.editorBox.insertPlainText("\\\\\n")
 				return True
-
-			# Update project
-			self.project.save(self.editorBox.toPlainText(), overwrite=True)
 
 			# Compile
 			# Set the current live ID and pass it to the function
 			liveID = randint(0, 999999999999999)
 			self.live = liveID
 			# Set the time at which to call the live update
-			liveUpdate = time() + self.settings["liveUpdate"]
+			self.liveUpdate = time() + self.settings["liveUpdate"]
+
 			# Initialize the process
-			p = Thread(target=self.updateLive, args=[liveID, liveUpdate])
+			p = Thread(target=self.updateLive, args=[liveID])
 			p.setDaemon(True)
 			p.start()
 		return super(App, self).eventFilter(obj, event)
 
-	def updateLive(self, liveID, liveUpdate):
+	def updateLive(self, liveID):
 		"""
 		This function is used to compile and update the image
 		displaying the live version of the LaTeX source code.
@@ -129,20 +117,27 @@ class App(QMainWindow):
 		live ID, then this function will terminate (another key was pressed, therefore this function is old and the
 		new function should compile together the new LaTeX source code)
 
-		:param liveUpdate: The timestamp to wait until to start execution of the function. This is used so that
-		if the user is typing a word or line, the next key the user presses will generate a new live ID, and
-		therefore within the time frame set by the update time, the new function will overwrite
-		ths current function's execution.
-
 		This function doesn't return any data, it calls directly on the editorCompiled attribute and updates the image.
 		"""
 		# Wait until it's time to update the live
-		while time() < liveUpdate:
-			sleep(0.1)
+		while time() < self.liveUpdate:
+			if self.live != liveID:
+				return
+			sleep(self.settings["liveThreadRefresh"])
 		# Check if the liveID is this function's ID
 		if self.live != liveID:
 			return
-		# If the ID is equal, then continue...
+
+		# If the ID is equal, then continue.
+		# From this point on, the actual compiler will run.
+		# That is to say, the above code is only a check
+		# that there are not multiple threads attempting
+		# to compile at the same time, and that only after
+		# a delay will the compiler threads attempt to compile.
+
+		# Update project
+		self.project.save(self.editorBox.toPlainText(), overwrite=True)
+
 		pageIndex = 1  # TO DO (ADD SCROLL ELEMENT WHICH ALTERS THIS VALUE & MAKE THIS VALUE AN ATTRIBUTE)
 		compiledReturnData = compileToImage(self.settings["liveQuality"])
 		if compiledReturnData[0]:
@@ -196,7 +191,6 @@ class App(QMainWindow):
 		textBox = QPlainTextEdit(self)
 		textBox.move(xPos, yPos)
 		textBox.resize(width, height)
-		textBox.setStyleSheet(self.theme["textBoxStyleSheet"])
 		return textBox
 
 	def makePic(self, fileName, xPos=0, yPos=0, width=0, height=0):
@@ -237,12 +231,12 @@ class App(QMainWindow):
 
 	def makeMenu(self):
 		mainMenu = self.menuBar()
-		mainMenu.setStyleSheet(self.theme["menuBarStyleSheet"])
+		mainMenu.setStyleSheet("QMenuBar {background-color: rgb(50, 50, 50); color: white; spacing: 3px;} QMenuBar::item:selected { background: #a8a8a8;}")
 
 		fileMenu = mainMenu.addMenu('File')
 		newAction = QAction('&New', self)
 		newAction.setShortcut('Ctrl+Q')
-		openAction = QAction('&Open', self)
+		openAction = QAction('&Open')
 		openAction.setShortcut('Ctrl+O')
 		saveAction = QAction('&Save', self)
 		saveAction.setShortcut('Ctrl+S')
@@ -276,7 +270,7 @@ class App(QMainWindow):
 
 	def makeStatusBar(self):
 		statusBar = self.statusBar()
-		statusBar.setStyleSheet(self.theme["statusBarStyleSheet"])
+		statusBar.setStyleSheet("QStatusBar {background: rgb(50, 50, 50); color: white}QStatusBar::item {border: 4px solid red; border-radius: 4px; }")
 		return statusBar
 
 	def showGUI(self):
@@ -303,8 +297,8 @@ class App(QMainWindow):
 		self.height = self.frameGeometry().height()
 
 		# Update each element
-		self.editorBox.move(0, self.mainMenu.height())
-		self.editorBox.resize(self.width / 2, self.height)
+		self.editorBox.move(0, 0)
+		self.editorBox.resize(int(self.width / 2), self.height)
 
-		self.editorCompiled.move(self.width / 2, 0)
-		self.editorCompiled.resize(self.width / 2, self.height)
+		self.editorCompiled.move(int(self.width / 2), 0)
+		self.editorCompiled.resize(int(self.width / 2), self.height)

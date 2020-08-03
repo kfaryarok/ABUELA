@@ -1,10 +1,12 @@
 from random import randint
 from threading import Thread
 from time import sleep, time
-from PyQt5.QtCore import QEvent
+
+from PyQt5.QtCore import QEvent, Qt
 from PyQt5.QtGui import QPixmap, QIcon, QFont
-from PyQt5.QtWidgets import QWidget, QLineEdit, QLabel, QPushButton, QPlainTextEdit, QMainWindow, QAction
-from keyboard import is_pressed as isKeyPressed
+from PyQt5.QtWidgets import QLineEdit, QLabel, QPushButton, QPlainTextEdit, QMainWindow, QAction
+from keyboard import is_pressed as is_key_pressed
+
 from compile import compileToImage
 from project import Project
 from utility import Utility
@@ -14,6 +16,9 @@ from utility import Utility
 class App(QMainWindow):
 	# Create instance of Utility for later usage
 	utils = Utility()
+
+	# Verify that file system is intact
+	utils.verifySystem()
 
 	# Pull settings
 	settings = utils.getSettings()
@@ -33,6 +38,10 @@ class App(QMainWindow):
 
 	# Constructor
 	def __init__(self):
+		"""
+		The initializer / constructor method of the GUI class.
+		Here, elements (and other small things for the GUI) are initialized and set.
+		"""
 		super().__init__()
 
 		# Get screen data
@@ -61,15 +70,61 @@ class App(QMainWindow):
 		# Initialize elements
 		# Default parameter values are all 0 because self.resizeElements
 		# will update the positioning and size of each element regardless
+		# The editor box which code is written in
 		self.editorBox = self.makeTextBox()
+		self.editorBox.ensureCursorVisible()
+		self.editorBox.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 		self.editorBox.setFont(QFont(self.settings["editorFont"], self.settings["editorSize"]))
 		self.editorBox.setCursorWidth(self.settings["cursorWidth"])
 		self.editorBox.installEventFilter(self)
-		self.mainMenu = self.makeMenu()
-		self.mainMenu.setFont(QFont(self.settings["menuBarFont"], 10))
-		self.statusBar = self.makeStatusBar()
 
+		# The live-compile renderer element
 		self.editorCompiled = self.makePic("../resources/canvas.jpg")
+
+		# MAKE SURE THAT MENU BAR AND STATUS BAR ARE THE LAST 2 ELEMENTS TO BE INITIALIZED
+		# If not, the next element to be created will
+		# overlap the menu bar / status bar
+		# and will cause an unfortunate rendering bug.
+		# The menu bar element
+		self.menuBarElement = self.menuBar()
+		self.menuBarElement.setFixedHeight(self.height / 30)
+		self.menuBarElement.setStyleSheet(self.formatStyle())
+		self.menuBarElement.setFont(QFont(self.settings["menuBarFont"], self.settings["menuBarSize"]))
+
+		# Create a new menu
+		self.subMenu = self.menuBarElement.addMenu("File")
+
+		# Set the submenus and their key binds
+		self.makeMenuAction('&New', 'Ctrl+Q')
+		self.makeMenuAction('&Open', 'Ctrl+O')
+		self.makeMenuAction('&Save', 'Ctrl+S')
+		self.makeMenuAction('&Save As', 'Ctrl+Shift+S')
+
+		# Create a new menu
+		self.subMenu = self.menuBarElement.addMenu('Edit')
+		# Set the submenus and their key binds
+		self.makeMenuAction('Insert')
+		self.makeMenuAction('View')
+
+		# Create a new menu
+		self.subMenu = self.menuBarElement.addMenu('Options')
+		# Set the submenus and their key binds
+		self.makeMenuAction('&Settings')
+		self.makeMenuAction('&Plugins')
+		self.makeMenuAction('&Packages')
+
+		# Create a new menu
+		self.subMenu = self.menuBarElement.addMenu('Tools')
+
+		# Create a new menu
+		self.subMenu = self.menuBarElement.addMenu('Help')
+		# Set the submenus and their key binds
+		self.makeMenuAction('&About')
+		self.makeMenuAction('&Check for updates')
+
+		# The status bar element
+		self.statusBar = self.statusBar()
+		self.statusBar.setStyleSheet(self.formatStyle())
 
 		# Call GUI creation
 		self.initUI()
@@ -91,7 +146,7 @@ class App(QMainWindow):
 		if obj is self.editorBox and event.type() == QEvent.KeyPress:
 			# Key Binds
 			# Shift + Return = Add / and newline
-			if isKeyPressed("return") and isKeyPressed("shift"):
+			if is_key_pressed("return") and is_key_pressed("shift"):
 				self.editorBox.insertPlainText("\\\\\n")
 				return True
 
@@ -228,50 +283,57 @@ class App(QMainWindow):
 		button.resize(width, height)
 		return button
 
+	def makeMenuAction(self, action_name, key_bind="False"):
+		"""
+		A method to make menu generation more streamlined and sleek.
+		Generates an action (menu / submenu) and sets it to a shortcut.
+		Sets the action to the most recently created menu tab.
 
-	def makeMenu(self):
-		mainMenu = self.menuBar()
-		mainMenu.setStyleSheet("QMenuBar {background-color: rgb(50, 50, 50); color: white; spacing: 3px;} QMenuBar::item:selected { background: #a8a8a8;}")
+		:param action_name: The name of the submenu (e.g. &New File)
+		:param key_bind: The key bind to set the shortcut to (e.g. Ctrl+Shift+N)
+		"""
+		# Create the action and initialize it with a name (e.g. &Open)
+		newAction = QAction(action_name, self)
+		if key_bind != "False":
+			# Set shortcut method (e.g. Ctrl+O)
+			newAction.setShortcut(key_bind)
+		# Set the action to the current menu element
+		self.subMenu.addAction(newAction)
 
-		fileMenu = mainMenu.addMenu('File')
-		newAction = QAction('&New', self)
-		newAction.setShortcut('Ctrl+Q')
-		openAction = QAction('&Open')
-		openAction.setShortcut('Ctrl+O')
-		saveAction = QAction('&Save', self)
-		saveAction.setShortcut('Ctrl+S')
-		saveAsAction = QAction('&Save As', self)
-		fileMenu.addAction(newAction)
-		fileMenu.addAction(openAction)
-		fileMenu.addAction(saveAction)
-		fileMenu.addAction(saveAsAction)
+	def formatStyle(self):
+		"""
+		A function that takes the currently loaded theme and formats it into QtCSS.
 
-		editMenu = mainMenu.addMenu('Edit')
-		insertMenu = mainMenu.addMenu('Insert')
-		viewMenu = mainMenu.addMenu('View')
+		Returns the QtCSS as a string.
+		"""
+		return """
+		
+		QMenuBar {{
+			background-color: #{QMenuBarBGColor};
+			color: #{QMenuBarColor};
+			spacing: {QMenuBarSpacing}px;
+		}}
 
-		optionsMenu = mainMenu.addMenu('Options')
-		settingsAction = QAction('&Settings', self)
-		pluginsAction = QAction('&Plugins', self)
-		packagesAction = QAction('&Packages', self)
-		optionsMenu.addAction(settingsAction)
-		optionsMenu.addAction(pluginsAction)
-		optionsMenu.addAction(packagesAction)
-
-		toolsMenu = mainMenu.addMenu('Tools')
-
-		helpMenu = mainMenu.addMenu('Help')
-		aboutAction = QAction('&About', self)
-		updatesAction = QAction('&Check for updates', self)
-		helpMenu.addAction(aboutAction)
-		helpMenu.addAction(updatesAction)
-
-		return mainMenu
-
-	def makeStatusBar(self):
-		statusBar = self.statusBar()
-		statusBar.setStyleSheet("QStatusBar {background: rgb(50, 50, 50); color: white}QStatusBar::item {border: 4px solid red; border-radius: 4px; }")
-		return statusBar
+		QMenuBar::item:selected {{
+			background: #{QMenuBarItemSelected};
+		}}
+		
+		QStatusBar {{
+			background: #{QMenuBarBGColor};
+			color: #{QMenuBarColor}
+		}}
+		
+		QStatusBar::item {{
+			border: 4px solid red;
+			border-radius: 4px;
+		}}
+		
+		""".strip().format(
+			QMenuBarBGColor=self.theme["QMenuBar"]["background-color"],
+			QMenuBarColor=self.theme["QMenuBar"]["color"],
+			QMenuBarSpacing=self.theme["QMenuBar"]["spacing"],
+			QMenuBarItemSelected=self.theme["QMenuBar"]["selected"]
+		)
 
 	def showGUI(self):
 		"""
@@ -297,8 +359,8 @@ class App(QMainWindow):
 		self.height = self.frameGeometry().height()
 
 		# Update each element
-		self.editorBox.move(0, 0)
-		self.editorBox.resize(int(self.width / 2), self.height)
+		self.editorBox.move(0, self.menuBarElement.height())
+		self.editorBox.resize(int(self.width / 2), self.height - self.menuBarElement.height() - 2.5 * self.statusBar.height())
 
-		self.editorCompiled.move(int(self.width / 2), 0)
-		self.editorCompiled.resize(int(self.width / 2), self.height)
+		self.editorCompiled.move(int(self.width / 2), self.menuBarElement.height())
+		self.editorCompiled.resize(int(self.width / 2), self.height - self.menuBarElement.height() - 2.5 * self.statusBar.height())

@@ -1,1 +1,7 @@
 # Classic dark theme
+
+QMenuBar:
+  background-color: 323232
+  color: FFFFFF
+  spacing: 3
+  selected: a8a8a8

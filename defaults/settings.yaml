@@ -4,7 +4,7 @@
 windowTitle: ABUELA
 
 # The selected theme for the GUI window
-theme: dark
+theme: default
 
 # The ratio of the window resolution to the screen resolution
 screenRatio: 0.9

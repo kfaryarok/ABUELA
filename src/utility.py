@@ -1,21 +1,58 @@
 from os import mkdir
-from os.path import exists
+from os.path import exists, split
 from random import randint
-from shutil import rmtree
+from shutil import rmtree, copyfile
+from yaml import load, dump, SafeLoader
 
 try:
 	from win32api import GetSystemMetrics
 except ImportError:
 	pass
-from yaml import load, dump, SafeLoader
 
 
-# noinspection PyMethodMayBeStatic
 class Utility:
 	def __init__(self):
 		pass
 
-	def clearCache(self):
+	@staticmethod
+	def verifySystem():
+		"""
+		Check if the file system is correctly ordered, and if there are missing items, add them.
+		"""
+		# List off all the directories which could be accidentally deleted
+		# /tests/ is irrelevant to GUI runtime
+		# /src/ is irrelevant because the file wouldn't be running if it was deleted
+		systemPaths = {"dir": ["../compile",
+		                       "../project",
+		                       "../resources",
+		                       "../themes",
+		                       "../defaults"],
+		               "file": ["../themes/default.yaml",
+		                        "../project/current.tex",
+		                        "../resources/canvas.jpg",
+		                        "../resources/logo.jpg",
+		                        "../resources/version.txt",
+		                        "../resources/settings.yaml"]}
+		# For each folder...
+		for folder in systemPaths["dir"]:
+			# Try to create it...
+			try:
+				mkdir(folder)
+			# If it already exists, that's fine
+			except FileExistsError:
+				pass
+		# For each file...
+		for file in systemPaths["file"]:
+			# If the file doesn't exist...
+			if not exists(file):
+				# If there is a default file for it...
+				defaultPath = "../defaults/{fileName}".format(fileName=str(split(file)[-1]))
+				if exists(defaultPath):
+					# Copy it to the file's original location
+					copyfile(defaultPath, file)
+
+	@staticmethod
+	def clearCache():
 		"""
 		Function which removes all files from the compile folder.
 		"""
@@ -25,7 +62,8 @@ class Utility:
 		except:
 			return
 
-	def loadTheme(self, settings):
+	@staticmethod
+	def loadTheme(settings):
 		"""
 		Takes the current configuration settings,
 		and returns the color data on the currently selected theme.
@@ -43,7 +81,8 @@ class Utility:
 		# Return the data
 		return themeData
 
-	def getSettings(self):
+	@staticmethod
+	def getSettings():
 		"""
 		Reads the currently set configuration file.
 
@@ -58,7 +97,8 @@ class Utility:
 		# Return the configuration data
 		return settingData
 
-	def setSettings(self, newSettings):
+	@staticmethod
+	def setSettings(newSettings):
 		"""
 		Overwrites the current settings / configuration file with
 
@@ -71,7 +111,8 @@ class Utility:
 		# Close the connection so it is over-writable / usable
 		filePointer.close()
 
-	def getScreen(self):
+	@staticmethod
+	def getScreen():
 		"""
 		A method which returns the screen resolution.
 

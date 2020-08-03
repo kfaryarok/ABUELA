@@ -144,6 +144,10 @@ class App(QMainWindow):
 		- Live Compile
 		"""
 		if obj is self.editorBox and event.type() == QEvent.KeyPress:
+			# Word and character count
+			text = self.editorBox.toPlainText();
+			words = text.split(" ")
+			self.statusBar.showMessage("Word count: " + str(len(words)) + " Character count: " + str(len(text)))
 			# Key Binds
 			# Shift + Return = Add / and newline
 			if is_key_pressed("return") and is_key_pressed("shift"):

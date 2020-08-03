@@ -26,7 +26,7 @@ editorSize: 20
 cursorWidth: 7
 
 # The quality of the live-compiled image
-liveQuality: 100
+liveQuality: 500
 
 # The speed (seconds) for the live-compiled update to occur
 # Not recommended to go under the liveThreadRefresh time

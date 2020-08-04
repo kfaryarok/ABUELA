@@ -1,0 +1,22 @@
+menuBarStyleSheet: "QMenuBar {
+ background-color: rgb(50, 50, 50);
+ color: white; spacing: 3px;
+ }
+
+  QMenuBar::item:selected {
+  background: #a8a8a8;
+  }"
+
+statusBarStyleSheet: "QStatusBar {
+  background: rgb(50, 50, 50);
+  color: white
+  }
+
+  QStatusBar::item {
+    border: 4px solid red;
+    border-radius: 4px;
+  }"
+
+textBoxStyleSheet: "border: 1px solid rgb(30, 30, 30);
+  background-color: rgb(30, 30, 30);
+  color: white"

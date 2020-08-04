@@ -23,13 +23,11 @@ def compileToImage(quality):
 	# If the file was compiled successfully...
 	if fName:
 		splitPath = c.image(fName, quality=quality)
-		c.clean()
 		if splitPath:
 			return [splitPath, errorMsg]
 		else:
 			return [False, False]
 	else:
-		c.clean()
 		return [False, errorMsg]
 
 

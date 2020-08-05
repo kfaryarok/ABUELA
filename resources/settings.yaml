@@ -25,8 +25,14 @@ editorSize: 20
 # The editor's cursor width
 cursorWidth: 7
 
+# The fill mode of the live-compiled image
+# Fill the screen: fill, stretch
+# Keep the ratio: fit, a4
+# Split the screen: split, center
+liveFill: fit
+
 # The quality of the live-compiled image
-liveQuality: 500
+liveQuality: 150
 
 # The speed (seconds) for the live-compiled update to occur
 # Not recommended to go under the liveThreadRefresh time

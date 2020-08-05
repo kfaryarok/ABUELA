@@ -112,6 +112,20 @@ class Utility:
 		filePointer.close()
 
 	@staticmethod
+	def stringify(string):
+		"""
+		A method to turn a string into a condition-stable string.
+		This means that if I want to test if the user input I recieved equals to a string,
+		I can make the verification check a lowercase and stripped version of the string,
+		and use this function on the user input. Example:
+
+		if stringify(input("Type a word: ")) == "apple"
+
+		Returns a string which is lowercase and stripped of whitespace.
+		"""
+		return string.strip().lower()
+
+	@staticmethod
 	def getScreen():
 		"""
 		A method which returns the screen resolution.

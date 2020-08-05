@@ -1,12 +1,13 @@
+from io import BytesIO
 from random import randint
 from threading import Thread
 from time import sleep, time
-
+from PIL import Image
 from PyQt5.QtCore import QEvent, Qt
 from PyQt5.QtGui import QPixmap, QIcon, QFont
 from PyQt5.QtWidgets import QLineEdit, QLabel, QPushButton, QPlainTextEdit, QMainWindow, QAction
 from keyboard import is_pressed as is_key_pressed
-
+from win32clipboard import CloseClipboard, SetClipboardData, OpenClipboard, EmptyClipboard, CF_DIB
 from compile import compileToImage
 from project import Project
 from utility import Utility
@@ -35,6 +36,7 @@ class App(QMainWindow):
 	# Set default compiler live identifier number
 	live = 0
 	liveUpdate = 0
+	liveCompile = "../resources/canvas.jpg"
 
 	# Constructor
 	def __init__(self):
@@ -87,7 +89,7 @@ class App(QMainWindow):
 		# and will cause an unfortunate rendering bug.
 		# The menu bar element
 		self.menuBarElement = self.menuBar()
-		self.menuBarElement.setFixedHeight(self.height / 30)
+		self.menuBarElement.setFixedHeight(int(self.height / 30))
 		self.menuBarElement.setStyleSheet(self.formatStyle())
 		self.menuBarElement.setFont(QFont(self.settings["menuBarFont"], self.settings["menuBarSize"]))
 
@@ -95,9 +97,8 @@ class App(QMainWindow):
 		self.subMenu = self.menuBarElement.addMenu("File")
 
 		# Set the submenus and their key binds
-		self.makeMenuAction('&New', 'Ctrl+Q')
+		self.makeMenuAction('&New', 'Ctrl+N')
 		self.makeMenuAction('&Open', 'Ctrl+O')
-		self.makeMenuAction('&Save', 'Ctrl+S')
 		self.makeMenuAction('&Save As', 'Ctrl+Shift+S')
 
 		# Create a new menu
@@ -115,19 +116,25 @@ class App(QMainWindow):
 
 		# Create a new menu
 		self.subMenu = self.menuBarElement.addMenu('Tools')
+		# Set the submenus and their key binds
+		self.makeMenuAction('&Copy Live-Compile', 'Ctrl+Shift+C', self.copyToClipboard)
 
 		# Create a new menu
 		self.subMenu = self.menuBarElement.addMenu('Help')
 		# Set the submenus and their key binds
 		self.makeMenuAction('&About')
-		self.makeMenuAction('&Check for updates')
+		self.makeMenuAction('&Check for Updates')
 
 		# The status bar element
-		self.statusBar = self.statusBar()
-		self.statusBar.setStyleSheet(self.formatStyle())
+		self.statusBarElement = self.statusBar()
+		self.statusBarElement.setStyleSheet(self.formatStyle())
 
 		# Call GUI creation
 		self.initUI()
+		self.setStyleSheet("""
+		background-color: {QMainWindowBGColor}
+		""".strip().format(
+			QMainWindowBGColor=self.theme["QMainWindow"]["background-color"]))
 		self.resizeEvent()
 
 	def eventFilter(self, obj, event):
@@ -144,15 +151,6 @@ class App(QMainWindow):
 		- Live Compile
 		"""
 		if obj is self.editorBox and event.type() == QEvent.KeyPress:
-
-			# Word and character count
-			text = self.editorBox.toPlainText();
-			words = text.split(" ")
-			# Word count
-			text = self.editorBox.toPlainText();
-			words = text.split(" ")
-			self.statusBar.showMessage("Word count: " + str(len(words)) + " Character count: " + str(len(text)))
-
 			# Key Binds
 			# Shift + Return = Add / and newline
 			if is_key_pressed("return") and is_key_pressed("shift"):
@@ -202,11 +200,17 @@ class App(QMainWindow):
 		# Update project
 		self.project.save(self.editorBox.toPlainText(), overwrite=True)
 
+		# Update the status bar
+		self.statusBarElement.showMessage(
+			"Word Count: {wordCount}\t\tCharacter Count: {charCount}".format(
+				wordCount=str(len([item for item in self.editorBox.toPlainText().split(" ") if item.strip() != ""])),
+				charCount=str(len(self.editorBox.toPlainText()))))
+
 		pageIndex = 1  # TO DO (ADD SCROLL ELEMENT WHICH ALTERS THIS VALUE & MAKE THIS VALUE AN ATTRIBUTE)
 		compiledReturnData = compileToImage(self.settings["liveQuality"])
 		if compiledReturnData[0]:
-			fileName = "{path}{index}.jpg".format(path=compiledReturnData[0], index=pageIndex)
-			pixelMap = QPixmap(fileName)
+			self.liveCompile = "{path}{index}.jpg".format(path=compiledReturnData[0], index=pageIndex)
+			pixelMap = QPixmap(self.liveCompile)
 			self.editorCompiled.setPixmap(pixelMap)
 			self.editorCompiled.setScaledContents(True)
 		else:
@@ -253,7 +257,7 @@ class App(QMainWindow):
 		:return: Returns the created element.
 		"""
 		textBox = QPlainTextEdit(self)
-		textBox.setStyleSheet(self.theme["textBoxStyleSheet"])
+		textBox.setStyleSheet(self.formatStyle())
 		textBox.move(xPos, yPos)
 		textBox.resize(width, height)
 		return textBox
@@ -293,7 +297,7 @@ class App(QMainWindow):
 		button.resize(width, height)
 		return button
 
-	def makeMenuAction(self, action_name, key_bind="False"):
+	def makeMenuAction(self, action_name, key_bind="False", func=False):
 		"""
 		A method to make menu generation more streamlined and sleek.
 		Generates an action (menu / submenu) and sets it to a shortcut.
@@ -307,6 +311,9 @@ class App(QMainWindow):
 		if key_bind != "False":
 			# Set shortcut method (e.g. Ctrl+O)
 			newAction.setShortcut(key_bind)
+		if func:
+			# Connect the Action to a function
+			newAction.triggered.connect(func)
 		# Set the action to the current menu element
 		self.subMenu.addAction(newAction)
 
@@ -338,17 +345,21 @@ class App(QMainWindow):
 			border-radius: 4px;
 		}}
 		
+		QPlainTextEdit {{
+			background-color: #{QPlainTextEditBGColor};
+			border: 1px solid #{QPlainTextEditBorderColor};
+			color: #{QPlainTextEditColor};
+		}}
+		
 		""".strip().format(
 			QMenuBarBGColor=self.theme["QMenuBar"]["background-color"],
 			QMenuBarColor=self.theme["QMenuBar"]["color"],
 			QMenuBarSpacing=self.theme["QMenuBar"]["spacing"],
-			QMenuBarItemSelected=self.theme["QMenuBar"]["selected"]
+			QMenuBarItemSelected=self.theme["QMenuBar"]["selected"],
+			QPlainTextEditBGColor=self.theme["QPlainTextEdit"]["background-color"],
+			QPlainTextEditBorderColor=self.theme["QPlainTextEdit"]["border"],
+			QPlainTextEditColor=self.theme["QPlainTextEdit"]["color"],
 		)
-
-	def makeStatusBar(self):
-		statusBar = self.statusBar()
-		statusBar.setStyleSheet(self.formatStyle())
-		return statusBar
 
 	def showGUI(self):
 		"""
@@ -364,6 +375,24 @@ class App(QMainWindow):
 		# Show the GUI
 		self.hide()
 
+	def copyToClipboard(self):
+		"""
+		Copies the currently rendered live-compiled image to the clipboard.
+		"""
+		# Use the Pillow library to open the image
+		image = Image.open(self.liveCompile)
+		# Use the io stream to capture the after-header data (after first 14 for a BMP image)
+		output = BytesIO()
+		# Convert the image
+		image.convert("RGB").save(output, "BMP")
+		# Extract, after the header
+		data = output.getvalue()[14:]
+		output.close()
+		OpenClipboard()
+		EmptyClipboard()
+		SetClipboardData(CF_DIB, data)
+		CloseClipboard()
+
 	def resizeEvent(self, event=None):
 		"""
 		Resize and move all elements to their new places, and calculate
@@ -373,9 +402,41 @@ class App(QMainWindow):
 		self.width = self.frameGeometry().width()
 		self.height = self.frameGeometry().height()
 
-		# Update each element
-		self.editorBox.move(0, self.menuBarElement.height())
-		self.editorBox.resize(int(self.width / 2), self.height - self.menuBarElement.height() - 2.5 * self.statusBar.height())
+		# Update each element based on the liveFill setting
+		if self.utils.stringify(self.settings["liveFill"]) in ["fill", "stretch"]:
+			# Move the edit box
+			self.editorBox.move(0, self.menuBarElement.height())
+			# Resize the edit box
+			self.editorBox.resize(int(self.width / 2),
+			                      self.height - self.menuBarElement.height() - 2.5 * self.statusBarElement.height())
+			# Move the live-render
+			self.editorCompiled.move(int(self.width / 2), self.menuBarElement.height())
+			# Resize the live-render
+			self.editorCompiled.resize(int(self.width / 2),
+		                           self.height - self.menuBarElement.height() - 2.5 * self.statusBarElement.height())
 
-		self.editorCompiled.move(int(self.width / 2), self.menuBarElement.height())
-		self.editorCompiled.resize(int(self.width / 2), self.height - self.menuBarElement.height() - 2.5 * self.statusBar.height())
+		elif self.utils.stringify(self.settings["liveFill"]) in ["split", "center"]:
+			# Move the edit box
+			self.editorBox.move(0, self.menuBarElement.height())
+			# Resize the edit box
+			self.editorBox.resize(int(self.width / 2),
+			                      self.height - self.menuBarElement.height() - 2.5 * self.statusBarElement.height())
+			# Move the live-render
+			self.editorCompiled.move(int((self.width / 2) + (((self.width / 2) - (self.height - self.menuBarElement.height() - 2.5 * self.statusBarElement.height()) / (2 ** 0.5)) / 2)), self.menuBarElement.height())
+			# Resize the live-render
+			self.editorCompiled.resize(int((self.height - self.menuBarElement.height() - 2.5 * self.statusBarElement.height()) / (2 ** 0.5)),
+			                           self.height - self.menuBarElement.height() - 2.5 * self.statusBarElement.height())
+
+		else:
+			# Move the edit box
+			self.editorBox.move(0, self.menuBarElement.height())
+			# Resize the edit box
+			self.editorBox.resize(int(self.width - (self.height - self.menuBarElement.height() - 2.5 * self.statusBarElement.height()) / (2 ** 0.5)),
+			                      self.height - self.menuBarElement.height() - 2.5 * self.statusBarElement.height())
+			# Move the live-render
+			self.editorCompiled.move(int(self.width - (self.height - self.menuBarElement.height() - 2.5 * self.statusBarElement.height()) / (2 ** 0.5)),
+			                         self.menuBarElement.height())
+			# Resize the live-render
+			self.editorCompiled.resize(
+				int((self.height - self.menuBarElement.height() - 2.5 * self.statusBarElement.height()) / (2 ** 0.5)),
+				self.height - self.menuBarElement.height() - 2.5 * self.statusBarElement.height())

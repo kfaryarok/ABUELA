@@ -15,3 +15,4 @@ PyYAML==5.3.1
 pytest-pylint
 
 requests~=2.24.0
+Pillow~=7.0.0

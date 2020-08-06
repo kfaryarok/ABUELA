@@ -1,3 +1,9 @@
+"""
+The Menu file.
+Used to store the Status and Menu
+classes, and other such objects
+which are useful for the menu and status bars.
+"""
 from io import BytesIO
 from PIL import Image
 from win32clipboard import OpenClipboard, EmptyClipboard, SetClipboardData, CloseClipboard, CF_DIB

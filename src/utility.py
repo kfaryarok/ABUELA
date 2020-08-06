@@ -1,3 +1,6 @@
+"""
+The Utility file, used mainly for the Utility class.
+"""
 from os import mkdir
 from os.path import exists, split
 from random import randint
@@ -107,13 +110,13 @@ class Utility:
 		Returns a Python dictionary containing the configuration data.
 		"""
 		# Open a connection to the settings file
-		filePointer = open("../resources/settings.yaml", "r")
+		file_pointer = open("../resources/settings.yaml", "r")
 		# Pull the data from the file and convert it to a Python dict
-		settingData = load(filePointer.read(), Loader=SafeLoader)
+		setting_data = load(file_pointer.read(), Loader=SafeLoader)
 		# Close the connection so it is over-writable / usable
-		filePointer.close()
+		file_pointer.close()
 		# Return the configuration data
-		return settingData
+		return setting_data
 
 	@staticmethod
 	def set_settings(newSettings):
@@ -169,7 +172,8 @@ class Utility:
 		file_name = "{path}{pre}{num}.{ext}".format(path=filePath, pre=prefix, num=randint(0, 999999999999999), ext=ext)
 		return file_name if not exists(file_name) else self.get_file_id(ext, filePath, prefix)
 
-	def parse_errors(self, error_message):
+	@staticmethod
+	def parse_errors(error_message):
 		"""
 		Parses the LaTeX compiler error message,and
 		returns a dictionary of line to error messages.
@@ -185,7 +189,8 @@ class Utility:
 				errors[int(line)] = message
 		return errors
 
-	def hex_to_rgb(self, value):
+	@staticmethod
+	def hex_to_rgb(value):
 		"""
 		Return an RGB Tuple from the given Hex string.
 
@@ -195,14 +200,3 @@ class Utility:
 		value = value.lstrip('#')
 		lv = len(value)
 		return tuple(int(value[i:i + lv // 3], 16) for i in range(0, lv, lv // 3))
-
-	def rgb_to_hex(self, red, green, blue):
-		"""
-		Returns a hex string from the given R, G, and B values.
-
-		:param red: The R (red) value
-		:param green: The G (green) value
-		:param blue: The B (blue) value
-		:return: A 6 digit hex string
-		"""
-		return '#%02x%02x%02x' % (red, green, blue)

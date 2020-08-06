@@ -1,7 +1,18 @@
+"""
+The Project file.
+Used to store the Project class.
+"""
 from os.path import exists
 
 
 class Project:
+	"""
+	The Project class is the class used
+	to assist with single-file management.
+	It stores the data on the file itself,
+	any preamble data (LaTeX code), and such.
+	It also includes methods for saving and opening files.
+	"""
 	def __init__(self, fileName):
 		self.fileName = fileName
 		self.data = ""

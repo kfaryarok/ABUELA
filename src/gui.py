@@ -50,6 +50,9 @@ class App(QMainWindow):
 	live_update = 0
 	live_compile = "../resources/canvas.jpg"
 
+	# Other attributes
+	self.status = ""
+
 	# Constructor
 	def __init__(self):
 		"""
@@ -248,12 +251,12 @@ class App(QMainWindow):
 			# Clear the error coloring
 			self.status_bar_instance.update_status({"Task": "Clearing..."})
 			# Get the cursor element and its position
-			cursorPos = self.editor_box.textCursor().position()
+			cursor_pos = self.editor_box.textCursor().position()
 			# Reset the window by overwriting all text with itself
 			self.editor_box.setPlainText(self.editor_box.toPlainText())
 			# Set the block position again
 			cursor = self.editor_box.textCursor()
-			cursor.setPosition(cursorPos)
+			cursor.setPosition(cursor_pos)
 			self.editor_box.setTextCursor(cursor)
 
 		else:

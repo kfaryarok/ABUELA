@@ -1,3 +1,9 @@
+"""
+The Compile file.
+Stores objects (including classes
+and functions) for compiling LaTeX
+code into .pdf files and into image files.
+"""
 from os import remove
 from os.path import splitext
 from shutil import copyfile
@@ -19,19 +25,26 @@ def compile_to_image(quality):
 	the STDOUT messages (usually errors) from the compiler.
 	"""
 	c = Compile()
-	fName, errorMsg = c.compile()
+	f_name, error_msg = c.compile()
 	# If the file was compiled successfully...
-	if fName:
-		splitPath = c.image(fName, quality=quality)
-		if splitPath:
-			return [splitPath, errorMsg]
+	if f_name:
+		split_path = c.image(f_name, quality=quality)
+		if split_path:
+			return [split_path, error_msg]
 		else:
 			return [False, False]
 	else:
-		return [False, errorMsg]
+		return [False, error_msg]
 
 
 class Compile:
+	"""
+	The Compile class is the main class
+	used to assist with all compiling
+	and converting functions. This includes
+	converting LaTeX code to PDF files
+	and PDF files to image files.
+	"""
 	def __init__(self):
 		pass
 
@@ -49,23 +62,24 @@ class Compile:
 		proc = Popen(['pdflatex', '-quiet', '-job-name=compile', "../project/current.tex"], stdout=PIPE)
 		# Wait until execution is over, then copy all STDOUT text to an array
 		proc.wait()
-		stdoutArray = [i.decode() for i in proc.stdout.readlines()]
+		stdout_array = [i.decode() for i in proc.stdout.readlines()]
 		# Create instance of Utility class so we can move the compiled pdf to our folder
 		utils = Utility()
-		fileName = utils.get_file_id("pdf", "../compile/", "compile")
+		file_name = utils.get_file_id("pdf", "../compile/")
 		# Try to move the file
 		try:
-			copyfile("compile.pdf", fileName)
+			copyfile("compile.pdf", file_name)
 		except FileNotFoundError:
 			# If the move failed, then return False.
-			return [False, "".join(stdoutArray)]
+			return [False, "".join(stdout_array)]
 		# Read the STDOUT lines from execution
 		# Decode each one (current type is bytes, convert it to string)
 		# Merge all the lines into one string
 		# Return the string
-		return [fileName, "".join(stdoutArray)]
+		return [file_name, "".join(stdout_array)]
 
-	def safeRemove(self, file):
+	@staticmethod
+	def safeRemove(file):
 		"""
 		Attempts to remove a file, without the knowledge of whether it exists or not.
 
@@ -86,7 +100,8 @@ class Compile:
 		self.safeRemove("compile.aux")
 		self.safeRemove("compile.log")
 
-	def kill(self):
+	@staticmethod
+	def kill():
 		"""
 		Kills the pdflatex process, if it is currently being used.
 		This method is meant to save RAM and assure that the compile.pdf data location is writable to.
@@ -116,12 +131,12 @@ class Compile:
 			pages = convert_from_path(path, quality)
 		except PDFPageCountError:
 			return False
-		pageIndex = 0
+		page_index = 0
 		# For each page in the pdf
 		for page in pages:
-			pageIndex += 1
+			page_index += 1
 			# Save it as a picture
-			page.save("{path}{index}.jpg".format(path=splitext(path)[0], index=pageIndex), 'JPEG')
+			page.save("{path}{index}.jpg".format(path=splitext(path)[0], index=page_index), 'JPEG')
 		# Clean trash files
 		try:
 			self.clean()

@@ -23,7 +23,8 @@ class Status:
 		"""
 		self.update_status({
 			"Words": 0,
-			"Characters": 0
+			"Characters": 0,
+			"Task": "Idling"
 		})
 
 	def refresh_status(self):

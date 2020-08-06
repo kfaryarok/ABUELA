@@ -10,7 +10,7 @@ from time import sleep, time
 
 from PyQt5 import QtGui
 from PyQt5.QtCore import QEvent, Qt
-from PyQt5.QtGui import QPixmap, QIcon, QFont
+from PyQt5.QtGui import QPixmap, QIcon, QFont, QTextCursor, QTextBlockFormat, QColor
 from PyQt5.QtWidgets import QLabel, QPlainTextEdit, QMainWindow, QAction
 from keyboard import is_pressed as is_key_pressed
 from compile import compile_to_image
@@ -147,7 +147,7 @@ class App(QMainWindow):
 		self.setStyleSheet("""
 		background-color: #{QMainWindowBGColor};
 		""".strip().format(
-			QMainWindowBGColor=self.theme["QMainWindow"]["background-color"]))
+			QMainWindowBGColor=self.theme["GUI"]["QMainWindow"]["background-color"]))
 		# Resize the elements to the current window size
 		self.resizeEvent()
 		# Initialize the status bar
@@ -223,6 +223,7 @@ class App(QMainWindow):
 		# a delay will the compiler threads attempt to compile.
 
 		# Update project
+		self.status_bar_instance.update_status({"Task": "Saving..."})
 		self.project.save(self.editor_box.toPlainText(), overwrite=True)
 
 		# Update the status bar
@@ -231,19 +232,46 @@ class App(QMainWindow):
 			"Characters": len(self.editor_box.toPlainText())
 		})
 
+		# Compile the code to an image
+		self.status_bar_instance.update_status({"Task": "Compiling..."})
 		page_index = 1  # TO DO (ADD SCROLL ELEMENT WHICH ALTERS THIS VALUE & MAKE THIS VALUE AN ATTRIBUTE)
 		compiled_return_data = compile_to_image(self.settings["live_quality"])
 		if compiled_return_data[0]:
+			# Update the live image element
+			self.status_bar_instance.update_status({"Task": "Updating..."})
 			self.live_compile = "{path}{index}.jpg".format(path=compiled_return_data[0], index=page_index)
 			pixel_map = QPixmap(self.live_compile)
 			self.editor_compiled.setPixmap(pixel_map)
 			self.editor_compiled.setScaledContents(True)
+
+			# Clear the error coloring
+			self.status_bar_instance.update_status({"Task": "Clearing..."})
+			# Get the cursor element and its position
+			cursorPos = self.editor_box.textCursor().position()
+			# Reset the window by overwriting all text with itself
+			self.editor_box.setPlainText(self.editor_box.toPlainText())
+			# Set the block position again
+			cursor = self.editor_box.textCursor()
+			cursor.setPosition(cursorPos)
+			self.editor_box.setTextCursor(cursor)
+
 		else:
 			# If there is a compilation error... (otherwise, the second
 			# item would be returned as false from the compileToImage function)
 			if compiled_return_data[1]:
-				# Do something with compiled_return_data[1] to display the error message
-				pass
+				# compiled_return_data[1] now holds the error message as a string
+				# Make a formatter object which colors the background
+				self.status_bar_instance.update_status({"Task": "Parsing..."})
+				color_format = QTextBlockFormat()
+				error_color = self.utils.hex_to_rgb(self.theme["Editor"]["error"])
+				color_format.setBackground(QColor(error_color[0], error_color[1], error_color[2]))
+				# For each line which has an error...
+				for line, message in self.utils.parse_errors(compiled_return_data[1]).items():
+					# Set a cursor to the line number
+					cursor = QTextCursor(self.editor_box.document().findBlockByNumber(line - 1))
+					# Update the background color
+					cursor.setBlockFormat(color_format)
+		self.status_bar_instance.update_status({"Task": "Idling"})
 
 	def initUI(self):
 		"""
@@ -363,16 +391,16 @@ class App(QMainWindow):
 		}}
 		
 		""".strip().format(
-			QMenuBarBGColor=self.theme["QMenuBar"]["background-color"],
-			QMenuBarColor=self.theme["QMenuBar"]["color"],
-			QMenuBarSpacing=self.theme["QMenuBar"]["spacing"],
-			QMenuBarItemSelected=self.theme["QMenuBarItem"]["selected"],
-			QMenuBarItemBGColor=self.theme["QMenuBarItem"]["background-color"],
-			QMenuBarItemColor=self.theme["QMenuBarItem"]["color"],
-			QMenuBarPadding=self.theme["QMenuBarItem"]["padding"],
-			QPlainTextEditBGColor=self.theme["QPlainTextEdit"]["background-color"],
-			QPlainTextEditBorderColor=self.theme["QPlainTextEdit"]["border"],
-			QPlainTextEditColor=self.theme["QPlainTextEdit"]["color"]
+			QMenuBarBGColor=self.theme["GUI"]["QMenuBar"]["background-color"],
+			QMenuBarColor=self.theme["GUI"]["QMenuBar"]["color"],
+			QMenuBarSpacing=self.theme["GUI"]["QMenuBar"]["spacing"],
+			QMenuBarItemSelected=self.theme["GUI"]["QMenuBarItem"]["selected"],
+			QMenuBarItemBGColor=self.theme["GUI"]["QMenuBarItem"]["background-color"],
+			QMenuBarItemColor=self.theme["GUI"]["QMenuBarItem"]["color"],
+			QMenuBarPadding=self.theme["GUI"]["QMenuBarItem"]["padding"],
+			QPlainTextEditBGColor=self.theme["GUI"]["QPlainTextEdit"]["background-color"],
+			QPlainTextEditBorderColor=self.theme["GUI"]["QPlainTextEdit"]["border"],
+			QPlainTextEditColor=self.theme["GUI"]["QPlainTextEdit"]["color"]
 		)
 
 	def set_status(self, new_status):

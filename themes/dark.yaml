@@ -1,21 +1,25 @@
 # Classic dark theme
 
-QMenuBar:
-  background-color: 323232
-  color: FFFFFF
-  spacing: 3
-  selected: a8a8a8
+GUI:
+  QMenuBar:
+    background-color: 323232
+    color: FFFFFF
+    spacing: 3
+    selected: a8a8a8
 
-QMenuBarItem:
-  background-color: 1e1e1e
-  color: FFFFFF
-  padding: 15
-  selected: a8a8a8
+  QMenuBarItem:
+    background-color: 1e1e1e
+    color: FFFFFF
+    padding: 15
+    selected: a8a8a8
 
-QPlainTextEdit:
-  background-color: 1e1e1e
-  border: 1e1e1e
-  color: FFFFFF
+  QPlainTextEdit:
+    background-color: 1e1e1e
+    border: 1e1e1e
+    color: FFFFFF
 
-QMainWindow:
-  background-color: 1e1e1e
+  QMainWindow:
+    background-color: 1e1e1e
+
+Editor:
+  error: FF312E

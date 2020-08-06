@@ -133,7 +133,7 @@ class Utility:
 	def stringify(string):
 		"""
 		A method to turn a string into a condition-stable string.
-		This means that if I want to test if the user input I recieved equals to a string,
+		This means that if I want to test if the user input I received equals to a string,
 		I can make the verification check a lowercase and stripped version of the string,
 		and use this function on the user input. Example:
 
@@ -168,3 +168,41 @@ class Utility:
 		# Example: get_file_id("txt", "../compile/", "compile")
 		file_name = "{path}{pre}{num}.{ext}".format(path=filePath, pre=prefix, num=randint(0, 999999999999999), ext=ext)
 		return file_name if not exists(file_name) else self.get_file_id(ext, filePath, prefix)
+
+	def parse_errors(self, error_message):
+		"""
+		Parses the LaTeX compiler error message,and
+		returns a dictionary of line to error messages.
+
+		:param error_message: The full error message string
+		:return: A dictionary containing the line of the error, and the message accompanying it
+		"""
+		errors = dict()
+		for chunk in error_message.split("../project/current.tex:"):
+			line = chunk.split(":")[0]
+			message = ":".join(chunk.split(":")[1:]).strip()
+			if line.strip().isnumeric():
+				errors[int(line)] = message
+		return errors
+
+	def hex_to_rgb(self, value):
+		"""
+		Return an RGB Tuple from the given Hex string.
+
+		:param value: A string which represents a 6 digit hex color
+		:return: A tuple which contains the 3 values for R, G, B
+		"""
+		value = value.lstrip('#')
+		lv = len(value)
+		return tuple(int(value[i:i + lv // 3], 16) for i in range(0, lv, lv // 3))
+
+	def rgb_to_hex(self, red, green, blue):
+		"""
+		Returns a hex string from the given R, G, and B values.
+
+		:param red: The R (red) value
+		:param green: The G (green) value
+		:param blue: The B (blue) value
+		:return: A 6 digit hex string
+		"""
+		return '#%02x%02x%02x' % (red, green, blue)

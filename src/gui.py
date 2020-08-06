@@ -43,6 +43,7 @@ class App(QMainWindow):
 
 	# Open new project (remove this part and integrate Open File, when the Open File features is ready)
 	project = Project("../project/current.tex")
+	project.new()
 
 	# Set default compiler live identifier number
 	live = 0

@@ -4,6 +4,15 @@ from os.path import exists
 class Project:
 	def __init__(self, fileName):
 		self.fileName = fileName
+		self.data = ""
+		self.preamble = ""
+
+	def new(self):
+		"""
+		Generates a new file as a template for the project
+		"""
+		self.data = ""
+		self.preamble = """\\documentclass[12pt]{article}\n\\begin{document}"""
 
 	def save(self, text, overwrite=False):
 		"""
@@ -11,14 +20,19 @@ class Project:
 		If overwrite is True, then it will overwrite the current project's file regardless of state.
 		If it is False, then it will only save if there isn't a file currently in place.
 		"""
+		self.data = text
 		if overwrite:
 			# Point to the file
 			file = open(self.fileName, "w")
 			# Write the data to the file
-			dataSize = file.write(text)
+			data_size = file.write("{pre}\n{code}\n{end}".format(
+				pre=self.preamble,
+				code=self.data,
+				end="\\end{document}"
+			))
 			# Close the file pointer
 			file.close()
-			return dataSize
+			return data_size
 		else:
 			if exists(self.fileName):
 				# If the file exists, don't overwrite it
@@ -36,8 +50,10 @@ class Project:
 		# Point to the file
 		file = open(self.fileName, "r")
 		# Read the data
-		fileData = file.read()
+		file_data = file.read()
 		# Close the file pointer
 		file.close()
 		# Return the file's data
-		return fileData
+		self.preamble = file_data.split("\\begin{document}")[0]
+		self.data = "\\begin{document}".join(file_data.split("\\begin{document}")[1:])
+		return file_data

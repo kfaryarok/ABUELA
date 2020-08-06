@@ -4,7 +4,7 @@ GUI:
   QMenuBar:
     background-color: 323232
     color: FFFFFF
-    spacing: 3
+    spacing: 5
     selected: a8a8a8
 
   QMenuBarItem:

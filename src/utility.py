@@ -11,30 +11,37 @@ except ImportError:
 
 
 class Utility:
+	"""
+	All utilitarian, effectivity,
+	and cleanup functions used
+	to assist in small tasks or for
+	file navigation / management.
+	"""
+
 	def __init__(self):
 		pass
 
 	@staticmethod
-	def verifySystem():
+	def verify_system():
 		"""
 		Check if the file system is correctly ordered, and if there are missing items, add them.
 		"""
 		# List off all the directories which could be accidentally deleted
 		# /tests/ is irrelevant to GUI runtime
 		# /src/ is irrelevant because the file wouldn't be running if it was deleted
-		systemPaths = {"dir": ["../compile",
-		                       "../project",
-		                       "../resources",
-		                       "../themes",
-		                       "../defaults"],
-		               "file": ["../themes/default.yaml",
-		                        "../project/current.tex",
-		                        "../resources/canvas.jpg",
-		                        "../resources/logo.jpg",
-		                        "../resources/version.txt",
-		                        "../resources/settings.yaml"]}
+		system_paths = {"dir": ["../compile",
+		                        "../project",
+		                        "../resources",
+		                        "../themes",
+		                        "../defaults"],
+		                "file": ["../themes/default.yaml",
+		                         "../project/current.tex",
+		                         "../resources/canvas.jpg",
+		                         "../resources/logo.jpg",
+		                         "../resources/version.txt",
+		                         "../resources/settings.yaml"]}
 		# For each folder...
-		for folder in systemPaths["dir"]:
+		for folder in system_paths["dir"]:
 			# Try to create it...
 			try:
 				mkdir(folder)
@@ -42,20 +49,31 @@ class Utility:
 			except FileExistsError:
 				pass
 		# For each file...
-		for file in systemPaths["file"]:
+		for file in system_paths["file"]:
 			# If the file doesn't exist...
 			if not exists(file):
 				# If there is a default file for it...
-				defaultPath = "../defaults/{fileName}".format(fileName=str(split(file)[-1]))
-				if exists(defaultPath):
+				default_path = "../defaults/{fileName}".format(fileName=str(split(file)[-1]))
+				if exists(default_path):
 					# Copy it to the file's original location
-					copyfile(defaultPath, file)
+					copyfile(default_path, file)
 
 	@staticmethod
-	def clearCache():
+	def clear_cache():
 		"""
-		Function which removes all files from the compile folder.
+		Function which removes all files from the
+		compile folder and other such small files
+		which are not necessary after runtime.
 		"""
+		# Clear ../project/current.tex file
+		try:
+			file = open("../project/current.tex", "w")
+			file.write("")
+			file.close()
+		except:
+			pass
+
+		# Remove all files from the ../compile folder by deleting and creating it again
 		try:
 			rmtree("../compile")
 			mkdir("../compile")
@@ -63,7 +81,7 @@ class Utility:
 			return
 
 	@staticmethod
-	def loadTheme(settings):
+	def load_theme(settings):
 		"""
 		Takes the current configuration settings,
 		and returns the color data on the currently selected theme.
@@ -75,14 +93,14 @@ class Utility:
 		# Create file pointer to current theme
 		file = open("../themes/{theme}.yaml".format(theme=settings["theme"]), "r")
 		# Read the data from the pointer and convert it to a dictionary
-		themeData = load(file.read(), Loader=SafeLoader)
+		theme_data = load(file.read(), Loader=SafeLoader)
 		# Make sure to close the file pointer
 		file.close()
 		# Return the data
-		return themeData
+		return theme_data
 
 	@staticmethod
-	def getSettings():
+	def get_settings():
 		"""
 		Reads the currently set configuration file.
 
@@ -98,18 +116,18 @@ class Utility:
 		return settingData
 
 	@staticmethod
-	def setSettings(newSettings):
+	def set_settings(newSettings):
 		"""
 		Overwrites the current settings / configuration file with
 
 		:param newSettings: Python dictionary containing the new settings
 		"""
 		# Open a connection to the settings file
-		filePointer = open("../resources/settings.yaml", "w")
+		file_pointer = open("../resources/settings.yaml", "w")
 		# Convert and write new configuration data
-		filePointer.write(dump(newSettings))
+		file_pointer.write(dump(newSettings))
 		# Close the connection so it is over-writable / usable
-		filePointer.close()
+		file_pointer.close()
 
 	@staticmethod
 	def stringify(string):
@@ -126,15 +144,15 @@ class Utility:
 		return string.strip().lower()
 
 	@staticmethod
-	def getScreen():
+	def get_screen():
 		"""
 		A method which returns the screen resolution.
 
-		Returns an array, described like so: [screenWidth, screenHeight]
+		Returns an array, described like so: [screen_width, screen_height]
 		"""
 		return [GetSystemMetrics(0), GetSystemMetrics(1)]
 
-	def getFileID(self, ext, filePath="", prefix="compile"):
+	def get_file_id(self, ext, filePath="", prefix="compile"):
 		"""
 		This method is used to find a place to write a new file to.
 		It checks if the path exists, and if not, returns the path.
@@ -147,6 +165,6 @@ class Utility:
 		"""
 		# Uses recursion until a file named [FILEPATH][PREFIX][RANDOM].[EXT] is not found (ergo can be used as a place to
 		# write files to)
-		# Example: getFileID("txt", "../compile/", "compile")
-		fileName = "{path}{pre}{num}.{ext}".format(path=filePath, pre=prefix, num=randint(0, 999999999999999), ext=ext)
-		return fileName if not exists(fileName) else self.getFileID(ext, filePath, prefix)
+		# Example: get_file_id("txt", "../compile/", "compile")
+		file_name = "{path}{pre}{num}.{ext}".format(path=filePath, pre=prefix, num=randint(0, 999999999999999), ext=ext)
+		return file_name if not exists(file_name) else self.get_file_id(ext, filePath, prefix)

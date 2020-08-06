@@ -10,7 +10,7 @@ from psutil import process_iter
 from utility import Utility
 
 
-def compileToImage(quality):
+def compile_to_image(quality):
 	"""
 	Function to shorten the process of converting the current.tex file to an image.
 
@@ -52,7 +52,7 @@ class Compile:
 		stdoutArray = [i.decode() for i in proc.stdout.readlines()]
 		# Create instance of Utility class so we can move the compiled pdf to our folder
 		utils = Utility()
-		fileName = utils.getFileID("pdf", "../compile/", "compile")
+		fileName = utils.get_file_id("pdf", "../compile/", "compile")
 		# Try to move the file
 		try:
 			copyfile("compile.pdf", fileName)

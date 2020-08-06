@@ -25,7 +25,7 @@ if __name__ == "__main__":
 		cleaning methods available to optimize disk space.
 		"""
 		utils = Utility()
-		utils.clearCache()
+		utils.clear_cache()
 		comp = Compile()
 		comp.clean()
 

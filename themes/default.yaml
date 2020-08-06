@@ -5,3 +5,17 @@ QMenuBar:
   color: 000000
   spacing: 3
   selected: a8a8a8
+
+QMenuBarItem:
+  background-color: FFFFFF
+  color: 000000
+  padding: 15
+  selected: a8a8a8
+
+QPlainTextEdit:
+  background-color: FFFFFF
+  border: 000000
+  color: 000000
+
+QMainWindow:
+  background-color: FFFFFF

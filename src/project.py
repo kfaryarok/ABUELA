@@ -2,7 +2,7 @@
 The Project file.
 Used to store the Project class.
 """
-from os.path import exists
+from os.path import exists, split
 
 
 class Project:
@@ -15,6 +15,7 @@ class Project:
 	"""
 	def __init__(self, fileName):
 		self.fileName = fileName
+		self.name = split(self.fileName)[-1]
 		self.data = ""
 		self.preamble = ""
 

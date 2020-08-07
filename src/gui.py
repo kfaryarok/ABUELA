@@ -7,11 +7,12 @@ category or are critical / necessary for the GUI to run.
 from random import randint
 from threading import Thread
 from time import sleep, time
-
+from tkinter import Tk
+from tkinter.filedialog import askopenfilename
 from PyQt5 import QtGui
 from PyQt5.QtCore import QEvent, Qt
 from PyQt5.QtGui import QPixmap, QIcon, QFont, QTextCursor, QTextBlockFormat, QColor
-from PyQt5.QtWidgets import QLabel, QPlainTextEdit, QMainWindow, QAction
+from PyQt5.QtWidgets import QLabel, QPlainTextEdit, QMainWindow, QAction, QMenu
 from keyboard import is_pressed as is_key_pressed
 from compile import compile_to_image
 from menu import Menu, Status
@@ -44,6 +45,7 @@ class App(QMainWindow):
 	# Open new project (remove this part and integrate Open File, when the Open File features is ready)
 	project = Project("../project/current.tex")
 	project.new()
+	projects = [project]
 
 	# Set default compiler live identifier number
 	live = 0
@@ -51,7 +53,7 @@ class App(QMainWindow):
 	live_compile = "../resources/canvas.jpg"
 
 	# Other attributes
-	self.status = ""
+	status = ""
 
 	# Constructor
 	def __init__(self):
@@ -87,7 +89,7 @@ class App(QMainWindow):
 		# Create instance of Menu and Status Bar classes
 		# Initialize it here rather in the above 'attribute initialization section'
 		# because you can't call the Status Bar updating function until
-		self.menu_bar_instance = Menu()
+		self.menu_bar_instance = Menu(self.add_menu, self)
 		self.status_bar_instance = Status(lambda: self.set_status)
 
 		# Initialize elements
@@ -115,9 +117,9 @@ class App(QMainWindow):
 		self.menu_bar_element.setFont(QFont(self.settings["menu_bar_font"], self.settings["menu_bar_size"]))
 
 		# Initialize the menu data
-		menu_data = {
+		self.menu_bar_instance.update({
 			"File": [{"name": "&New", "shortcut": 'Ctrl+N'},
-			         {"name": "&Open", "shortcut": 'Ctrl+O'},
+			         {"name": "&Open", "shortcut": 'Ctrl+O', "function": self.open_file},
 			         {"name": "&Save As", "shortcut": 'Ctrl+Shift+S'}],
 			"Edit": [{"name": "&Insert", "shortcut": 'Ctrl+I'}],
 			'Options': [{"name": "&Settings", "shortcut": False},
@@ -127,19 +129,7 @@ class App(QMainWindow):
 			           "function": lambda: self.menu_bar_instance.copy_to_clipboard(lambda: self.get_live_compile)}],
 			"Help": [{"name": "&About", "shortcut": False},
 			         {"name": '&Check for Updates', "shortcut": False}]
-		}
-
-		# For each menu bar in the menu_data...
-		for menu, data in menu_data.items():
-			# Create a new menu
-			self.subMenu = self.menu_bar_element.addMenu(menu)
-			# For each submenu in the menu bar's data
-			for submenu in data:
-				# Set the submenus and their key binds
-				if "function" in submenu:
-					self.make_menu_action(submenu["name"], submenu["shortcut"], submenu["function"])
-				else:
-					self.make_menu_action(submenu["name"], submenu["shortcut"])
+		})
 
 		# The status bar element
 		self.status_bar_element = self.statusBar()
@@ -288,6 +278,25 @@ class App(QMainWindow):
 		# Show the GUI
 		self.showGUI()
 
+	def open_file(self):
+		"""
+		A function to prompt the user for a file to open.
+
+		:return: Returns the file path to the selected file.
+		"""
+		# Stop the root window from appearing
+		t = Tk()
+		t.withdraw()
+		t.iconbitmap("../resources/logo.ico")
+		# Hide the window so it's not possible to interact with while the user selects a file
+		self.hide()
+		# Create an 'Open' dialog box
+		file_name = askopenfilename()
+		# Re-display the window
+		self.show()
+		# Return the file name
+		return file_name
+
 	def get_live_compile(self):
 		"""
 		Function to return the live_compile attribute.
@@ -328,27 +337,6 @@ class App(QMainWindow):
 		label.move(xPos, yPos)
 		label.resize(width, height)
 		return label
-
-	def make_menu_action(self, action_name, shortcut="False", func=False):
-		"""
-		A method to make menu generation more streamlined and sleek.
-		Generates an action (menu / submenu) and sets it to a shortcut.
-		Sets the action to the most recently created menu tab.
-
-		:param func: The function that should be called when the submenu button is clicked.
-		:param action_name: The name of the submenu (e.g. &New File)
-		:param shortcut: The key bind to set the shortcut to (e.g. Ctrl+Shift+N)
-		"""
-		# Create the action and initialize it with a name (e.g. &Open)
-		new_action = QAction(action_name, self)
-		if shortcut != "False":
-			# Set shortcut method (e.g. Ctrl+O)
-			new_action.setShortcut(shortcut)
-		if func:
-			# Connect the Action to a function
-			new_action.triggered.connect(func)
-		# Set the action to the current menu element
-		self.subMenu.addAction(new_action)
 
 	def formatStyle(self):
 		"""
@@ -407,7 +395,16 @@ class App(QMainWindow):
 			QPlainTextEditColor=self.theme["GUI"]["QPlainTextEdit"]["color"]
 		)
 
-	def set_status(self, new_status):
+	def add_menu(self, menu_tab) -> QMenu:
+		"""
+		Method to add a new tab to the menu.
+
+		:param menu_tab: The name of the tab to create.
+		:return: Returns the tab's object.
+		"""
+		return self.menu_bar_element.addMenu(menu_tab)
+
+	def set_status(self, new_status) -> None:
 		"""
 		Method to update the Status bar to the inputted text.
 
@@ -416,12 +413,19 @@ class App(QMainWindow):
 		self.status = new_status
 		self.status_bar_element.showMessage(self.status)
 
-	def showGUI(self):
+	def showGUI(self) -> None:
 		"""
 		A function to display the GUI.
 		"""
 		# Show the GUI
 		self.show()
+
+	def hideGUI(self):
+		"""
+		A function to hide the GUI.
+		"""
+		# Hide the GUI
+		self.hide()
 
 	def resizeEvent(self, event=None):
 		"""

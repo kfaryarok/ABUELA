@@ -5,8 +5,11 @@ classes, and other such objects
 which are useful for the menu and status bars.
 """
 from io import BytesIO
+
 from PIL import Image
+from PyQt5.QtWidgets import QAction
 from win32clipboard import OpenClipboard, EmptyClipboard, SetClipboardData, CloseClipboard, CF_DIB
+
 
 
 class Status:
@@ -48,7 +51,7 @@ class Status:
 		the same time) from the Status Bar.
 
 		:param status_update: A dictionary containing the Status Bar
-								elements to udpate, and their new values.
+								elements to update, and their new values.
 		"""
 		self.set_status({**self.status_dict, **status_update})
 
@@ -76,8 +79,48 @@ class Menu:
 	uses, and tools that the Menu Bar has to offer.
 	"""
 
-	def __init__(self):
-		pass
+	def __init__(self, add_menu_func, app_pointer):
+		self.add_menu_func = add_menu_func
+		self.app_pointer = app_pointer
+
+	def update(self, menu_data):
+		"""
+		Updates the Menu Bar and all submenus.
+
+		:param menu_data: A dictionary containing the data for the menu and submenus
+		"""
+		# For each menu bar in the menu_data...
+		for menu, data in menu_data.items():
+			# Create a new menu
+			self.sub_menu = self.add_menu_func(menu)
+			# For each submenu in the menu bar's data
+			for submenu in data:
+				# Set the submenus and their key binds
+				if "function" in submenu:
+					self.make_menu_action(submenu["name"], submenu["shortcut"], submenu["function"])
+				else:
+					self.make_menu_action(submenu["name"], submenu["shortcut"])
+
+	def make_menu_action(self, action_name, shortcut="False", func=False):
+		"""
+		A method to make menu generation more streamlined and sleek.
+		Generates an action (menu / submenu) and sets it to a shortcut.
+		Sets the action to the most recently created menu tab.
+
+		:param func: The function that should be called when the submenu button is clicked.
+		:param action_name: The name of the submenu (e.g. &New File)
+		:param shortcut: The key bind to set the shortcut to (e.g. Ctrl+Shift+N)
+		"""
+		# Create the action and initialize it with a name (e.g. &Open)
+		new_action = QAction(action_name, self.app_pointer)
+		if shortcut != "False":
+			# Set shortcut method (e.g. Ctrl+O)
+			new_action.setShortcut(shortcut)
+		if func:
+			# Connect the Action to a function
+			new_action.triggered.connect(func)
+		# Set the action to the current menu element
+		self.sub_menu.addAction(new_action)
 
 	@staticmethod
 	def copy_to_clipboard(liveCompileFunc):

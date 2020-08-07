@@ -41,6 +41,7 @@ class Utility:
 		                         "../project/current.tex",
 		                         "../resources/canvas.jpg",
 		                         "../resources/logo.jpg",
+		                         "../resources/logo.ico",
 		                         "../resources/version.txt",
 		                         "../resources/settings.yaml"]}
 		# For each folder...

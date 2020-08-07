@@ -24,7 +24,7 @@ if __name__ == "__main__":
 		This function should utilize all of the existing cache
 		cleaning methods available to optimize disk space.
 		"""
-		utils = Utility()
+		utils = Utility(False)
 		utils.clear_cache()
 		comp = Compile()
 		comp.clean()

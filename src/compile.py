@@ -64,7 +64,7 @@ class Compile:
 		proc.wait()
 		stdout_array = [i.decode() for i in proc.stdout.readlines()]
 		# Create instance of Utility class so we can move the compiled pdf to our folder
-		utils = Utility()
+		utils = Utility(False)
 		file_name = utils.get_file_id("pdf", "../compile/")
 		# Try to move the file
 		try:

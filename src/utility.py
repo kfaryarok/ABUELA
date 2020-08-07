@@ -5,6 +5,9 @@ from os import mkdir
 from os.path import exists, split
 from random import randint
 from shutil import rmtree, copyfile
+from tkinter import Tk
+from tkinter.filedialog import askopenfilename
+
 from yaml import load, dump, SafeLoader
 
 try:
@@ -21,8 +24,8 @@ class Utility:
 	file navigation / management.
 	"""
 
-	def __init__(self):
-		pass
+	def __init__(self, app_pointer):
+		self.app_pointer = app_pointer
 
 	@staticmethod
 	def verify_system():
@@ -201,3 +204,22 @@ class Utility:
 		value = value.lstrip('#')
 		lv = len(value)
 		return tuple(int(value[i:i + lv // 3], 16) for i in range(0, lv, lv // 3))
+
+	def open_file(self):
+		"""
+		A function to prompt the user for a file to open.
+
+		:return: Returns the file path to the selected file.
+		"""
+		# Stop the root window from appearing
+		t = Tk()
+		t.withdraw()
+		t.iconbitmap("../resources/logo.ico")
+		# Hide the window so it's not possible to interact with while the user selects a file
+		self.app_pointer.hide()
+		# Create an 'Open' dialog box
+		file_name = askopenfilename()
+		# Re-display the window
+		self.app_pointer.show()
+		# Return the file name
+		return file_name

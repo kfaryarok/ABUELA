@@ -11,15 +11,14 @@ from PyQt5.QtWidgets import QAction
 from win32clipboard import OpenClipboard, EmptyClipboard, SetClipboardData, CloseClipboard, CF_DIB
 
 
-
 class Status:
 	"""
 	Class to assist in the few functions and methods
 	that are needed for the Status Bar to operate.
 	"""
 
-	def __init__(self, update_func):
-		self.update_func = update_func()
+	def __init__(self, app_pointer):
+		self.app_pointer = app_pointer
 		self.padding = 10
 		self.status_dict = {}
 		self.status = ""
@@ -70,7 +69,8 @@ class Status:
 			))
 		self.status_dict = status_dict
 		self.status = self.padding * " " + str(self.padding * " " + "|" + self.padding * " ").join(statuses)
-		self.update_func(self.status)
+		self.app_pointer.status = self.status
+		self.app_pointer.status_bar_element.showMessage(self.app_pointer.status)
 
 
 class Menu:
@@ -79,8 +79,7 @@ class Menu:
 	uses, and tools that the Menu Bar has to offer.
 	"""
 
-	def __init__(self, add_menu_func, app_pointer):
-		self.add_menu_func = add_menu_func
+	def __init__(self, app_pointer):
 		self.app_pointer = app_pointer
 
 	def update(self, menu_data):
@@ -92,7 +91,7 @@ class Menu:
 		# For each menu bar in the menu_data...
 		for menu, data in menu_data.items():
 			# Create a new menu
-			self.sub_menu = self.add_menu_func(menu)
+			self.sub_menu = self.app_pointer.menu_bar_element.addMenu(menu)
 			# For each submenu in the menu bar's data
 			for submenu in data:
 				# Set the submenus and their key binds
@@ -131,7 +130,7 @@ class Menu:
 								the path to the currently rendered live-compiled image.
 		"""
 		# Use the Pillow library to open the image
-		image = Image.open(liveCompileFunc()())
+		image = Image.open(liveCompileFunc())
 		# Use the io stream to capture the after-header data (after first 14 for a BMP image)
 		output = BytesIO()
 		# Convert the image

@@ -7,13 +7,13 @@ category or are critical / necessary for the GUI to run.
 from random import randint
 from threading import Thread
 from time import sleep, time
-from tkinter import Tk
-from tkinter.filedialog import askopenfilename
+
 from PyQt5 import QtGui
 from PyQt5.QtCore import QEvent, Qt
 from PyQt5.QtGui import QPixmap, QIcon, QFont, QTextCursor, QTextBlockFormat, QColor
-from PyQt5.QtWidgets import QLabel, QPlainTextEdit, QMainWindow, QAction, QMenu
+from PyQt5.QtWidgets import QLabel, QPlainTextEdit, QMainWindow, QMenu
 from keyboard import is_pressed as is_key_pressed
+
 from compile import compile_to_image
 from menu import Menu, Status
 from project import Project
@@ -27,34 +27,6 @@ class App(QMainWindow):
 	Actually executed by main.py, though.
 	"""
 
-	# Create instance of Utility for later usage
-	utils = Utility()
-
-	# Verify that file system is intact
-	utils.verify_system()
-
-	# Pull settings
-	settings = utils.get_settings()
-
-	# Clear cache
-	utils.clear_cache()
-
-	# Load the theme
-	theme = utils.load_theme(settings)
-
-	# Open new project (remove this part and integrate Open File, when the Open File features is ready)
-	project = Project("../project/current.tex")
-	project.new()
-	projects = [project]
-
-	# Set default compiler live identifier number
-	live = 0
-	live_update = 0
-	live_compile = "../resources/canvas.jpg"
-
-	# Other attributes
-	status = ""
-
 	# Constructor
 	def __init__(self):
 		"""
@@ -62,6 +34,34 @@ class App(QMainWindow):
 		Here, elements (and other small things for the GUI) are initialized and set.
 		"""
 		super().__init__()
+
+		# Create instance of Utility for later usage
+		self.utils = Utility(self)
+
+		# Verify that file system is intact
+		self.utils.verify_system()
+
+		# Pull settings
+		self.settings = self.utils.get_settings()
+
+		# Clear cache
+		self.utils.clear_cache()
+
+		# Load the theme
+		self.theme = self.utils.load_theme(self.settings)
+
+		# Open new project (remove this part and integrate Open File, when the Open File features is ready)
+		self.project = Project("../project/current.tex")
+		self.project.new()
+		self.projects = [self.project]
+
+		# Set default compiler live identifier number
+		self.live = 0
+		self.live_update = 0
+		self.live_compile = "../resources/canvas.jpg"
+
+		# Other attributes
+		self.status = ""
 
 		# Get screen data
 		self.screen_width = self.utils.get_screen()[0]
@@ -89,8 +89,8 @@ class App(QMainWindow):
 		# Create instance of Menu and Status Bar classes
 		# Initialize it here rather in the above 'attribute initialization section'
 		# because you can't call the Status Bar updating function until
-		self.menu_bar_instance = Menu(self.add_menu, self)
-		self.status_bar_instance = Status(lambda: self.set_status)
+		self.menu_bar_instance = Menu(self)
+		self.status_bar_instance = Status(self)
 
 		# Initialize elements
 		# Default parameter values are all 0 because self.resizeElements
@@ -119,14 +119,14 @@ class App(QMainWindow):
 		# Initialize the menu data
 		self.menu_bar_instance.update({
 			"File": [{"name": "&New", "shortcut": 'Ctrl+N'},
-			         {"name": "&Open", "shortcut": 'Ctrl+O', "function": self.open_file},
+			         {"name": "&Open", "shortcut": 'Ctrl+O', "function": self.utils.open_file},
 			         {"name": "&Save As", "shortcut": 'Ctrl+Shift+S'}],
 			"Edit": [{"name": "&Insert", "shortcut": 'Ctrl+I'}],
 			'Options': [{"name": "&Settings", "shortcut": False},
 			            {"name": "&Plugins", "shortcut": False},
 			            {"name": "&Packages", "shortcut": False}],
 			"Tools": [{"name": "&Copy Live", "shortcut": 'Ctrl+Shift+C',
-			           "function": lambda: self.menu_bar_instance.copy_to_clipboard(lambda: self.get_live_compile)}],
+			           "function": lambda: self.menu_bar_instance.copy_to_clipboard(self.get_live_compile)}],
 			"Help": [{"name": "&About", "shortcut": False},
 			         {"name": '&Check for Updates', "shortcut": False}]
 		})
@@ -278,25 +278,6 @@ class App(QMainWindow):
 		# Show the GUI
 		self.showGUI()
 
-	def open_file(self):
-		"""
-		A function to prompt the user for a file to open.
-
-		:return: Returns the file path to the selected file.
-		"""
-		# Stop the root window from appearing
-		t = Tk()
-		t.withdraw()
-		t.iconbitmap("../resources/logo.ico")
-		# Hide the window so it's not possible to interact with while the user selects a file
-		self.hide()
-		# Create an 'Open' dialog box
-		file_name = askopenfilename()
-		# Re-display the window
-		self.show()
-		# Return the file name
-		return file_name
-
 	def get_live_compile(self):
 		"""
 		Function to return the live_compile attribute.
@@ -394,24 +375,6 @@ class App(QMainWindow):
 			QPlainTextEditBorderColor=self.theme["GUI"]["QPlainTextEdit"]["border"],
 			QPlainTextEditColor=self.theme["GUI"]["QPlainTextEdit"]["color"]
 		)
-
-	def add_menu(self, menu_tab) -> QMenu:
-		"""
-		Method to add a new tab to the menu.
-
-		:param menu_tab: The name of the tab to create.
-		:return: Returns the tab's object.
-		"""
-		return self.menu_bar_element.addMenu(menu_tab)
-
-	def set_status(self, new_status) -> None:
-		"""
-		Method to update the Status bar to the inputted text.
-
-		:param new_status: The new status to update to.
-		"""
-		self.status = new_status
-		self.status_bar_element.showMessage(self.status)
 
 	def showGUI(self) -> None:
 		"""

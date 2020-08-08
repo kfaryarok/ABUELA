@@ -126,7 +126,10 @@ class App(QMainWindow):
 			"View": [{"name": "&Fill", "shortcut": False,
 					 "function": lambda: self.resize("Fill")},
 					 {"name": "Split", "shortcut": False,
-					  "function": lambda: self.resize("Split")}],
+					  "function": lambda: self.resize("Split")},
+					 {"name": "&Fit", "shortcut": False,
+					  "function": lambda: self.resize("Fit")}
+					 ],
 			"Tools": [{"name": "&Copy Live", "shortcut": 'Ctrl+Shift+C',
 			           "function": lambda: self.menu_bar_instance.copy_to_clipboard(lambda: self.get_live_compile)}],
 			"Help": [{"name": "&About", "shortcut": False},
@@ -492,6 +495,9 @@ class App(QMainWindow):
 			self.utils.set_settings(self.settings)
 		elif string == "Split":
 			self.settings["live_fill"] = "split"
+			self.utils.set_settings(self.settings)
+		else:
+			self.settings["live_fill"] = "fit"
 			self.utils.set_settings(self.settings)
 
 		self.resizeEvent()

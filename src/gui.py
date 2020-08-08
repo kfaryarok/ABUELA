@@ -11,7 +11,7 @@ from time import sleep, time
 from PyQt5 import QtGui
 from PyQt5.QtCore import QEvent, Qt
 from PyQt5.QtGui import QPixmap, QIcon, QFont, QTextCursor, QTextBlockFormat, QColor
-from PyQt5.QtWidgets import QLabel, QPlainTextEdit, QMainWindow, QAction
+from PyQt5.QtWidgets import QLabel, QPlainTextEdit, QMainWindow, QAction, QFileDialog
 from keyboard import is_pressed as is_key_pressed
 from compile import compile_to_image
 from menu import Menu, Status
@@ -51,7 +51,6 @@ class App(QMainWindow):
 	live_compile = "../resources/canvas.jpg"
 
 	# Other attributes
-	self.status = ""
 
 	# Constructor
 	def __init__(self):
@@ -117,12 +116,17 @@ class App(QMainWindow):
 		# Initialize the menu data
 		menu_data = {
 			"File": [{"name": "&New", "shortcut": 'Ctrl+N'},
-			         {"name": "&Open", "shortcut": 'Ctrl+O'},
+			         {"name": "&Open", "shortcut": 'Ctrl+O',
+					  "function": lambda: self.open_file()},
 			         {"name": "&Save As", "shortcut": 'Ctrl+Shift+S'}],
 			"Edit": [{"name": "&Insert", "shortcut": 'Ctrl+I'}],
 			'Options': [{"name": "&Settings", "shortcut": False},
 			            {"name": "&Plugins", "shortcut": False},
 			            {"name": "&Packages", "shortcut": False}],
+			"View": [{"name": "&Fill", "shortcut": False,
+					 "function": lambda: self.resize("Fill")},
+					 {"name": "Split", "shortcut": False,
+					  "function": lambda: self.resize("Split")}],
 			"Tools": [{"name": "&Copy Live", "shortcut": 'Ctrl+Shift+C',
 			           "function": lambda: self.menu_bar_instance.copy_to_clipboard(lambda: self.get_live_compile)}],
 			"Help": [{"name": "&About", "shortcut": False},
@@ -480,3 +484,30 @@ class App(QMainWindow):
 				int((self.height - self.menu_bar_element.height() - 2.5 * self.status_bar_element.height()) / (
 							2 ** 0.5)),
 				self.height - self.menu_bar_element.height() - 2.5 * self.status_bar_element.height())
+
+	def resize(self, string):
+
+		if string == "Fill":
+			self.settings["live_fill"] = "fill"
+			self.utils.set_settings(self.settings)
+		elif string == "Split":
+			self.settings["live_fill"] = "split"
+			self.utils.set_settings(self.settings)
+
+		self.resizeEvent()
+
+
+
+	def open_file(self):
+		file_dialog = QFileDialog()
+
+		if file_dialog.exec():
+			filenames = file_dialog.selectedFiles()
+
+		f = open(filenames[0], 'r')
+		with f:
+			data = f.read()
+			self.editor_box.setPlainText(data)
+			self.status_bar_instance.update_status({"File": f.name})
+
+

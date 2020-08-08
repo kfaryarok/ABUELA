@@ -30,7 +30,8 @@ class Status:
 		self.update_status({
 			"Words": 0,
 			"Characters": 0,
-			"Task": "Idling"
+			"Task": "Idling",
+			"File": "Not opened"
 		})
 
 	def refresh_status(self):

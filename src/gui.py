@@ -296,7 +296,7 @@ class App(QMainWindow):
 			"File": [{"name": "&New", "bind": 'Ctrl+N'},
 			         {"name": "&Open", "bind": 'Ctrl+O', "func": self.utils.open_file},
 			         {"name": "&Save As", "bind": 'Ctrl+Shift+S'},
-			         {"name": "&Restart", "bind": False, "func": self.restart},
+			         {"name": "&Reload", "bind": False, "func": self.restart},
 			         {"name": "&Exit", "bind": 'Ctrl+W', "func": self.exit}],
 			"Edit": [{"name": "&Insert", "bind": 'Ctrl+I'}],
 			'Options': [{"name": "&Settings", "bind": False},
@@ -311,14 +311,19 @@ class App(QMainWindow):
 			"Tools": [{"name": "&Copy Live", "bind": 'Ctrl+Shift+C',
 			           "func": lambda: self.menu_bar_instance.copy_to_clipboard(self.get_live_compile)}],
 			"Projects": [{"name": self.projects[i].name, "bind": False,
-			              "func": lambda: self.switch_project(i)} for i in range(len(self.projects))],
+			              "func": lambda state, x=i: self.switch_project(x)} for i in range(len(self.projects))],
 			"Help": [{"name": "&About", "bind": False, "func": lambda: self.error_instance.dialogue(
 				"../resources/logo.ico",
 				"About",
 				"<b><i>ABUELA</i></b>",
 				"""<i>A Beautiful, Useful, & Elegant LaTeX Application.</i><br><br>
 				
-				<a href="{base_url}">Founded with love by @Xiddoc, @AvivHavivyan, & @RootAtKali.</a>""".format(
+				Founded with love by @Xiddoc, @AvivHavivyan, & @RootAtKali.<br><br>
+				
+				Links:<br>
+				• <a href="{base_url}">Github Repo</a><br>
+				• <a href="{base_url}/blob/master/README.md">Documentation</a><br>
+				• <a href="{base_url}/blob/master/LICENSE">License</a>""".format(
 					base_url=self.updater_instance.get_url()
 				))},
 			         {"name": "&Reset Settings", "bind": False, "func": self.utils.reset_system},

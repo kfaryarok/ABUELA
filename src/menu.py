@@ -149,15 +149,14 @@ class Menu:
 		self.sub_menu.addAction(new_action)
 
 	@staticmethod
-	def copy_to_clipboard(liveCompileFunc):
+	def copy_to_clipboard(live_compile_path):
 		"""
 		Copies the currently rendered live-compiled image to the clipboard.
 
-		:param liveCompileFunc: A lambda, which calls a function, which returns
-								the path to the currently rendered live-compiled image.
+		:param live_compile_path: The path to the currently rendered live-compiled image.
 		"""
 		# Use the Pillow library to open the image
-		image = Image.open(liveCompileFunc())
+		image = Image.open(live_compile_path)
 		# Use the io stream to capture the after-header data (after first 14 for a BMP image)
 		output = BytesIO()
 		# Convert the image

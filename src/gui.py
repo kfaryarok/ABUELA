@@ -37,7 +37,7 @@ class App(QMainWindow):
 		"""
 		super().__init__()
 
-		# Initialize exit codes (These have no meaning, you can put whatever you want)
+		# Initialize exit codes (These are arbitrary values with no hidden meaning)
 		self.restart_code = -54321
 		self.exit_code = -12345
 
@@ -170,6 +170,7 @@ class App(QMainWindow):
 		if obj is self.editor_box and event.type() == QEvent.KeyPress:
 			# Key Binds
 			# Shift + Return = Add / and newline
+			self.status_bar_instance.update_status({"Task": "Parsing binds..."})
 			if is_key_pressed("return") and is_key_pressed("shift"):
 				self.editor_box.insertPlainText("\\\\\n")
 				return True
@@ -182,9 +183,11 @@ class App(QMainWindow):
 			self.live_update = time() + self.settings["live_update"]
 
 			# Initialize the process
+			self.status_bar_instance.update_status({"Task": "Multiprocessing..."})
 			p = Thread(target=self.updateLive, args=[live_id])
 			p.setDaemon(True)
 			p.start()
+			self.status_bar_instance.update_status({"Task": "Idling"})
 		return super(App, self).eventFilter(obj, event)
 
 	def updateLive(self, liveID):
@@ -283,6 +286,7 @@ class App(QMainWindow):
 		:param new_project_index: The index of self.projects to focus on.
 		"""
 		# Set the current project to the new index
+		self.status_bar_instance.update_status({"Task": "Opening..."})
 		self.project = self.projects[new_project_index]
 
 		# Open it in the editor box
@@ -292,6 +296,7 @@ class App(QMainWindow):
 		self.status_bar_instance.update_status({"Project": self.project.name})
 
 		# Update the menu data (Specifically, the Projects menu)
+		self.status_bar_instance.update_status({"Task": "Updating menu..."})
 		self.menu_bar_instance.set({
 			"File": [{"name": "&New", "bind": 'Ctrl+N'},
 			         {"name": "&Open", "bind": 'Ctrl+O', "func": self.utils.open_file},
@@ -309,7 +314,7 @@ class App(QMainWindow):
 			         {"name": "Split", "bind": False,
 			          "func": lambda: self.update_fill("split")}],
 			"Tools": [{"name": "&Copy Live", "bind": 'Ctrl+Shift+C',
-			           "func": lambda: self.menu_bar_instance.copy_to_clipboard(self.get_live_compile)}],
+			           "func": lambda: self.menu_bar_instance.copy_to_clipboard(self.live_compile)}],
 			"Projects": [{"name": self.projects[i].name, "bind": False,
 			              "func": lambda state, x=i: self.switch_project(x)} for i in range(len(self.projects))],
 			"Help": [{"name": "&About", "bind": False, "func": lambda: self.error_instance.dialogue(
@@ -329,12 +334,7 @@ class App(QMainWindow):
 			         {"name": "&Reset Settings", "bind": False, "func": self.utils.reset_system},
 			         {"name": '&Check for Updates', "bind": False}]
 		})
-
-	def get_live_compile(self):
-		"""
-		Function to return the live_compile attribute.
-		"""
-		return self.live_compile
+		self.status_bar_instance.update_status({"Task": "Idling"})
 
 	def makeTextBox(self, xPos=0, yPos=0, width=0, height=0):
 		"""

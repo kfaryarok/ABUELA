@@ -9,7 +9,10 @@ from tkinter import Tk
 from tkinter.filedialog import askopenfilename
 
 from PyQt5.QtCore import QCoreApplication
+from PyQt5.QtWidgets import QFileDialog
 from yaml import load, dump, SafeLoader
+
+from project import Project
 
 try:
 	from win32api import GetSystemMetrics
@@ -242,15 +245,18 @@ class Utility:
 
 		:return: Returns the file path to the selected file.
 		"""
-		# Stop the root window from appearing
-		t = Tk()
-		t.withdraw()
-		t.iconbitmap("../resources/logo.ico")
-		# Hide the window so it's not possible to interact with while the user selects a file
-		self.app_pointer.hide()
-		# Create an 'Open' dialog box
-		file_name = askopenfilename()
-		# Re-display the window
-		self.app_pointer.show()
-		# Return the file name
-		return file_name
+		# Initialize a Dialog and prompt the user
+		file_dialog = QFileDialog()
+		status_code = file_dialog.exec()
+
+		# If the operation wasn't cancelled
+		if status_code:
+			# Extract the path to the selected file
+			file_name = file_dialog.selectedFiles()[0]
+
+			# Create a Project class and append it to the 'project manager' array
+			project = Project(file_name)
+			self.app_pointer.projects.append(project)
+
+			# Open it in the editor
+			self.app_pointer.switch_project(-1)

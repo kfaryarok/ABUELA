@@ -13,11 +13,13 @@ class Project:
 	any preamble data (LaTeX code), and such.
 	It also includes methods for saving and opening files.
 	"""
+
 	def __init__(self, fileName):
 		self.fileName = fileName
 		self.name = split(self.fileName)[-1]
 		self.data = ""
 		self.preamble = ""
+		self.peroration = ""
 
 	def new(self):
 		"""
@@ -25,6 +27,7 @@ class Project:
 		"""
 		self.data = ""
 		self.preamble = """\\documentclass[12pt]{article}\n\\begin{document}"""
+		self.peroration = """\n\\end{document}"""
 
 	def save(self, text, overwrite=False):
 		"""
@@ -36,11 +39,16 @@ class Project:
 		if overwrite:
 			# Point to the file
 			file = open(self.fileName, "w")
-			# Write the data to the file
-			data_size = file.write("{pre}\n{code}\n{end}".format(
+			print("[START]{pre}\n{code}\n{post}[END]".format(
 				pre=self.preamble,
 				code=self.data,
-				end="\\end{document}"
+				post=self.peroration
+			))
+			# Write the data to the file
+			data_size = file.write("{pre}\n{code}\n{post}".format(
+				pre=self.preamble,
+				code=self.data,
+				post=self.peroration
 			))
 			# Close the file pointer
 			file.close()
@@ -67,5 +75,10 @@ class Project:
 		file.close()
 		# Return the file's data
 		self.preamble = file_data.split("\\begin{document}")[0]
-		self.data = "\\begin{document}".join(file_data.split("\\begin{document}")[1:])
-		return file_data
+		self.peroration = file_data.split("\\end{document}")[-1]
+		self.data = "\\end{document}".join(
+			"\\begin{document}".join(
+				file_data
+					.split("\\begin{document}")[1:])
+				.split("\\end{document}")[:-1])
+		return self.data

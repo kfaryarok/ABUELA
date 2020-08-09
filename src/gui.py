@@ -276,8 +276,13 @@ class App(QMainWindow):
 		"""
 		# Set the current project to the new index
 		self.project = self.projects[new_project_index]
+
+		# Open it in the editor box
+		self.editor_box.setPlainText(self.project.open())
+
 		# Update the status bar to the current project
 		self.status_bar_instance.update_status({"Project": self.project.name})
+
 		# Update the menu data (Specifically, the Projects menu)
 		self.menu_bar_instance.set({
 			"File": [{"name": "&New", "bind": 'Ctrl+N'},

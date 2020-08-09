@@ -11,7 +11,7 @@ from time import sleep, time
 from PyQt5 import QtGui
 from PyQt5.QtCore import QEvent, Qt, QCoreApplication
 from PyQt5.QtGui import QPixmap, QIcon, QFont, QTextCursor, QTextBlockFormat, QColor
-from PyQt5.QtWidgets import QLabel, QPlainTextEdit, QMainWindow, QMenu
+from PyQt5.QtWidgets import QLabel, QPlainTextEdit, QMainWindow
 from keyboard import is_pressed as is_key_pressed
 
 from compile import compile_to_image
@@ -90,12 +90,6 @@ class App(QMainWindow):
 		self.width = int(self.screen_width * self.settings["screen_ratio"])
 		self.height = int(self.screen_height * self.settings["screen_ratio"])
 
-		# Create instance of Menu and Status Bar classes
-		# Initialize it here rather in the above 'attribute initialization section'
-		# because you can't call the Status Bar updating function until
-		self.menu_bar_instance = Menu(self)
-		self.status_bar_instance = Status(self)
-
 		# Initialize elements
 		# Default parameter values are all 0 because self.resizeElements
 		# will update the positioning and size of each element regardless
@@ -110,43 +104,28 @@ class App(QMainWindow):
 		# The live-compile renderer element
 		self.editor_compiled = self.makePic("../resources/canvas.jpg")
 
+		# Create instance of Menu and Status Bar classes
+		# Initialize it here rather in the above 'attribute initialization section'
+		# because you can't call the Status Bar updating function until
+		self.menu_bar_instance = Menu(self)
+		self.status_bar_instance = Status(self)
+
 		# MAKE SURE THAT MENU BAR AND STATUS BAR ARE THE LAST 2 ELEMENTS TO BE INITIALIZED
 		# If not, the next element to be created will
 		# overlap the menu bar / status bar
 		# and will cause an unfortunate rendering bug.
 		# The menu bar element
-		self.menu_bar_element = self.menuBar()
-		self.menu_bar_element.setFixedHeight(int(self.height / 30))
-		self.menu_bar_element.setStyleSheet(self.formatStyle())
-		self.menu_bar_element.setFont(QFont(self.settings["menu_bar_font"], self.settings["menu_bar_size"]))
-
-		# Initialize the menu data
-		self.menu_bar_instance.update({
-			"File": [{"name": "&New", "bind": 'Ctrl+N'},
-			         {"name": "&Open", "bind": 'Ctrl+O', "func": self.utils.open_file},
-			         {"name": "&Save As", "bind": 'Ctrl+Shift+S'},
-			         {"name": "&Restart", "bind": False, "func": self.restart},
-			         {"name": "&Exit", "bind": 'Ctrl+W', "func": self.exit}],
-			"Edit": [{"name": "&Insert", "bind": 'Ctrl+I'}],
-			'Options': [{"name": "&Settings", "bind": False},
-			            {"name": "&Plugins", "bind": False},
-			            {"name": "&Packages", "bind": False}],
-			"View": [{"name": "&Fit", "bind": False,
-			          "func": lambda: self.update_fill("fit")},
-			         {"name": "&Fill", "bind": False,
-			          "func": lambda: self.update_fill("fill")},
-			         {"name": "Split", "bind": False,
-			          "func": lambda: self.update_fill("split")}],
-			"Tools": [{"name": "&Copy Live", "bind": 'Ctrl+Shift+C',
-			           "func": lambda: self.menu_bar_instance.copy_to_clipboard(self.get_live_compile)}],
-			"Help": [{"name": "&About", "bind": False},
-			         {"name": "&Reset Settings", "bind": False, "func": self.utils.reset_system},
-			         {"name": '&Check for Updates', "bind": False}]
-		})
+		self.menu_bar_instance.init()
 
 		# The status bar element
 		self.status_bar_element = self.statusBar()
 		self.status_bar_element.setStyleSheet(self.formatStyle())
+
+		# Initialize the status bar
+		self.status_bar_instance.init_status()
+		
+		# Set Project focus to current project
+		self.switch_project()
 
 		# Call GUI creation
 		self.initUI()
@@ -157,8 +136,6 @@ class App(QMainWindow):
 			QMainWindowBGColor=self.theme["GUI"]["QMainWindow"]["background-color"]))
 		# Resize the elements to the current window size
 		self.resizeEvent()
-		# Initialize the status bar
-		self.status_bar_instance.init_status()
 
 	def event(self, e):
 		"""
@@ -290,6 +267,42 @@ class App(QMainWindow):
 		self.setGeometry(self.left, self.top, self.width, self.height)
 		# Show the GUI
 		self.show_gui()
+
+	def switch_project(self, new_project_index=0):
+		"""
+		Changes the editor to focus on the new selected Project class.
+
+		:param new_project_index: The index of self.projects to focus on.
+		"""
+		# Set the current project to the new index
+		self.project = self.projects[new_project_index]
+		# Update the status bar to the current project
+		self.status_bar_instance.update_status({"Project": self.project.name})
+		# Update the menu data (Specifically, the Projects menu)
+		self.menu_bar_instance.set({
+			"File": [{"name": "&New", "bind": 'Ctrl+N'},
+			         {"name": "&Open", "bind": 'Ctrl+O', "func": self.utils.open_file},
+			         {"name": "&Save As", "bind": 'Ctrl+Shift+S'},
+			         {"name": "&Restart", "bind": False, "func": self.restart},
+			         {"name": "&Exit", "bind": 'Ctrl+W', "func": self.exit}],
+			"Edit": [{"name": "&Insert", "bind": 'Ctrl+I'}],
+			'Options': [{"name": "&Settings", "bind": False},
+			            {"name": "&Plugins", "bind": False},
+			            {"name": "&Packages", "bind": False}],
+			"View": [{"name": "&Fit", "bind": False,
+			          "func": lambda: self.update_fill("fit")},
+			         {"name": "&Fill", "bind": False,
+			          "func": lambda: self.update_fill("fill")},
+			         {"name": "Split", "bind": False,
+			          "func": lambda: self.update_fill("split")}],
+			"Tools": [{"name": "&Copy Live", "bind": 'Ctrl+Shift+C',
+			           "func": lambda: self.menu_bar_instance.copy_to_clipboard(self.get_live_compile)}],
+			"Projects": [{"name": self.projects[i].name, "bind": False,
+			              "func": lambda: self.switch_project(i)} for i in range(len(self.projects))],
+			"Help": [{"name": "&About", "bind": False},
+			         {"name": "&Reset Settings", "bind": False, "func": self.utils.reset_system},
+			         {"name": '&Check for Updates', "bind": False}]
+		})
 
 	def get_live_compile(self):
 		"""

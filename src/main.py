@@ -30,9 +30,15 @@ if __name__ == "__main__":
 		This function should also make sure to save a snapshot or
 		save any other data necessary to be saved on termination.
 		"""
+		# Clear the cache
 		utils = Utility(False)
 		utils.clear_cache()
-		utils.set_settings(ex.settings)
+		# Try to save settings
+		try:
+			utils.set_settings(ex.settings)
+		except NameError:
+			pass
+		# Clean the compile cache
 		comp = Compile()
 		comp.clean()
 
@@ -49,9 +55,12 @@ if __name__ == "__main__":
 		# If the exit code is the restart exit code, then restart the app
 		if exit_code == ex.restart_code:
 			# Save memory space and banish pointer to class
-			del app
-			del ex
-			del exit_code
+			if app:
+				del app
+			if ex:
+				del ex
+			if exit_code:
+				del exit_code
 		# Otherwise, terminate the program
 		else:
 			break

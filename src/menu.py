@@ -7,7 +7,8 @@ which are useful for the menu and status bars.
 from io import BytesIO
 
 from PIL import Image
-from PyQt5.QtWidgets import QAction
+from PyQt5.QtGui import QFont
+from PyQt5.QtWidgets import QAction, QMenu
 from win32clipboard import OpenClipboard, EmptyClipboard, SetClipboardData, CloseClipboard, CF_DIB
 
 
@@ -30,6 +31,7 @@ class Status:
 		anything when the GUI is initialized.
 		"""
 		self.update_status({
+			"Project": "",
 			"Words": 0,
 			"Characters": 0,
 			"Task": "Idling"
@@ -83,11 +85,35 @@ class Menu:
 		self.app_pointer = app_pointer
 		self.sub_menu = False
 
+	def init(self):
+		"""
+		Initializes the Menu bar element.
+		"""
+		self.app_pointer.menu_bar_element = self.app_pointer.menuBar()
+		self.app_pointer.menu_bar_element.setFixedHeight(int(self.app_pointer.height / 30))
+		self.app_pointer.menu_bar_element.setStyleSheet(self.app_pointer.formatStyle())
+		self.app_pointer.menu_bar_element.setFont(QFont(self.app_pointer.settings["menu_bar_font"], self.app_pointer.settings["menu_bar_size"]))
+
+	def clear(self):
+		"""
+		Clears the current Menu Bar element of all menus and all submenus.
+		"""
+		self.app_pointer.menu_bar_element.clear()
+
+	def set(self, menu_data):
+		"""
+		Sets the Menu Bar and all submenus to the inputted data.
+
+		:param menu_data: A dictionary containing the data for the menu and submenus.
+		"""
+		self.clear()
+		self.update(menu_data)
+
 	def update(self, menu_data):
 		"""
 		Updates the Menu Bar and all submenus.
 
-		:param menu_data: A dictionary containing the data for the menu and submenus
+		:param menu_data: A dictionary containing the data for the menu and submenus.
 		"""
 		# For each menu bar in the menu_data...
 		for menu, data in menu_data.items():

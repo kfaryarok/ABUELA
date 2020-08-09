@@ -83,7 +83,7 @@ class Compile:
 		"""
 		Attempts to remove a file, without the knowledge of whether it exists or not.
 
-		:param file: The path to the file to delete.
+		:param file: The path to the file to clear.
 		:return: True if deleted successfully, False if not or an error occurred.
 		"""
 		try:

@@ -36,9 +36,22 @@ if __name__ == "__main__":
 		comp = Compile()
 		comp.clean()
 
+	# Register the exit function
 	register(exitClear)
 
-	# Start the app
-	app = QApplication([])
-	ex = App()
-	app.exec_()
+	# Loop until the non-default exit code is returned
+	while True:
+		# Start the app
+		app = QApplication([])
+		ex = App()
+		exit_code = app.exec_()
+
+		# If the exit code is the restart exit code, then restart the app
+		if exit_code == ex.restart_code:
+			# Save memory space and banish pointer to class
+			del app
+			del ex
+			del exit_code
+		# Otherwise, terminate the program
+		else:
+			break

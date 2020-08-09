@@ -11,5 +11,5 @@ menu_bar_font: Segoe UI
 menu_bar_size: 11
 min_ratio: 0.7
 screen_ratio: 0.9
-theme: dark
+theme: default
 window_title: ABUELA

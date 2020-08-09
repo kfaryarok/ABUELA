@@ -9,7 +9,7 @@ from threading import Thread
 from time import sleep, time
 
 from PyQt5 import QtGui
-from PyQt5.QtCore import QEvent, Qt
+from PyQt5.QtCore import QEvent, Qt, QCoreApplication
 from PyQt5.QtGui import QPixmap, QIcon, QFont, QTextCursor, QTextBlockFormat, QColor
 from PyQt5.QtWidgets import QLabel, QPlainTextEdit, QMainWindow, QMenu
 from keyboard import is_pressed as is_key_pressed
@@ -24,7 +24,7 @@ from utility import Utility
 class App(QMainWindow):
 	"""
 	The App class, for everything-GUI.
-	Actually executed by main.py, though.
+	Executed by the main.py file.
 	"""
 
 	# Constructor
@@ -34,6 +34,10 @@ class App(QMainWindow):
 		Here, elements (and other small things for the GUI) are initialized and set.
 		"""
 		super().__init__()
+
+		# Initialize exit codes (These have no meaning, you can put whatever you want)
+		self.restart_code = -54321
+		self.exit_code = -12345
 
 		# Create instance of Utility for later usage
 		self.utils = Utility(self)
@@ -118,23 +122,26 @@ class App(QMainWindow):
 
 		# Initialize the menu data
 		self.menu_bar_instance.update({
-			"File": [{"name": "&New", "shortcut": 'Ctrl+N'},
-			         {"name": "&Open", "shortcut": 'Ctrl+O', "function": self.utils.open_file},
-			         {"name": "&Save As", "shortcut": 'Ctrl+Shift+S'}],
-			"Edit": [{"name": "&Insert", "shortcut": 'Ctrl+I'}],
-			'Options': [{"name": "&Settings", "shortcut": False},
-			            {"name": "&Plugins", "shortcut": False},
-			            {"name": "&Packages", "shortcut": False}],
-			"View": [{"name": "&Fit", "shortcut": False,
-			          "function": lambda: self.update_fill("fit")},
-			         {"name": "&Fill", "shortcut": False,
-			          "function": lambda: self.update_fill("fill")},
-			         {"name": "Split", "shortcut": False,
-			          "function": lambda: self.update_fill("split")}],
-			"Tools": [{"name": "&Copy Live", "shortcut": 'Ctrl+Shift+C',
-			           "function": lambda: self.menu_bar_instance.copy_to_clipboard(self.get_live_compile)}],
-			"Help": [{"name": "&About", "shortcut": False},
-			         {"name": '&Check for Updates', "shortcut": False}]
+			"File": [{"name": "&New", "bind": 'Ctrl+N'},
+			         {"name": "&Open", "bind": 'Ctrl+O', "func": self.utils.open_file},
+			         {"name": "&Save As", "bind": 'Ctrl+Shift+S'},
+			         {"name": "&Restart", "bind": False, "func": self.restart},
+			         {"name": "&Exit", "bind": 'Ctrl+W', "func": self.exit}],
+			"Edit": [{"name": "&Insert", "bind": 'Ctrl+I'}],
+			'Options': [{"name": "&Settings", "bind": False},
+			            {"name": "&Plugins", "bind": False},
+			            {"name": "&Packages", "bind": False}],
+			"View": [{"name": "&Fit", "bind": False,
+			          "func": lambda: self.update_fill("fit")},
+			         {"name": "&Fill", "bind": False,
+			          "func": lambda: self.update_fill("fill")},
+			         {"name": "Split", "bind": False,
+			          "func": lambda: self.update_fill("split")}],
+			"Tools": [{"name": "&Copy Live", "bind": 'Ctrl+Shift+C',
+			           "func": lambda: self.menu_bar_instance.copy_to_clipboard(self.get_live_compile)}],
+			"Help": [{"name": "&About", "bind": False},
+			         {"name": "&Reset Settings", "bind": False, "func": self.utils.reset_system},
+			         {"name": '&Check for Updates', "bind": False}]
 		})
 
 		# The status bar element
@@ -441,7 +448,7 @@ class App(QMainWindow):
 			# Resize the live-render
 			self.editor_compiled.resize(
 				int((self.height - self.menu_bar_element.height() - 2.5 * self.status_bar_element.height()) / (
-							2 ** 0.5)),
+						2 ** 0.5)),
 				self.height - self.menu_bar_element.height() - 2.5 * self.status_bar_element.height())
 
 		else:
@@ -460,5 +467,20 @@ class App(QMainWindow):
 			# Resize the live-render
 			self.editor_compiled.resize(
 				int((self.height - self.menu_bar_element.height() - 2.5 * self.status_bar_element.height()) / (
-							2 ** 0.5)),
+						2 ** 0.5)),
 				self.height - self.menu_bar_element.height() - 2.5 * self.status_bar_element.height())
+
+	def restart(self):
+		"""
+		Restarts the application.
+		The actual method only terminates, however
+		the termination code is synchronized with
+		main.py so that it will reopen after termination.
+		"""
+		QCoreApplication.exit(self.restart_code)
+
+	def exit(self):
+		"""
+		Exits the application with no restart.
+		"""
+		QCoreApplication.exit(self.exit_code)

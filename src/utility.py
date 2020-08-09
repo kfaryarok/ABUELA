@@ -1,13 +1,14 @@
 """
 The Utility file, used mainly for the Utility class.
 """
-from os import mkdir
+from os import mkdir, remove
 from os.path import exists, split
 from random import randint
 from shutil import rmtree, copyfile
 from tkinter import Tk
 from tkinter.filedialog import askopenfilename
 
+from PyQt5.QtCore import QCoreApplication
 from yaml import load, dump, SafeLoader
 
 try:
@@ -26,6 +27,36 @@ class Utility:
 
 	def __init__(self, app_pointer):
 		self.app_pointer = app_pointer
+
+	@staticmethod
+	def safe_remove(file_name):
+		"""
+		A method to attempt deleting a file. Will not spurt errors.
+
+		:return: True if a successful deletion was executed, False if not.
+		"""
+		try:
+			remove(file_name)
+			return True
+		except:
+			return False
+
+	def reset_system(self):
+		"""
+		Reset all the settings and files to their default state.
+		"""
+		# Delete all currently 'installed' files
+		for file in ["../themes/default.yaml",
+		             "../resources/canvas.jpg",
+		             "../resources/logo.jpg",
+		             "../resources/logo.ico",
+		             "../resources/version.txt",
+		             "../resources/settings.yaml"]:
+			self.safe_remove(file)
+		# Use the verify_system function to copy all defaults back to place
+		self.verify_system()
+		# Restart the GUI (themes and other settings will have changed)
+		self.app_pointer.restart()
 
 	@staticmethod
 	def verify_system():

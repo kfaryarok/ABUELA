@@ -81,6 +81,7 @@ class Menu:
 
 	def __init__(self, app_pointer):
 		self.app_pointer = app_pointer
+		self.sub_menu = False
 
 	def update(self, menu_data):
 		"""
@@ -95,10 +96,10 @@ class Menu:
 			# For each submenu in the menu bar's data
 			for submenu in data:
 				# Set the submenus and their key binds
-				if "function" in submenu:
-					self.make_menu_action(submenu["name"], submenu["shortcut"], submenu["function"])
+				if "func" in submenu:
+					self.make_menu_action(submenu["name"], submenu["bind"], submenu["func"])
 				else:
-					self.make_menu_action(submenu["name"], submenu["shortcut"])
+					self.make_menu_action(submenu["name"], submenu["bind"])
 
 	def make_menu_action(self, action_name, shortcut="False", func=False):
 		"""

@@ -125,6 +125,12 @@ class App(QMainWindow):
 			'Options': [{"name": "&Settings", "shortcut": False},
 			            {"name": "&Plugins", "shortcut": False},
 			            {"name": "&Packages", "shortcut": False}],
+			"View": [{"name": "&Fit", "shortcut": False,
+			          "function": lambda: self.update_fill("fit")},
+			         {"name": "&Fill", "shortcut": False,
+			          "function": lambda: self.update_fill("fill")},
+			         {"name": "Split", "shortcut": False,
+			          "function": lambda: self.update_fill("split")}],
 			"Tools": [{"name": "&Copy Live", "shortcut": 'Ctrl+Shift+C',
 			           "function": lambda: self.menu_bar_instance.copy_to_clipboard(self.get_live_compile)}],
 			"Help": [{"name": "&About", "shortcut": False},
@@ -276,7 +282,7 @@ class App(QMainWindow):
 		# Set the GUI size
 		self.setGeometry(self.left, self.top, self.width, self.height)
 		# Show the GUI
-		self.showGUI()
+		self.show_gui()
 
 	def get_live_compile(self):
 		"""
@@ -376,19 +382,28 @@ class App(QMainWindow):
 			QPlainTextEditColor=self.theme["GUI"]["QPlainTextEdit"]["color"]
 		)
 
-	def showGUI(self) -> None:
+	def show_gui(self) -> None:
 		"""
 		A function to display the GUI.
 		"""
 		# Show the GUI
 		self.show()
 
-	def hideGUI(self):
+	def hide_gui(self):
 		"""
 		A function to hide the GUI.
 		"""
 		# Hide the GUI
 		self.hide()
+
+	def update_fill(self, new_fill_type):
+		"""
+		Updates the fill type of the screen, used in the menu bar.
+
+		:param new_fill_type: The new fill type to update to.
+		"""
+		self.settings["live_fill"] = new_fill_type
+		self.resizeEvent()
 
 	def resizeEvent(self, event=None):
 		"""

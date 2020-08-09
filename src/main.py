@@ -21,11 +21,18 @@ if __name__ == "__main__":
 	# ergo disk space will be saved upon exit.
 	def exitClear():
 		"""
+		This function is the exit-function of the program.
+		Just before the program terminates, it will run this function once.
+
 		This function should utilize all of the existing cache
 		cleaning methods available to optimize disk space.
+
+		This function should also make sure to save a snapshot or
+		save any other data necessary to be saved on termination.
 		"""
 		utils = Utility(False)
 		utils.clear_cache()
+		utils.set_settings(ex.settings)
 		comp = Compile()
 		comp.clean()
 

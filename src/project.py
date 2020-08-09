@@ -39,17 +39,13 @@ class Project:
 		if overwrite:
 			# Point to the file
 			file = open(self.fileName, "w")
-			print("[START]{pre}\n{code}\n{post}[END]".format(
-				pre=self.preamble,
-				code=self.data,
-				post=self.peroration
-			))
 			# Write the data to the file
-			data_size = file.write("{pre}\n{code}\n{post}".format(
-				pre=self.preamble,
-				code=self.data,
-				post=self.peroration
-			))
+			# data_size = file.write("{pre}\n{code}\n{post}".format(
+			# 	pre=self.preamble,
+			# 	code=self.data,
+			# 	post=self.peroration
+			# ))
+			data_size = file.write(self.data)
 			# Close the file pointer
 			file.close()
 			return data_size
@@ -74,11 +70,12 @@ class Project:
 		# Close the file pointer
 		file.close()
 		# Return the file's data
-		self.preamble = file_data.split("\\begin{document}")[0]
-		self.peroration = file_data.split("\\end{document}")[-1]
-		self.data = "\\end{document}".join(
-			"\\begin{document}".join(
-				file_data
-					.split("\\begin{document}")[1:])
-				.split("\\end{document}")[:-1])
+		self.data = file_data
+		# self.preamble = file_data.split("\\begin{document}")[0]
+		# self.peroration = file_data.split("\\end{document}")[-1]
+		# self.data = "\\end{document}".join(
+		# 	"\\begin{document}".join(
+		# 		file_data
+		# 			.split("\\begin{document}")[1:])
+		# 		.split("\\end{document}")[:-1])
 		return self.data

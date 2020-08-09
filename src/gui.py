@@ -15,8 +15,10 @@ from PyQt5.QtWidgets import QLabel, QPlainTextEdit, QMainWindow
 from keyboard import is_pressed as is_key_pressed
 
 from compile import compile_to_image
+from error import Error
 from menu import Menu, Status
 from project import Project
+from updater import Updater
 from utility import Utility
 
 
@@ -39,6 +41,9 @@ class App(QMainWindow):
 		self.restart_code = -54321
 		self.exit_code = -12345
 
+		# Create instance of Error class
+		self.error_instance = Error()
+
 		# Create instance of Utility for later usage
 		self.utils = Utility(self)
 
@@ -58,6 +63,9 @@ class App(QMainWindow):
 		self.project = Project("../project/current.tex")
 		self.project.new()
 		self.projects = [self.project]
+
+		# Create an instance of the Updater class
+		self.updater_instance = Updater()
 
 		# Set default compiler live identifier number
 		self.live = 0
@@ -123,7 +131,7 @@ class App(QMainWindow):
 
 		# Initialize the status bar
 		self.status_bar_instance.init_status()
-		
+
 		# Set Project focus to current project
 		self.switch_project()
 
@@ -304,7 +312,15 @@ class App(QMainWindow):
 			           "func": lambda: self.menu_bar_instance.copy_to_clipboard(self.get_live_compile)}],
 			"Projects": [{"name": self.projects[i].name, "bind": False,
 			              "func": lambda: self.switch_project(i)} for i in range(len(self.projects))],
-			"Help": [{"name": "&About", "bind": False},
+			"Help": [{"name": "&About", "bind": False, "func": lambda: self.error_instance.dialogue(
+				"../resources/logo.ico",
+				"About",
+				"<b><i>ABUELA</i></b>",
+				"""<i>A Beautiful, Useful, & Elegant LaTeX Application.</i><br><br>
+				
+				<a href="{base_url}">Founded with love by @Xiddoc, @AvivHavivyan, & @RootAtKali.</a>""".format(
+					base_url=self.updater_instance.get_url()
+				))},
 			         {"name": "&Reset Settings", "bind": False, "func": self.utils.reset_system},
 			         {"name": '&Check for Updates', "bind": False}]
 		})

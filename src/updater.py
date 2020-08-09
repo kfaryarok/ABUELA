@@ -22,7 +22,23 @@ class Updater:
 		pass
 
 	@staticmethod
-	def checkUpdates():
+	def get_url():
+		"""
+		A function which gets the URL of the program's page.
+
+		:return: The HTTPS URL to the website.
+		"""
+		# Point to the link file
+		file = open("../link.txt", "r")
+		# Read the file and retrieve the link
+		link = file.read().strip()
+		# Close the file
+		file.close()
+		# Return the link
+		return link
+
+	@staticmethod
+	def check_updates():
 		"""
 		A function to check if there are updates for the software.
 
@@ -39,8 +55,7 @@ class Updater:
 		# Make the comparison
 		return latest_version > current_version
 
-	@staticmethod
-	def downloadUpdates():
+	def download_updates(self):
 		"""
 		Downloads the latest version of ABUELA to a temporary directory.
 
@@ -50,14 +65,16 @@ class Updater:
 			# Create the file pointer for the zip
 			file = open(str(gettempdir()) + "/ABUELA_UPDATE.zip", "wb")
 			# Download the zip and dump its contents into the file
-			file.write(get("https://github.com/kfaryarok/ABUELA/archive/master.zip").content)
+			file.write(get("{base_url}/archive/master.zip".format(
+				base_url=self.get_url()
+			)).content)
 			# Close the file pointer
 			file.close()
 			return True
 		except:
 			return False
 
-	def installUpdates(self):
+	def install_updates(self):
 		"""
 		This function is meant to install updates. It will,
 		regardless of state, do a check for updates and will
@@ -67,9 +84,9 @@ class Updater:
 		successful, returns False if unsuccessful.
 		"""
 		# If there are updates...
-		if self.checkUpdates():
+		if self.check_updates():
 			# If the updates were downloaded successfully...
-			if self.downloadUpdates():
+			if self.download_updates():
 				# Extract the folder from the zip file
 				with ZipFile(str(gettempdir()) + "/ABUELA_UPDATE.zip") as zip_ref:
 					zip_ref.extractall(str(gettempdir()))

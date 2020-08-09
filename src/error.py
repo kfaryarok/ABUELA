@@ -3,6 +3,7 @@ The Error file is the file used to store
 the Error class. More info on the class
 is labeled in the class docstring.
 """
+from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtWidgets import QMessageBox
 
 
@@ -72,15 +73,28 @@ class Error:
 		Create a Dialogue / Message box widget
 		and display it to the screen.
 
-		:param icon: The type of icon to show on the left
+		:param icon: The type of icon to show on the left as a Qt object, or a string to the icon's path
 		:param title: The title of the message box
 		:param text: The title inside the message box
 		:param subtext: The subtext inside the message box
 		:return Returns the exit value (or selection value) of the dialogue
 		"""
+		# Initialize the message box
 		msg = QMessageBox()
-		msg.setIcon(icon)
+		# Set window icon
+		msg.setWindowIcon(QIcon("../resources/logo.ico"))
+		# Set message icon type
+		if type(icon) == str:
+			# If a string is inputted, then it's a path to the file
+			msg.setIconPixmap(QPixmap(icon))
+		else:
+			# Otherwise, it's a Qt object
+			msg.setIcon(icon)
+		# Set window title
 		msg.setWindowTitle(title)
+		# Set text title
 		msg.setText(text)
+		# Set subtext data
 		msg.setInformativeText(subtext)
+		# Execute and return the data
 		return msg.exec_()

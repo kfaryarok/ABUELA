@@ -11,6 +11,8 @@ from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QAction, QMenu
 from win32clipboard import OpenClipboard, EmptyClipboard, SetClipboardData, CloseClipboard, CF_DIB
 
+from error import CatchError
+
 
 class Status:
 	"""
@@ -47,6 +49,7 @@ class Status:
 		"""
 		self.set_status(self.status_dict)
 
+	@CatchError
 	def update_status(self, status_update):
 		"""
 		Updates an element (or multiple elements at
@@ -57,6 +60,7 @@ class Status:
 		"""
 		self.set_status({**self.status_dict, **status_update})
 
+	@CatchError
 	def set_status(self, status_dict: dict):
 		"""
 		Calls on the Status Bar updater function
@@ -78,6 +82,7 @@ class Status:
 		self.app_pointer.status = self.status
 		self.app_pointer.status_bar_element.showMessage(self.app_pointer.status)
 
+
 class Menu:
 	"""
 	Class to assist with managing the functions,
@@ -95,7 +100,8 @@ class Menu:
 		self.app_pointer.menu_bar_element = self.app_pointer.menuBar()
 		self.app_pointer.menu_bar_element.setFixedHeight(int(self.app_pointer.height / 30))
 		self.app_pointer.menu_bar_element.setStyleSheet(self.app_pointer.formatStyle())
-		self.app_pointer.menu_bar_element.setFont(QFont(self.app_pointer.settings["menu_bar_font"], self.app_pointer.settings["menu_bar_size"]))
+		self.app_pointer.menu_bar_element.setFont(
+			QFont(self.app_pointer.settings["menu_bar_font"], self.app_pointer.settings["menu_bar_size"]))
 
 	def clear(self):
 		"""
@@ -103,6 +109,7 @@ class Menu:
 		"""
 		self.app_pointer.menu_bar_element.clear()
 
+	@CatchError
 	def set(self, menu_data):
 		"""
 		Sets the Menu Bar and all submenus to the inputted data.
@@ -112,6 +119,7 @@ class Menu:
 		self.clear()
 		self.update(menu_data)
 
+	@CatchError
 	def update(self, menu_data):
 		"""
 		Updates the Menu Bar and all submenus.

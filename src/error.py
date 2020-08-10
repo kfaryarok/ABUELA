@@ -1,10 +1,40 @@
 """
 The Error file is the file used to store
-the Error class. More info on the class
-is labeled in the class docstring.
+the Error class, along with other
+error-related functions and objects.
+More info on the class is labeled
+in the class docstring.
 """
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtWidgets import QMessageBox
+from functools import wraps
+
+
+def CatchError(func):
+	"""
+	A decorator to catch uneeded errors or
+	errors that, to fix, would simply require
+	too many if statements to be efficient / readable.
+
+    :param func: The function to decorate / pad.
+    :return:
+    """
+
+	@wraps(func)
+	def wrapper(*args, **kwargs):
+		"""
+		The main function to wrap / decorate
+
+        :param args: Any function arguments
+        :param kwargs: Any function kwarguments
+        :return:
+        """
+		try:
+			return func(*args, **kwargs)
+		except RuntimeError:
+			pass
+
+	return wrapper
 
 
 class Error:

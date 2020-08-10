@@ -1,7 +1,7 @@
 """
 The Utility file, used mainly for the Utility class.
 """
-from os import mkdir, remove
+from os import mkdir, remove, listdir, walk
 from os.path import exists, split, splitext
 from random import randint
 from shutil import rmtree, copyfile
@@ -96,8 +96,7 @@ class Utility:
 					# Copy it to the file's original location
 					copyfile(default_path, file)
 
-	@staticmethod
-	def clear_cache():
+	def clear_cache(self):
 		"""
 		Function which removes all files from the
 		compile folder and other such small files
@@ -117,6 +116,32 @@ class Utility:
 			mkdir("../compile")
 		except:
 			return
+
+		# For each folder in the root directory
+		for dir_name in [x[0] for x in walk("../")]:
+			# Remove all files with the following extensions
+			self.remove_by_ext(["aux", "log"], dir_name)
+
+	def remove_by_ext(self, ext_list: list, dir_name: str):
+		"""
+		Walks down a directory and deletes all files with a given extension.
+
+		:param ext_list: A list of all the extensions to eliminate.
+		:param dir_name: The name of the root directory to walk down.
+		"""
+		# For each file in the current directory
+		for file in listdir(dir_name):
+			# For each extension loaded
+			for ext in ext_list:
+				# If the extension matches
+				if file.endswith(".{ext}".format(
+						ext=ext
+				)):
+					# Delete the file
+					self.safe_remove("{dir}/{file}".format(
+						dir=dir_name,
+						file=file
+					))
 
 	@staticmethod
 	def load_theme(settings):
@@ -308,17 +333,12 @@ class Utility:
 			# Compile to an image
 			self.app_pointer.status_bar_instance.update_status({"Task": "Converting..."})
 			image_path = compile_to_image(
-				self.app_pointer.project.file_name,
-				self.app_pointer.settings["compile_quality"]
+				app_pointer=self.app_pointer,
+				path=self.app_pointer.project.file_name,
+				quality=self.app_pointer.settings["compile_quality"]
 			)[0]
 			# Copy it to the full path
 			self.app_pointer.status_bar_instance.update_status({"Task": "Copying..."})
 			copyfile(image_path + "1.jpg", file_path)
 		# Reset Task status
 		self.app_pointer.status_bar_instance.update_status({"Task": "Idling"})
-
-# def open_dialog(self):
-# 	dlg = QDialog(self)
-# 	dlg.setMinimumSize(self.width / 2, self.height / 2)
-# 	dlg.setWindowTitle("Edit preambles")
-# 	dlg.exec_()

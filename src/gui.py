@@ -11,7 +11,7 @@ from time import sleep, time
 from PyQt5 import QtGui
 from PyQt5.QtCore import QEvent, Qt
 from PyQt5.QtGui import QPixmap, QIcon, QFont, QTextCursor, QTextBlockFormat, QColor
-from PyQt5.QtWidgets import QLabel, QPlainTextEdit, QMainWindow, QAction, QFileDialog
+from PyQt5.QtWidgets import QLabel, QPlainTextEdit, QMainWindow, QAction, QFileDialog, QDialog
 from keyboard import is_pressed as is_key_pressed
 from compile import compile_to_image
 from menu import Menu, Status
@@ -118,9 +118,16 @@ class App(QMainWindow):
 			"File": [{"name": "&New", "shortcut": 'Ctrl+N'},
 			         {"name": "&Open", "shortcut": 'Ctrl+O',
 					  "function": lambda: self.open_file()},
-			         {"name": "&Save As", "shortcut": 'Ctrl+Shift+S'}],
-			"Edit": [{"name": "&Insert", "shortcut": 'Ctrl+I'}],
-			'Options': [{"name": "&Settings", "shortcut": False},
+			         {"name": "&Save As", "shortcut": 'Ctrl+Shift+S',
+					  "function": lambda: self.save_file()}],
+			"Edit": [{"name": "&Edit preambles", "shortcut": False,
+					  "function": lambda: self.open_dialog()}],
+			"Insert": [{"name": "&Add amsmath", "shortcut": False},
+					   {"name": "&Add amsfonts", "shortcut": False},
+					   {"name": "&Add TikZ/Pgf", "shortcut": False},
+					   {"name": "&Add pgfplots", "shortcut": False},
+					   {"name": "&Add geometry", "shortcut": False}],
+			"Options": [{"name": "&Settings", "shortcut": False},
 			            {"name": "&Plugins", "shortcut": False},
 			            {"name": "&Packages", "shortcut": False}],
 			"View": [{"name": "&Fill", "shortcut": False,
@@ -516,4 +523,13 @@ class App(QMainWindow):
 			self.editor_box.setPlainText(data)
 			self.status_bar_instance.update_status({"File": f.name})
 
+	def save_file(self):
+		options = QFileDialog.Options()
+		fileName, _ = QFileDialog.getSaveFileName(self, "Save as", "",
+												  "All Files (*);;Text Files (*.txt);;Tex Files (*.tex);;PDF Files (*.pdf)", options=options)
 
+	def open_dialog(self):
+		dlg = QDialog(self)
+		dlg.setMinimumSize(self.width/2, self.height/2)
+		dlg.setWindowTitle("Edit preambles")
+		dlg.exec_()

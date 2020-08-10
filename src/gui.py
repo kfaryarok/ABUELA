@@ -9,13 +9,16 @@ from threading import Thread
 from time import sleep, time
 
 from PyQt5 import QtGui
-from PyQt5.QtCore import QEvent, Qt
+from PyQt5.QtCore import QEvent, Qt, QCoreApplication
 from PyQt5.QtGui import QPixmap, QIcon, QFont, QTextCursor, QTextBlockFormat, QColor
-from PyQt5.QtWidgets import QLabel, QPlainTextEdit, QMainWindow, QAction, QFileDialog, QDialog
+from PyQt5.QtWidgets import QLabel, QPlainTextEdit, QMainWindow
 from keyboard import is_pressed as is_key_pressed
+
 from compile import compile_to_image
+from error import Error
 from menu import Menu, Status
 from project import Project
+from updater import Updater
 from utility import Utility
 
 
@@ -23,34 +26,8 @@ from utility import Utility
 class App(QMainWindow):
 	"""
 	The App class, for everything-GUI.
-	Actually executed by main.py, though.
+	Executed by the main.py file.
 	"""
-
-	# Create instance of Utility for later usage
-	utils = Utility()
-
-	# Verify that file system is intact
-	utils.verify_system()
-
-	# Pull settings
-	settings = utils.get_settings()
-
-	# Clear cache
-	utils.clear_cache()
-
-	# Load the theme
-	theme = utils.load_theme(settings)
-
-	# Open new project (remove this part and integrate Open File, when the Open File features is ready)
-	project = Project("../project/current.tex")
-	project.new()
-
-	# Set default compiler live identifier number
-	live = 0
-	live_update = 0
-	live_compile = "../resources/canvas.jpg"
-
-	# Other attributes
 
 	# Constructor
 	def __init__(self):
@@ -59,6 +36,45 @@ class App(QMainWindow):
 		Here, elements (and other small things for the GUI) are initialized and set.
 		"""
 		super().__init__()
+
+		# Initialize exit codes (These are arbitrary values with no hidden meaning)
+		self.restart_code = -54321
+		self.exit_code = -12345
+
+		# Create instance of Error class
+		self.error_instance = Error()
+
+		# Create instance of Utility for later usage
+		self.utils = Utility(self)
+
+		# Verify that file system is intact
+		self.utils.verify_system()
+
+		# Pull settings
+		self.settings = self.utils.get_settings()
+
+		# Clear cache
+		self.utils.clear_cache()
+
+		# Load the theme
+		self.theme = self.utils.load_theme(self.settings)
+
+		# Open new project (remove this part and integrate Open File, when the Open File features is ready)
+		self.project = Project("../project/current.tex")
+		self.project.new()
+		self.projects = [self.project]
+		self.projects_index = 0
+
+		# Create an instance of the Updater class
+		self.updater_instance = Updater()
+
+		# Set default compiler live identifier number
+		self.live = 0
+		self.live_update = 0
+		self.live_compile = "../resources/canvas.jpg"
+
+		# Other attributes
+		self.status = ""
 
 		# Get screen data
 		self.screen_width = self.utils.get_screen()[0]
@@ -83,12 +99,6 @@ class App(QMainWindow):
 		self.width = int(self.screen_width * self.settings["screen_ratio"])
 		self.height = int(self.screen_height * self.settings["screen_ratio"])
 
-		# Create instance of Menu and Status Bar classes
-		# Initialize it here rather in the above 'attribute initialization section'
-		# because you can't call the Status Bar updating function until
-		self.menu_bar_instance = Menu()
-		self.status_bar_instance = Status(lambda: self.set_status)
-
 		# Initialize elements
 		# Default parameter values are all 0 because self.resizeElements
 		# will update the positioning and size of each element regardless
@@ -103,61 +113,28 @@ class App(QMainWindow):
 		# The live-compile renderer element
 		self.editor_compiled = self.makePic("../resources/canvas.jpg")
 
+		# Create instance of Menu and Status Bar classes
+		# Initialize it here rather in the above 'attribute initialization section'
+		# because you can't call the Status Bar updating function until
+		self.menu_bar_instance = Menu(self)
+		self.status_bar_instance = Status(self)
+
 		# MAKE SURE THAT MENU BAR AND STATUS BAR ARE THE LAST 2 ELEMENTS TO BE INITIALIZED
 		# If not, the next element to be created will
 		# overlap the menu bar / status bar
 		# and will cause an unfortunate rendering bug.
 		# The menu bar element
-		self.menu_bar_element = self.menuBar()
-		self.menu_bar_element.setFixedHeight(int(self.height / 30))
-		self.menu_bar_element.setStyleSheet(self.formatStyle())
-		self.menu_bar_element.setFont(QFont(self.settings["menu_bar_font"], self.settings["menu_bar_size"]))
-
-		# Initialize the menu data
-		menu_data = {
-			"File": [{"name": "&New", "shortcut": 'Ctrl+N'},
-			         {"name": "&Open", "shortcut": 'Ctrl+O',
-					  "function": lambda: self.open_file()},
-			         {"name": "&Save As", "shortcut": 'Ctrl+Shift+S',
-					  "function": lambda: self.save_file()}],
-			"Edit": [{"name": "&Edit preambles", "shortcut": False,
-					  "function": lambda: self.open_dialog()}],
-			"Insert": [{"name": "&Add amsmath", "shortcut": False},
-					   {"name": "&Add amsfonts", "shortcut": False},
-					   {"name": "&Add TikZ/Pgf", "shortcut": False},
-					   {"name": "&Add pgfplots", "shortcut": False},
-					   {"name": "&Add geometry", "shortcut": False}],
-			"Options": [{"name": "&Settings", "shortcut": False},
-			            {"name": "&Plugins", "shortcut": False},
-			            {"name": "&Packages", "shortcut": False}],
-			"View": [{"name": "&Fill", "shortcut": False,
-					 "function": lambda: self.resize("Fill")},
-					 {"name": "Split", "shortcut": False,
-					  "function": lambda: self.resize("Split")},
-					 {"name": "&Fit", "shortcut": False,
-					  "function": lambda: self.resize("Fit")}
-					 ],
-			"Tools": [{"name": "&Copy Live", "shortcut": 'Ctrl+Shift+C',
-			           "function": lambda: self.menu_bar_instance.copy_to_clipboard(lambda: self.get_live_compile)}],
-			"Help": [{"name": "&About", "shortcut": False},
-			         {"name": '&Check for Updates', "shortcut": False}]
-		}
-
-		# For each menu bar in the menu_data...
-		for menu, data in menu_data.items():
-			# Create a new menu
-			self.subMenu = self.menu_bar_element.addMenu(menu)
-			# For each submenu in the menu bar's data
-			for submenu in data:
-				# Set the submenus and their key binds
-				if "function" in submenu:
-					self.make_menu_action(submenu["name"], submenu["shortcut"], submenu["function"])
-				else:
-					self.make_menu_action(submenu["name"], submenu["shortcut"])
+		self.menu_bar_instance.init()
 
 		# The status bar element
 		self.status_bar_element = self.statusBar()
 		self.status_bar_element.setStyleSheet(self.formatStyle())
+
+		# Initialize the status bar
+		self.status_bar_instance.init_status()
+
+		# Set Project focus to current project
+		self.switch_project()
 
 		# Call GUI creation
 		self.initUI()
@@ -168,8 +145,6 @@ class App(QMainWindow):
 			QMainWindowBGColor=self.theme["GUI"]["QMainWindow"]["background-color"]))
 		# Resize the elements to the current window size
 		self.resizeEvent()
-		# Initialize the status bar
-		self.status_bar_instance.init_status()
 
 	def event(self, e):
 		"""
@@ -196,22 +171,32 @@ class App(QMainWindow):
 		if obj is self.editor_box and event.type() == QEvent.KeyPress:
 			# Key Binds
 			# Shift + Return = Add / and newline
+			self.status_bar_instance.update_status({"Task": "Parsing binds..."})
 			if is_key_pressed("return") and is_key_pressed("shift"):
 				self.editor_box.insertPlainText("\\\\\n")
 				return True
 
 			# Compile
-			# Set the current live ID and pass it to the function
-			live_id = randint(0, 999999999999999)
-			self.live = live_id
-			# Set the time at which to call the live update
-			self.live_update = time() + self.settings["live_update"]
-
-			# Initialize the process
-			p = Thread(target=self.updateLive, args=[live_id])
-			p.setDaemon(True)
-			p.start()
+			self.thread_compile()
+			self.status_bar_instance.update_status({"Task": "Idling"})
 		return super(App, self).eventFilter(obj, event)
+
+	def thread_compile(self):
+		"""
+		The method which starts a compiler thread.
+		Written as a method as to be called easier.
+		"""
+		# Set the current live ID and pass it to the function
+		live_id = randint(0, 999999999999999)
+		self.live = live_id
+		# Set the time at which to call the live update
+		self.live_update = time() + self.settings["live_update"]
+
+		# Initialize the process
+		self.status_bar_instance.update_status({"Task": "Multiprocessing..."})
+		p = Thread(target=self.updateLive, args=[live_id])
+		p.setDaemon(True)
+		p.start()
 
 	def updateLive(self, liveID):
 		"""
@@ -253,7 +238,12 @@ class App(QMainWindow):
 		# Compile the code to an image
 		self.status_bar_instance.update_status({"Task": "Compiling..."})
 		page_index = 1  # TO DO (ADD SCROLL ELEMENT WHICH ALTERS THIS VALUE & MAKE THIS VALUE AN ATTRIBUTE)
-		compiled_return_data = compile_to_image(self.settings["live_quality"])
+		compiled_return_data = compile_to_image(
+			app_pointer=self,
+			path=self.project.file_name,
+			quality=self.settings["live_quality"]
+		)
+		# If the file was successfully compiled...
 		if compiled_return_data[0]:
 			# Update the live image element
 			self.status_bar_instance.update_status({"Task": "Updating..."})
@@ -272,7 +262,7 @@ class App(QMainWindow):
 			cursor = self.editor_box.textCursor()
 			cursor.setPosition(cursor_pos)
 			self.editor_box.setTextCursor(cursor)
-
+		# Otherwise, if there was a compilation error,
 		else:
 			# If there is a compilation error... (otherwise, the second
 			# item would be returned as false from the compileToImage function)
@@ -300,13 +290,91 @@ class App(QMainWindow):
 		# Set the GUI size
 		self.setGeometry(self.left, self.top, self.width, self.height)
 		# Show the GUI
-		self.showGUI()
+		self.show_gui()
 
-	def get_live_compile(self):
+	def close_project(self):
 		"""
-		Function to return the live_compile attribute.
+		Closes the the currently opened Project file.
 		"""
-		return self.live_compile
+		# If there are no other files left...
+		if len(self.projects) == 1:
+			# Then reload (recreate the current.tex file)
+			self.restart_app()
+			return
+		# Otherwise...
+		if len(self.projects) > self.projects_index + 1:
+			# Go to the above index (if there is one)
+			# Kill the current Project (by index)
+			self.projects.pop(self.projects_index)
+			# The Project at this index now will be the one above ours
+			self.switch_project(self.projects_index)
+			return
+		# Otherwise, there must be a Project in the index below us, so go to it
+		else:
+			# Kill the current Project (by index)
+			self.projects.pop(self.projects_index)
+			# Go to the Project in the index below ours
+			self.switch_project(self.projects_index - 1)
+			return
+
+	def switch_project(self, new_project_index=0):
+		"""
+		Changes the editor to focus on the new selected Project class.
+
+		:param new_project_index: The index of self.projects to focus on.
+		"""
+		# Set the current project to the new index
+		self.status_bar_instance.update_status({"Task": "Opening..."})
+		self.projects_index = new_project_index
+		self.project = self.projects[self.projects_index]
+
+		# Open it in the editor box
+		self.editor_box.setPlainText(self.project.open())
+
+		# Update the status bar to the current project
+		self.status_bar_instance.update_status({"Project": self.project.name})
+
+		# Update the menu data (Specifically, the Projects menu)
+		self.status_bar_instance.update_status({"Task": "Updating menu..."})
+		self.menu_bar_instance.set({
+			"File": [{"name": "&New", "bind": 'Ctrl+N'},
+			         {"name": "&Open", "bind": 'Ctrl+O', "func": self.utils.open_file},
+			         {"name": "&Save As", "bind": 'Ctrl+Shift+S', "func": self.utils.save_file},
+			         {"name": "&Close", "bind": 'Ctrl+W', "func": self.close_project},
+			         {"name": "&Reload", "bind": False, "func": self.restart_app},
+			         {"name": "&Exit", "bind": False, "func": self.exit_app}],
+			"Edit": [{"name": "&Insert", "bind": 'Ctrl+I'}],
+			'Options': [{"name": "&Settings", "bind": False},
+			            {"name": "&Plugins", "bind": False},
+			            {"name": "&Packages", "bind": False}],
+			"View": [{"name": "&Fit", "bind": False,
+			          "func": lambda: self.update_fill("fit")},
+			         {"name": "&Fill", "bind": False,
+			          "func": lambda: self.update_fill("fill")},
+			         {"name": "Split", "bind": False,
+			          "func": lambda: self.update_fill("split")}],
+			"Tools": [{"name": "&Copy Live", "bind": 'Ctrl+Shift+C',
+			           "func": lambda: self.menu_bar_instance.copy_to_clipboard(self.live_compile)}],
+			"Projects": [{"name": self.projects[i].name, "bind": False,
+			              "func": lambda state, x=i: self.switch_project(x)} for i in range(len(self.projects))],
+			"Help": [{"name": "&About", "bind": False, "func": lambda: self.error_instance.dialogue(
+				"../resources/logo.ico",
+				"About",
+				"<b><i>ABUELA</i></b>",
+				"""<i>A Beautiful, Useful, & Elegant LaTeX Application.</i><br><br>
+				
+				Founded with love by @Xiddoc, @AvivHavivyan, & @RootAtKali.<br><br>
+				
+				Links:<br>
+				• <a href="{base_url}">Github Repo</a><br>
+				• <a href="{base_url}/blob/master/README.md">Documentation</a><br>
+				• <a href="{base_url}/blob/master/LICENSE">License</a>""".format(
+					base_url=self.updater_instance.get_url()
+				))},
+			         {"name": "&Reset Settings", "bind": False, "func": self.utils.reset_system},
+			         {"name": '&Check for Updates', "bind": False}]
+		})
+		self.status_bar_instance.update_status({"Task": "Idling"})
 
 	def makeTextBox(self, xPos=0, yPos=0, width=0, height=0):
 		"""
@@ -342,27 +410,6 @@ class App(QMainWindow):
 		label.move(xPos, yPos)
 		label.resize(width, height)
 		return label
-
-	def make_menu_action(self, action_name, shortcut="False", func=False):
-		"""
-		A method to make menu generation more streamlined and sleek.
-		Generates an action (menu / submenu) and sets it to a shortcut.
-		Sets the action to the most recently created menu tab.
-
-		:param func: The function that should be called when the submenu button is clicked.
-		:param action_name: The name of the submenu (e.g. &New File)
-		:param shortcut: The key bind to set the shortcut to (e.g. Ctrl+Shift+N)
-		"""
-		# Create the action and initialize it with a name (e.g. &Open)
-		new_action = QAction(action_name, self)
-		if shortcut != "False":
-			# Set shortcut method (e.g. Ctrl+O)
-			new_action.setShortcut(shortcut)
-		if func:
-			# Connect the Action to a function
-			new_action.triggered.connect(func)
-		# Set the action to the current menu element
-		self.subMenu.addAction(new_action)
 
 	def formatStyle(self):
 		"""
@@ -421,21 +468,28 @@ class App(QMainWindow):
 			QPlainTextEditColor=self.theme["GUI"]["QPlainTextEdit"]["color"]
 		)
 
-	def set_status(self, new_status):
-		"""
-		Method to update the Status bar to the inputted text.
-
-		:param new_status: The new status to update to.
-		"""
-		self.status = new_status
-		self.status_bar_element.showMessage(self.status)
-
-	def showGUI(self):
+	def show_gui(self) -> None:
 		"""
 		A function to display the GUI.
 		"""
 		# Show the GUI
 		self.show()
+
+	# def hide_gui(self):
+	# 	"""
+	# 	A function to hide the GUI.
+	# 	"""
+	# 	# Hide the GUI
+	# 	self.hide()
+
+	def update_fill(self, new_fill_type):
+		"""
+		Updates the fill type of the screen, used in the menu bar.
+
+		:param new_fill_type: The new fill type to update to.
+		"""
+		self.settings["live_fill"] = new_fill_type
+		self.resizeEvent()
 
 	def resizeEvent(self, event=None):
 		"""
@@ -473,7 +527,7 @@ class App(QMainWindow):
 			# Resize the live-render
 			self.editor_compiled.resize(
 				int((self.height - self.menu_bar_element.height() - 2.5 * self.status_bar_element.height()) / (
-							2 ** 0.5)),
+						2 ** 0.5)),
 				self.height - self.menu_bar_element.height() - 2.5 * self.status_bar_element.height())
 
 		else:
@@ -492,44 +546,20 @@ class App(QMainWindow):
 			# Resize the live-render
 			self.editor_compiled.resize(
 				int((self.height - self.menu_bar_element.height() - 2.5 * self.status_bar_element.height()) / (
-							2 ** 0.5)),
+						2 ** 0.5)),
 				self.height - self.menu_bar_element.height() - 2.5 * self.status_bar_element.height())
 
-	def resize(self, string):
+	def restart_app(self):
+		"""
+		Restarts the application.
+		The actual method only terminates, however
+		the termination code is synchronized with
+		main.py so that it will reopen after termination.
+		"""
+		QCoreApplication.exit(self.restart_code)
 
-		if string == "Fill":
-			self.settings["live_fill"] = "fill"
-			self.utils.set_settings(self.settings)
-		elif string == "Split":
-			self.settings["live_fill"] = "split"
-			self.utils.set_settings(self.settings)
-		else:
-			self.settings["live_fill"] = "fit"
-			self.utils.set_settings(self.settings)
-
-		self.resizeEvent()
-
-
-
-	def open_file(self):
-		file_dialog = QFileDialog()
-
-		if file_dialog.exec():
-			filenames = file_dialog.selectedFiles()
-
-		f = open(filenames[0], 'r')
-		with f:
-			data = f.read()
-			self.editor_box.setPlainText(data)
-			self.status_bar_instance.update_status({"File": f.name})
-
-	def save_file(self):
-		options = QFileDialog.Options()
-		fileName, _ = QFileDialog.getSaveFileName(self, "Save as", "",
-												  "All Files (*);;Text Files (*.txt);;Tex Files (*.tex);;PDF Files (*.pdf)", options=options)
-
-	def open_dialog(self):
-		dlg = QDialog(self)
-		dlg.setMinimumSize(self.width/2, self.height/2)
-		dlg.setWindowTitle("Edit preambles")
-		dlg.exec_()
+	def exit_app(self):
+		"""
+		Exits the application with no restart.
+		"""
+		QCoreApplication.exit(self.exit_code)

@@ -2,7 +2,7 @@
 The Project file.
 Used to store the Project class.
 """
-from os.path import exists
+from os.path import exists, split
 
 
 class Project:
@@ -13,10 +13,13 @@ class Project:
 	any preamble data (LaTeX code), and such.
 	It also includes methods for saving and opening files.
 	"""
-	def __init__(self, fileName):
-		self.fileName = fileName
+
+	def __init__(self, file_name):
+		self.file_name = file_name
+		self.name = split(self.file_name)[-1]
 		self.data = ""
 		self.preamble = ""
+		self.peroration = ""
 
 	def new(self):
 		"""
@@ -24,6 +27,7 @@ class Project:
 		"""
 		self.data = ""
 		self.preamble = """\\documentclass[12pt]{article}\n\\begin{document}"""
+		self.peroration = """\n\\end{document}"""
 
 	def save(self, text, overwrite=False):
 		"""
@@ -34,18 +38,19 @@ class Project:
 		self.data = text
 		if overwrite:
 			# Point to the file
-			file = open(self.fileName, "w")
+			file = open(self.file_name, "w", encoding="utf-8")
 			# Write the data to the file
-			data_size = file.write("{pre}\n{code}\n{end}".format(
-				pre=self.preamble,
-				code=self.data,
-				end="\\end{document}"
-			))
+			# data_size = file.write("{pre}\n{code}\n{post}".format(
+			# 	pre=self.preamble,
+			# 	code=self.data,
+			# 	post=self.peroration
+			# ))
+			data_size = file.write(self.data)
 			# Close the file pointer
 			file.close()
 			return data_size
 		else:
-			if exists(self.fileName):
+			if exists(self.file_name):
 				# If the file exists, don't overwrite it
 				return
 			else:
@@ -59,12 +64,18 @@ class Project:
 		Returns the data as a string.
 		"""
 		# Point to the file
-		file = open(self.fileName, "r")
+		file = open(self.file_name, "r")
 		# Read the data
 		file_data = file.read()
 		# Close the file pointer
 		file.close()
 		# Return the file's data
-		self.preamble = file_data.split("\\begin{document}")[0]
-		self.data = "\\begin{document}".join(file_data.split("\\begin{document}")[1:])
-		return file_data
+		self.data = file_data
+		# self.preamble = file_data.split("\\begin{document}")[0]
+		# self.peroration = file_data.split("\\end{document}")[-1]
+		# self.data = "\\end{document}".join(
+		# 	"\\begin{document}".join(
+		# 		file_data
+		# 			.split("\\begin{document}")[1:])
+		# 		.split("\\end{document}")[:-1])
+		return self.data

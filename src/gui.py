@@ -177,19 +177,26 @@ class App(QMainWindow):
 				return True
 
 			# Compile
-			# Set the current live ID and pass it to the function
-			live_id = randint(0, 999999999999999)
-			self.live = live_id
-			# Set the time at which to call the live update
-			self.live_update = time() + self.settings["live_update"]
-
-			# Initialize the process
-			self.status_bar_instance.update_status({"Task": "Multiprocessing..."})
-			p = Thread(target=self.updateLive, args=[live_id])
-			p.setDaemon(True)
-			p.start()
+			self.thread_compile()
 			self.status_bar_instance.update_status({"Task": "Idling"})
 		return super(App, self).eventFilter(obj, event)
+
+	def thread_compile(self):
+		"""
+		The method which starts a compiler thread.
+		Written as a method as to be called easier.
+		"""
+		# Set the current live ID and pass it to the function
+		live_id = randint(0, 999999999999999)
+		self.live = live_id
+		# Set the time at which to call the live update
+		self.live_update = time() + self.settings["live_update"]
+
+		# Initialize the process
+		self.status_bar_instance.update_status({"Task": "Multiprocessing..."})
+		p = Thread(target=self.updateLive, args=[live_id])
+		p.setDaemon(True)
+		p.start()
 
 	def updateLive(self, liveID):
 		"""
@@ -231,7 +238,11 @@ class App(QMainWindow):
 		# Compile the code to an image
 		self.status_bar_instance.update_status({"Task": "Compiling..."})
 		page_index = 1  # TO DO (ADD SCROLL ELEMENT WHICH ALTERS THIS VALUE & MAKE THIS VALUE AN ATTRIBUTE)
-		compiled_return_data = compile_to_image(self.project.file_name, self.settings["live_quality"])
+		compiled_return_data = compile_to_image(
+			app_pointer=self,
+			path=self.project.file_name,
+			quality=self.settings["live_quality"]
+		)
 		# If the file was successfully compiled...
 		if compiled_return_data[0]:
 			# Update the live image element

@@ -20,8 +20,9 @@ class Status:
 
 	def __init__(self, app_pointer):
 		self.app_pointer = app_pointer
-		self.padding = 10
-		self.status_dict = {}
+		self.padding = self.app_pointer.settings["status_padding"]
+		self.spacing = self.app_pointer.settings["status_spacing"]
+		self.status_dict = dict()
 		self.status = ""
 
 	def init_status(self):
@@ -63,17 +64,19 @@ class Status:
 
 		:param status_dict: A dictionary containing all the data to set the Status Bar to.
 		"""
-		statuses = []
+		# Initialize all statuses
+		statuses = list()
+		# For each status, create it's sector
 		for status, data in status_dict.items():
-			statuses.append("{status}: {data}".format(
+			statuses.append("{status}:{spacing}{data}".format(
 				status=status,
+				spacing=self.spacing * " ",
 				data=data
 			))
 		self.status_dict = status_dict
 		self.status = self.padding * " " + str(self.padding * " " + "|" + self.padding * " ").join(statuses)
 		self.app_pointer.status = self.status
 		self.app_pointer.status_bar_element.showMessage(self.app_pointer.status)
-
 
 class Menu:
 	"""

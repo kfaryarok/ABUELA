@@ -38,7 +38,7 @@ class Project:
 		self.data = text
 		if overwrite:
 			# Point to the file
-			file = open(self.fileName, "w")
+			file = open(self.fileName, "w", encoding="utf-8")
 			# Write the data to the file
 			# data_size = file.write("{pre}\n{code}\n{post}".format(
 			# 	pre=self.preamble,

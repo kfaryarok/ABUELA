@@ -59,7 +59,7 @@ class Utility:
 		# Use the verify_system function to copy all defaults back to place
 		self.verify_system()
 		# Restart the GUI (themes and other settings will have changed)
-		self.app_pointer.restart()
+		self.app_pointer.restart_app()
 
 	@staticmethod
 	def verify_system():

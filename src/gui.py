@@ -279,6 +279,33 @@ class App(QMainWindow):
 		# Show the GUI
 		self.show_gui()
 
+	def close_project(self, project_index):
+		"""
+		Closes the currently opened Project file.
+
+		:param project_index: The index in the Project manager array to remove / quit.
+		"""
+		# If there are no other files left...
+		if len(self.projects) == 1:
+			# Then reload (recreate the current.tex file)
+			self.restart_app()
+			return
+		# Otherwise...
+		if len(self.projects) > project_index + 1:
+			# Go to the above index (if there is one)
+			# Kill the current Project (by index)
+			self.projects.pop(project_index)
+			# The Project at this index now will be the one above ours
+			self.switch_project(project_index)
+			return
+		# Otherwise, there must be a Project in the index below us, so go to it
+		else:
+			# Kill the current Project (by index)
+			self.projects.pop(project_index)
+			# Go to the Project in the index below ours
+			self.switch_project(project_index - 1)
+			return
+
 	def switch_project(self, new_project_index=0):
 		"""
 		Changes the editor to focus on the new selected Project class.
@@ -301,8 +328,9 @@ class App(QMainWindow):
 			"File": [{"name": "&New", "bind": 'Ctrl+N'},
 			         {"name": "&Open", "bind": 'Ctrl+O', "func": self.utils.open_file},
 			         {"name": "&Save As", "bind": 'Ctrl+Shift+S'},
-			         {"name": "&Reload", "bind": False, "func": self.restart},
-			         {"name": "&Exit", "bind": 'Ctrl+W', "func": self.exit}],
+			         {"name": "&Close", "bind": 'Ctrl+W', "func": lambda: self.close_project(new_project_index)},
+			         {"name": "&Reload", "bind": False, "func": self.restart_app},
+			         {"name": "&Exit", "bind": False, "func": self.exit_app}],
 			"Edit": [{"name": "&Insert", "bind": 'Ctrl+I'}],
 			'Options': [{"name": "&Settings", "bind": False},
 			            {"name": "&Plugins", "bind": False},
@@ -509,7 +537,7 @@ class App(QMainWindow):
 						2 ** 0.5)),
 				self.height - self.menu_bar_element.height() - 2.5 * self.status_bar_element.height())
 
-	def restart(self):
+	def restart_app(self):
 		"""
 		Restarts the application.
 		The actual method only terminates, however
@@ -518,7 +546,7 @@ class App(QMainWindow):
 		"""
 		QCoreApplication.exit(self.restart_code)
 
-	def exit(self):
+	def exit_app(self):
 		"""
 		Exits the application with no restart.
 		"""

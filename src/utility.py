@@ -47,7 +47,7 @@ class Utility:
 		Reset all the settings and files to their default state.
 		"""
 		# Delete all currently 'installed' files
-		for file in ["../themes/default.yaml",
+		for file in ["../gui_themes/default.yaml",
 		             "../resources/canvas.jpg",
 		             "../resources/logo.jpg",
 		             "../resources/logo.ico",
@@ -70,9 +70,9 @@ class Utility:
 		system_paths = {"dir": ["../compile",
 		                        "../project",
 		                        "../resources",
-		                        "../themes",
+		                        "../gui_themes",
 		                        "../defaults"],
-		                "file": ["../themes/default.yaml",
+		                "file": ["../gui_themes/default.yaml",
 		                         "../project/current.tex",
 		                         "../resources/canvas.jpg",
 		                         "../resources/logo.jpg",
@@ -155,7 +155,7 @@ class Utility:
 		Returns a dictionary of the selected theme's settings.
 		"""
 		# Create file pointer to current theme
-		file = open("../themes/{theme}.yaml".format(theme=settings["theme"]), "r")
+		file = open("../gui_themes/{theme}.yaml".format(theme=settings["theme"]), "r")
 		# Read the data from the pointer and convert it to a dictionary
 		theme_data = load(file.read(), Loader=SafeLoader)
 		# Make sure to close the file pointer

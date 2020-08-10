@@ -39,7 +39,7 @@ if __name__ == "__main__":
 		except NameError:
 			pass
 		# Clean the compile cache
-		comp = Compile()
+		comp = Compile(False)
 		comp.clean()
 
 	# Register the exit function

@@ -14,9 +14,9 @@ class Project:
 	It also includes methods for saving and opening files.
 	"""
 
-	def __init__(self, fileName):
-		self.fileName = fileName
-		self.name = split(self.fileName)[-1]
+	def __init__(self, file_name):
+		self.file_name = file_name
+		self.name = split(self.file_name)[-1]
 		self.data = ""
 		self.preamble = ""
 		self.peroration = ""
@@ -38,7 +38,7 @@ class Project:
 		self.data = text
 		if overwrite:
 			# Point to the file
-			file = open(self.fileName, "w", encoding="utf-8")
+			file = open(self.file_name, "w", encoding="utf-8")
 			# Write the data to the file
 			# data_size = file.write("{pre}\n{code}\n{post}".format(
 			# 	pre=self.preamble,
@@ -50,7 +50,7 @@ class Project:
 			file.close()
 			return data_size
 		else:
-			if exists(self.fileName):
+			if exists(self.file_name):
 				# If the file exists, don't overwrite it
 				return
 			else:
@@ -64,7 +64,7 @@ class Project:
 		Returns the data as a string.
 		"""
 		# Point to the file
-		file = open(self.fileName, "r")
+		file = open(self.file_name, "r")
 		# Read the data
 		file_data = file.read()
 		# Close the file pointer

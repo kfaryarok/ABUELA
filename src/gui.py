@@ -231,7 +231,8 @@ class App(QMainWindow):
 		# Compile the code to an image
 		self.status_bar_instance.update_status({"Task": "Compiling..."})
 		page_index = 1  # TO DO (ADD SCROLL ELEMENT WHICH ALTERS THIS VALUE & MAKE THIS VALUE AN ATTRIBUTE)
-		compiled_return_data = compile_to_image(self.settings["live_quality"])
+		compiled_return_data = compile_to_image(self.project.file_name, self.settings["live_quality"])
+		# If the file was successfully compiled...
 		if compiled_return_data[0]:
 			# Update the live image element
 			self.status_bar_instance.update_status({"Task": "Updating..."})
@@ -250,7 +251,7 @@ class App(QMainWindow):
 			cursor = self.editor_box.textCursor()
 			cursor.setPosition(cursor_pos)
 			self.editor_box.setTextCursor(cursor)
-
+		# Otherwise, if there was a compilation error,
 		else:
 			# If there is a compilation error... (otherwise, the second
 			# item would be returned as false from the compileToImage function)

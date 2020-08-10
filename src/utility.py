@@ -289,24 +289,33 @@ class Utility:
 			self.app_pointer.close_project()
 			# Switch onto the most recently added project
 			self.app_pointer.switch_project(len(self.app_pointer.projects) - 1)
-			self.app_pointer.status_bar_instance.update_status({"Task": "Idling"})
-			return
 		elif split_path[1] == ".pdf":
 			# Import this here, otherwise it's a recursive import and will lead to an error
-			from compile import Compile, compile_to_image
+			self.app_pointer.status_bar_instance.update_status({"Task": "Loading..."})
+			from compile import Compile
 			# If the extension is a pdf, compile the file again
-			c = Compile()
-			pdf_path, error_msg = c.compile()
-			print("===Compile===\n", error_msg, "\n===End===")
+			self.app_pointer.status_bar_instance.update_status({"Task": "Compiling..."})
+			c = Compile(self.app_pointer)
+			pdf_path, error_msg = c.compile(self.app_pointer.project.file_name)
 			# Copy the file to its final path
+			self.app_pointer.status_bar_instance.update_status({"Task": "Copying..."})
 			copyfile(pdf_path, file_path)
-			self.app_pointer.status_bar_instance.update_status({"Task": "Idling"})
-			return
+		# If the extension is anything else (a .jpg)
 		else:
-			# If the extension is anything else (a .jpg)
-			# compile_to_image()
-			self.app_pointer.status_bar_instance.update_status({"Task": "Idling"})
-			return
+			# Import this here, otherwise it's a recursive import and will lead to an error
+			self.app_pointer.status_bar_instance.update_status({"Task": "Loading..."})
+			from compile import compile_to_image
+			# Compile to an image
+			self.app_pointer.status_bar_instance.update_status({"Task": "Converting..."})
+			image_path = compile_to_image(
+				self.app_pointer.project.file_name,
+				self.app_pointer.settings["compile_quality"]
+			)[0]
+			# Copy it to the full path
+			self.app_pointer.status_bar_instance.update_status({"Task": "Copying..."})
+			copyfile(image_path + "1.jpg", file_path)
+		# Reset Task status
+		self.app_pointer.status_bar_instance.update_status({"Task": "Idling"})
 
 # def open_dialog(self):
 # 	dlg = QDialog(self)

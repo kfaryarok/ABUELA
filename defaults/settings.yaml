@@ -34,6 +34,9 @@ live_fill: fit
 # The quality of the live-compiled image
 live_quality: 150
 
+# The quality of a saved image
+compile_quality: 700
+
 # The speed (seconds) for the live-compiled update to occur
 # Not recommended to go under the live_thread_refresh time
 live_update: 0.5

@@ -2,13 +2,10 @@
 The Utility file, used mainly for the Utility class.
 """
 from os import mkdir, remove
-from os.path import exists, split
+from os.path import exists, split, splitext
 from random import randint
 from shutil import rmtree, copyfile
-from tkinter import Tk
-from tkinter.filedialog import askopenfilename
 
-from PyQt5.QtCore import QCoreApplication
 from PyQt5.QtWidgets import QFileDialog
 from yaml import load, dump, SafeLoader
 
@@ -259,4 +256,60 @@ class Utility:
 			self.app_pointer.projects.append(project)
 
 			# Open it in the editor
-			self.app_pointer.switch_project(-1)
+			self.app_pointer.switch_project(len(self.app_pointer.projects) - 1)
+
+	def save_file(self):
+		"""
+		A function to prompt the user for a path to save to.
+
+		:return: Returns the selected file path
+		"""
+		# Prompt for file path
+		file_path = QFileDialog.getSaveFileName(parent=self.app_pointer,
+		                                        caption="Save as",
+		                                        filter="Tex File (*.tex);;PDF File (*.pdf);;JPG File (*.jpg)")[0]
+		# Split the full path into a path and extension
+		split_path = splitext(file_path)
+		# If the extension is a .tex, then save it as a Project
+		if split_path[1] == ".tex":
+			# Create the Project file
+			self.app_pointer.status_bar_instance.update_status({"Task": "Copying data..."})
+			project = Project(file_path)
+			# Copy the data from the current Project to the new object
+			project.data = self.app_pointer.project.data
+			project.preamble = self.app_pointer.project.preamble
+			project.peroration = self.app_pointer.project.peroration
+			# Save the project
+			self.app_pointer.status_bar_instance.update_status({"Task": "Saving..."})
+			project.save(project.data, overwrite=True)
+			# Add the new Project to the project manager
+			self.app_pointer.status_bar_instance.update_status({"Task": "Switching projects..."})
+			self.app_pointer.projects.append(project)
+			# Close the current project
+			self.app_pointer.close_project()
+			# Switch onto the most recently added project
+			self.app_pointer.switch_project(len(self.app_pointer.projects) - 1)
+			self.app_pointer.status_bar_instance.update_status({"Task": "Idling"})
+			return
+		elif split_path[1] == ".pdf":
+			# Import this here, otherwise it's a recursive import and will lead to an error
+			from compile import Compile, compile_to_image
+			# If the extension is a pdf, compile the file again
+			c = Compile()
+			pdf_path, error_msg = c.compile()
+			print("===Compile===\n", error_msg, "\n===End===")
+			# Copy the file to its final path
+			copyfile(pdf_path, file_path)
+			self.app_pointer.status_bar_instance.update_status({"Task": "Idling"})
+			return
+		else:
+			# If the extension is anything else (a .jpg)
+			# compile_to_image()
+			self.app_pointer.status_bar_instance.update_status({"Task": "Idling"})
+			return
+
+# def open_dialog(self):
+# 	dlg = QDialog(self)
+# 	dlg.setMinimumSize(self.width / 2, self.height / 2)
+# 	dlg.setWindowTitle("Edit preambles")
+# 	dlg.exec_()

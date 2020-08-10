@@ -63,6 +63,7 @@ class App(QMainWindow):
 		self.project = Project("../project/current.tex")
 		self.project.new()
 		self.projects = [self.project]
+		self.projects_index = 0
 
 		# Create an instance of the Updater class
 		self.updater_instance = Updater()
@@ -279,11 +280,9 @@ class App(QMainWindow):
 		# Show the GUI
 		self.show_gui()
 
-	def close_project(self, project_index):
+	def close_project(self):
 		"""
-		Closes the currently opened Project file.
-
-		:param project_index: The index in the Project manager array to remove / quit.
+		Closes the the currently opened Project file.
 		"""
 		# If there are no other files left...
 		if len(self.projects) == 1:
@@ -291,19 +290,19 @@ class App(QMainWindow):
 			self.restart_app()
 			return
 		# Otherwise...
-		if len(self.projects) > project_index + 1:
+		if len(self.projects) > self.projects_index + 1:
 			# Go to the above index (if there is one)
 			# Kill the current Project (by index)
-			self.projects.pop(project_index)
+			self.projects.pop(self.projects_index)
 			# The Project at this index now will be the one above ours
-			self.switch_project(project_index)
+			self.switch_project(self.projects_index)
 			return
 		# Otherwise, there must be a Project in the index below us, so go to it
 		else:
 			# Kill the current Project (by index)
-			self.projects.pop(project_index)
+			self.projects.pop(self.projects_index)
 			# Go to the Project in the index below ours
-			self.switch_project(project_index - 1)
+			self.switch_project(self.projects_index - 1)
 			return
 
 	def switch_project(self, new_project_index=0):
@@ -314,7 +313,8 @@ class App(QMainWindow):
 		"""
 		# Set the current project to the new index
 		self.status_bar_instance.update_status({"Task": "Opening..."})
-		self.project = self.projects[new_project_index]
+		self.projects_index = new_project_index
+		self.project = self.projects[self.projects_index]
 
 		# Open it in the editor box
 		self.editor_box.setPlainText(self.project.open())
@@ -327,8 +327,8 @@ class App(QMainWindow):
 		self.menu_bar_instance.set({
 			"File": [{"name": "&New", "bind": 'Ctrl+N'},
 			         {"name": "&Open", "bind": 'Ctrl+O', "func": self.utils.open_file},
-			         {"name": "&Save As", "bind": 'Ctrl+Shift+S'},
-			         {"name": "&Close", "bind": 'Ctrl+W', "func": lambda: self.close_project(new_project_index)},
+			         {"name": "&Save As", "bind": 'Ctrl+Shift+S', "func": self.utils.save_file},
+			         {"name": "&Close", "bind": 'Ctrl+W', "func": self.close_project},
 			         {"name": "&Reload", "bind": False, "func": self.restart_app},
 			         {"name": "&Exit", "bind": False, "func": self.exit_app}],
 			"Edit": [{"name": "&Insert", "bind": 'Ctrl+I'}],
@@ -463,12 +463,12 @@ class App(QMainWindow):
 		# Show the GUI
 		self.show()
 
-	def hide_gui(self):
-		"""
-		A function to hide the GUI.
-		"""
-		# Hide the GUI
-		self.hide()
+	# def hide_gui(self):
+	# 	"""
+	# 	A function to hide the GUI.
+	# 	"""
+	# 	# Hide the GUI
+	# 	self.hide()
 
 	def update_fill(self, new_fill_type):
 		"""

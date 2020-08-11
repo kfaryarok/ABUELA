@@ -6,7 +6,6 @@ from os.path import exists, split, splitext
 from random import randint
 from shutil import rmtree, copyfile
 
-from PyQt5.QtCore import QEvent
 from PyQt5.QtWidgets import QFileDialog
 from yaml import load, dump, SafeLoader
 

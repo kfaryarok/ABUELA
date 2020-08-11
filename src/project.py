@@ -17,15 +17,23 @@ class Project:
 	def __init__(self, file_name):
 		self.file_name = file_name
 		self.name = split(self.file_name)[-1]
-		self.data = ""
-		self.preamble = ""
-		self.peroration = ""
+		self.data = str()
+		self.preamble = str()
+		self.peroration = str()
+
+	def unload(self):
+		"""
+		Saves memory by unloading data in objects.
+		"""
+		del self.data
+		del self.preamble
+		del self.peroration
 
 	def new(self):
 		"""
 		Generates a new file as a template for the project
 		"""
-		self.data = ""
+		self.data = str()
 		self.preamble = """\\documentclass[12pt]{article}\n\\begin{document}"""
 		self.peroration = """\n\\end{document}"""
 

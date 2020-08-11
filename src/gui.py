@@ -39,7 +39,6 @@ class App(QMainWindow):
 
 		# Initialize exit codes (These are arbitrary values with no hidden meaning)
 		self.restart_code = -54321
-		self.exit_code = -12345
 
 		# Create instance of Error class
 		self.error_instance = Error()
@@ -63,18 +62,18 @@ class App(QMainWindow):
 		self.project = Project("../project/current.tex")
 		self.project.new()
 		self.projects = [self.project]
-		self.projects_index = 0
+		self.projects_index = int()
 
 		# Create an instance of the Updater class
 		self.updater_instance = Updater()
 
 		# Set default compiler live identifier number
-		self.live = 0
-		self.live_update = 0
-		self.live_compile = "../resources/canvas.jpg"
+		self.live = int()
+		self.live_update = int()
+		self.live_compile = str()
 
 		# Other attributes
-		self.status = ""
+		self.status = str()
 
 		# Get screen data
 		self.screen_width = self.utils.get_screen()[0]
@@ -111,7 +110,7 @@ class App(QMainWindow):
 		self.editor_box.installEventFilter(self)
 
 		# The live-compile renderer element
-		self.editor_compiled = self.makePic("../resources/canvas.jpg")
+		self.editor_compiled = self.makePic(background="FFFFFF")
 
 		# Create instance of Menu and Status Bar classes
 		# Initialize it here rather in the above 'attribute initialization section'
@@ -231,7 +230,7 @@ class App(QMainWindow):
 
 		# Update the status bar
 		self.status_bar_instance.update_status({
-			"Words": len([item for item in self.editor_box.toPlainText().split(" ") if item.strip() != ""]),
+			"Words": len([item for item in self.editor_box.toPlainText().split(" ") if item.strip()]),
 			"Characters": len(self.editor_box.toPlainText())
 		})
 
@@ -328,6 +327,11 @@ class App(QMainWindow):
 		self.projects_index = new_project_index
 		self.project = self.projects[self.projects_index]
 
+		# Unload all other projects to save memory
+		for i in range(len(self.projects)):
+			if i != self.projects_index:
+				pass#self.projects[i].unload()
+
 		# Open it in the editor box
 		self.editor_box.setPlainText(self.project.open())
 
@@ -374,6 +378,10 @@ class App(QMainWindow):
 			         {"name": "&Reset Settings", "bind": False, "func": self.utils.reset_system},
 			         {"name": '&Check for Updates', "bind": False}]
 		})
+
+		# Reload live-compile
+		self.thread_compile()
+
 		self.status_bar_instance.update_status({"Task": "Idling"})
 
 	def makeTextBox(self, xPos=0, yPos=0, width=0, height=0):
@@ -392,22 +400,30 @@ class App(QMainWindow):
 		text_box.resize(width, height)
 		return text_box
 
-	def makePic(self, fileName, xPos=0, yPos=0, width=0, height=0):
+	def makePic(self, file_name=False, background=False, x_pos=0, y_pos=0, width=0, height=0):
 		"""
 		A function to create a new picture element.
 
-		:param fileName: The path to the file to display.
-		:param xPos: The left-top x position of the box.
-		:param yPos: The left-top y position of the box.
+		:param background: The default background color of the picture element. Defaults to no background.
+		:param file_name: The path to the file to display.
+		:param x_pos: The left-top x position of the box.
+		:param y_pos: The left-top y position of the box.
 		:param width: The width of the box.
 		:param height: The height of the box.
 		:return: Returns the created element.
 		"""
 		label = QLabel(self)
-		pixel_map = QPixmap(fileName)
-		label.setPixmap(pixel_map)
+		if file_name:
+			pixel_map = QPixmap(file_name)
+			label.setPixmap(pixel_map)
+		if background:
+			label.setStyleSheet(
+				"background-color: #{bgColor};".format(
+					bgColor=background
+				)
+			)
 		label.setScaledContents(True)
-		label.move(xPos, yPos)
+		label.move(x_pos, y_pos)
 		label.resize(width, height)
 		return label
 
@@ -558,8 +574,9 @@ class App(QMainWindow):
 		"""
 		QCoreApplication.exit(self.restart_code)
 
-	def exit_app(self):
+	@staticmethod
+	def exit_app():
 		"""
 		Exits the application with no restart.
 		"""
-		QCoreApplication.exit(self.exit_code)
+		QCoreApplication.exit()

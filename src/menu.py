@@ -25,7 +25,7 @@ class Status:
 		self.padding = self.app_pointer.settings["status_padding"]
 		self.spacing = self.app_pointer.settings["status_spacing"]
 		self.status_dict = dict()
-		self.status = ""
+		self.status = str()
 
 	def init_status(self):
 		"""
@@ -34,9 +34,9 @@ class Status:
 		anything when the GUI is initialized.
 		"""
 		self.update_status({
-			"Project": "",
-			"Words": 0,
-			"Characters": 0,
+			"Project": str(),
+			"Words": int(),
+			"Characters": int(),
 			"Task": "Idling"
 		})
 

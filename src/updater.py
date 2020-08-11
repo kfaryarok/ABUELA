@@ -5,9 +5,10 @@ with any small helpful variables or
 functions to assist with updating.
 """
 from os import startfile
+from sys import exit as exit_app
 from tempfile import gettempdir
 from zipfile import ZipFile
-from sys import exit as exit_app
+
 from requests import get
 
 

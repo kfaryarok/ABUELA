@@ -13,7 +13,6 @@ from pdf2image import convert_from_path
 from pdf2image.exceptions import PDFPageCountError
 from psutil import process_iter
 
-from error import CatchError
 from utility import Utility
 
 
@@ -154,7 +153,7 @@ class Compile:
 
 		# For each page in the pdf
 		self.app_pointer.status_bar_instance.update_status({"Task": "Converting..."})
-		page_index = 0
+		page_index = int()
 		for page in pages:
 			page_index += 1
 			# Save it as a picture

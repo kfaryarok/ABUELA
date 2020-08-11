@@ -5,9 +5,10 @@ error-related functions and objects.
 More info on the class is labeled
 in the class docstring.
 """
+from functools import wraps
+
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtWidgets import QMessageBox
-from functools import wraps
 
 
 def CatchError(func):

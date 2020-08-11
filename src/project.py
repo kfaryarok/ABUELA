@@ -25,9 +25,12 @@ class Project:
 		"""
 		Saves memory by unloading data in objects.
 		"""
-		del self.data
-		del self.preamble
-		del self.peroration
+		if hasattr(self, "data"):
+			self.data
+		if hasattr(self, "preamble"):
+			self.preamble
+		if hasattr(self, "peroration"):
+			self.peroration
 
 	def new(self):
 		"""

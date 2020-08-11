@@ -330,7 +330,7 @@ class App(QMainWindow):
 		# Unload all other projects to save memory
 		for i in range(len(self.projects)):
 			if i != self.projects_index:
-				pass#self.projects[i].unload()
+				self.projects[i].unload()
 
 		# Open it in the editor box
 		self.editor_box.setPlainText(self.project.open())

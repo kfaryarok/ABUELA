@@ -75,6 +75,7 @@ class Updater:
 		except:
 			return False
 
+	# noinspection SpellCheckingInspection
 	def install_updates(self):
 		"""
 		This function is meant to install updates. It will,

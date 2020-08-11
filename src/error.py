@@ -13,7 +13,7 @@ from PyQt5.QtWidgets import QMessageBox
 
 def CatchError(func):
 	"""
-	A decorator to catch uneeded errors or
+	A decorator to catch unneeded errors or
 	errors that, to fix, would simply require
 	too many if statements to be efficient / readable.
 

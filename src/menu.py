@@ -8,12 +8,13 @@ from io import BytesIO
 
 from PIL import Image
 from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import QAction
+from PyQt5.QtWidgets import QAction, QMenu
 from win32clipboard import OpenClipboard, EmptyClipboard, SetClipboardData, CloseClipboard, CF_DIB
 
 from error import CatchError
 
 
+# noinspection PyCompatibility
 class Status:
 	"""
 	Class to assist in the few functions and methods
@@ -41,14 +42,14 @@ class Status:
 			"Task": "Idling"
 		})
 
-	def refresh_status(self):
-		"""
-		Refreshes the status (does not change any of the data).
-		Used in case the Status Bar disappears for whatever reason,
-		or glitches / bugs out, and other reasons
-		to force-paint the Status Bar again.
-		"""
-		self.set_status(self.status_dict)
+	# def refresh_status(self):
+	# 	"""
+	# 	Refreshes the status (does not change any of the data).
+	# 	Used in case the Status Bar disappears for whatever reason,
+	# 	or glitches / bugs out, and other reasons
+	# 	to force-paint the Status Bar again.
+	# 	"""
+	# 	self.set_status(self.status_dict)
 
 	@CatchError
 	def update_status(self, status_update):
@@ -92,7 +93,7 @@ class Menu:
 
 	def __init__(self, app_pointer):
 		self.app_pointer = app_pointer
-		self.sub_menu = False
+		self.sub_menu = QMenu()
 
 	def init(self):
 		"""

@@ -23,6 +23,7 @@ from utility import Utility
 
 
 # Initialize class
+# noinspection PyCompatibility
 class App(QMainWindow):
 	"""
 	The App class, for everything-GUI.
@@ -156,6 +157,7 @@ class App(QMainWindow):
 		# Resize the elements to the current window size
 		self.resizeEvent()
 
+	# noinspection PyCompatibility
 	def event(self, e):
 		"""
 		PyQt5 Built-in method called when an event occurs.

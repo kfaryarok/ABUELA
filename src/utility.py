@@ -12,6 +12,7 @@ from yaml import load, dump, SafeLoader
 from project import Project
 
 try:
+	# noinspection PyUnresolvedReferences
 	from win32api import GetSystemMetrics
 except ImportError:
 	pass

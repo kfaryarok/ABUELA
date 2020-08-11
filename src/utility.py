@@ -39,7 +39,8 @@ class Utility:
 		try:
 			remove(file_name)
 			return True
-		except:
+		except Exception as e:
+			print("REPORT THIS ASAP 1 | ", e.__dict__)
 			return False
 
 	def reset_system(self):
@@ -108,14 +109,16 @@ class Utility:
 			file = open("../project/current.tex", "w")
 			file.write("")
 			file.close()
-		except:
+		except Exception as e:
+			print("REPORT THIS ASAP 3 | ", e.__dict__)
 			pass
 
 		# Remove all files from the ../compile folder by deleting and creating it again
 		try:
 			rmtree("../compile")
 			mkdir("../compile")
-		except:
+		except Exception as e:
+			print("REPORT THIS ASAP 5 | ", e.__dict__)
 			return
 
 		# For each folder in the root directory

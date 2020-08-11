@@ -72,7 +72,8 @@ class Updater:
 			# Close the file pointer
 			file.close()
 			return True
-		except:
+		except Exception as e:
+			print("REPORT THIS ASAP 2 | ", e.__dict__)
 			return False
 
 	# noinspection SpellCheckingInspection

@@ -94,7 +94,7 @@ class Compile:
 			return [False, stdout_data]
 
 	@staticmethod
-	def safeRemove(file):
+	def safe_remove(file):
 		"""
 		Attempts to remove a file, without the knowledge of whether it exists or not.
 
@@ -102,9 +102,13 @@ class Compile:
 		:return: True if deleted successfully, False if not or an error occurred.
 		"""
 		try:
-			remove(file)
-			return True
-		except:
+			if exists(file):
+				remove(file)
+				return True
+			else:
+				return False
+		except Exception as e:
+			print("REPORT THIS ASAP 4 | ", e.__dict__)
 			return False
 
 	def clean(self):
@@ -113,9 +117,9 @@ class Compile:
 		"""
 		if self.app_pointer:
 			self.app_pointer.status_bar_instance.update_status({"Task": "Cleaning..."})
-		self.safeRemove("compile.pdf")
-		self.safeRemove("compile.aux")
-		self.safeRemove("compile.log")
+		self.safe_remove("compile.pdf")
+		self.safe_remove("compile.aux")
+		self.safe_remove("compile.log")
 
 	@staticmethod
 	def kill():

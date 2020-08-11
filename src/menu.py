@@ -37,6 +37,7 @@ class Status:
 			"Project": str(),
 			"Words": int(),
 			"Characters": int(),
+			"Compile Time": int(),
 			"Task": "Idling"
 		})
 

@@ -9,7 +9,7 @@ from threading import Thread
 from time import sleep, time
 
 from PyQt5 import QtGui
-from PyQt5.QtCore import QEvent, Qt, QCoreApplication
+from PyQt5.QtCore import QEvent, Qt, QCoreApplication, QTimer
 from PyQt5.QtGui import QPixmap, QIcon, QFont, QTextCursor, QTextBlockFormat, QColor
 from PyQt5.QtWidgets import QLabel, QPlainTextEdit, QMainWindow
 from keyboard import is_pressed as is_key_pressed
@@ -73,6 +73,8 @@ class App(QMainWindow):
 		self.live_compile = str()
 
 		# Other attributes
+		self.last_data = str()
+		self.last_update = time()
 		self.status = str()
 
 		# Get screen data
@@ -110,7 +112,7 @@ class App(QMainWindow):
 		self.editor_box.installEventFilter(self)
 
 		# The live-compile renderer element
-		self.editor_compiled = self.makePic(background="FFFFFF")
+		self.editor_compiled = self.makePic(background=self.theme["Live"]["background-color"])
 
 		# Create instance of Menu and Status Bar classes
 		# Initialize it here rather in the above 'attribute initialization section'
@@ -135,13 +137,21 @@ class App(QMainWindow):
 		# Set Project focus to current project
 		self.switch_project()
 
+		# Set a timer to constantly check for new edits
+		self.update_timer = QTimer(self)
+		self.update_timer.setInterval(self.settings["live_await"] * 1000)
+		self.update_timer.timeout.connect(self.check_data_update)
+		self.update_timer.start()
+
 		# Call GUI creation
 		self.initUI()
+
 		# Set the theme of the whole window
 		self.setStyleSheet("""
 		background-color: #{QMainWindowBGColor};
 		""".strip().format(
 			QMainWindowBGColor=self.theme["GUI"]["QMainWindow"]["background-color"]))
+
 		# Resize the elements to the current window size
 		self.resizeEvent()
 
@@ -161,30 +171,54 @@ class App(QMainWindow):
 		The event filter is the function called
 		every time an event is generated in the editor_box.
 		In most cases, an event is a keystroke.
-
-		This function is utilized for many usages:
-		- Key Binds
-		- Auto Save
-		- Live Compile
 		"""
 		if obj is self.editor_box and event.type() == QEvent.KeyPress:
 			# Key Binds
-			# Shift + Return = Add / and newline
 			self.status_bar_instance.update_status({"Task": "Parsing binds..."})
+
+			# Shift + Return = Add / and newline
 			if is_key_pressed("return") and is_key_pressed("shift"):
 				self.editor_box.insertPlainText("\\\\\n")
 				return True
 
-			# Compile
-			self.thread_compile()
 			self.status_bar_instance.update_status({"Task": "Idling"})
 		return super(App, self).eventFilter(obj, event)
+
+	def check_data_update(self):
+		"""
+		A function to check if the text from the editor
+		box was updated. This function should be utilized
+		by pairing it with a timer to constantly ping it.
+		"""
+		# Try finding a way to debunk the thread,
+		# as to improve memory space and compiling
+		# efficiency and speed.
+
+		# If the text was updated...
+		if self.last_data != self.editor_box.toPlainText():
+			# Update the marker for the last data
+			self.last_data = self.editor_box.toPlainText()
+			self.last_update = time()
+
+			# If there are characters in the window...
+			if self.editor_box.toPlainText().strip():
+				# If the code can't be 'debunked' and is ready
+				# to compile, then call the compiler function.
+				self.thread_compile()
+				self.status_bar_instance.update_status({"Task": "Idling"})
 
 	def thread_compile(self):
 		"""
 		The method which starts a compiler thread.
 		Written as a method as to be called easier.
 		"""
+		# Generate a random ID and pass it as a parameter to
+		# the compiler thread. Set the ID as an attribute so that
+		# the compiler thread can also access it. If the compiler thread
+		# notices that its ID is not matching to the attribute ID,
+		# then that means that the compiler thread is invalid,
+		# and that a new thread is the latest thread which should run.
+
 		# Set the current live ID and pass it to the function
 		live_id = randint(0, 999999999999999)
 		self.live = live_id
@@ -278,7 +312,10 @@ class App(QMainWindow):
 					cursor = QTextCursor(self.editor_box.document().findBlockByNumber(line - 1))
 					# Update the background color
 					cursor.setBlockFormat(color_format)
-		self.status_bar_instance.update_status({"Task": "Idling"})
+		self.status_bar_instance.update_status({
+			"Compile Time": round(time() - self.last_update, 2),
+			"Task": "Idling"
+		})
 
 	def initUI(self):
 		"""
@@ -380,7 +417,12 @@ class App(QMainWindow):
 		})
 
 		# Reload live-compile
-		self.thread_compile()
+		if not self.thread_compile():
+			self.editor_compiled.setStyleSheet(
+				"background-color: #{bgColor};".format(
+					bgColor=self.theme["Live"]["background-color"]
+				)
+			)
 
 		self.status_bar_instance.update_status({"Task": "Idling"})
 
@@ -400,7 +442,7 @@ class App(QMainWindow):
 		text_box.resize(width, height)
 		return text_box
 
-	def makePic(self, file_name=False, background=False, x_pos=0, y_pos=0, width=0, height=0):
+	def makePic(self, file_name: str = False, background: str = False, x_pos=0, y_pos=0, width=0, height=0):
 		"""
 		A function to create a new picture element.
 

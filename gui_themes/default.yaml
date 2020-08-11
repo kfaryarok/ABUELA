@@ -23,3 +23,6 @@ GUI:
 
 Editor:
   error: FF312E
+
+Live:
+  background-color: FFFFFF

@@ -150,7 +150,8 @@ class App(QMainWindow):
 		self.setStyleSheet("""
 		background-color: #{QMainWindowBGColor};
 		""".strip().format(
-			QMainWindowBGColor=self.theme["GUI"]["QMainWindow"]["background-color"]))
+			QMainWindowBGColor=self.theme["GUI"]["QMainWindow"]["background-color"]
+		))
 
 		# Resize the elements to the current window size
 		self.resizeEvent()
@@ -198,14 +199,17 @@ class App(QMainWindow):
 		if self.last_data != self.editor_box.toPlainText():
 			# Update the marker for the last data
 			self.last_data = self.editor_box.toPlainText()
-			self.last_update = time()
 
 			# If there are characters in the window...
 			if self.editor_box.toPlainText().strip():
 				# If the code can't be 'debunked' and is ready
 				# to compile, then call the compiler function.
 				self.thread_compile()
-				self.status_bar_instance.update_status({"Task": "Idling"})
+			else:
+				# If there are no characters, make sure there is no picture
+				self.editor_compiled.setPixmap(QPixmap())
+
+			self.status_bar_instance.update_status({"Task": "Idling"})
 
 	def thread_compile(self):
 		"""
@@ -219,9 +223,13 @@ class App(QMainWindow):
 		# then that means that the compiler thread is invalid,
 		# and that a new thread is the latest thread which should run.
 
+		# Update last edit time
+		self.last_update = time()
+
 		# Set the current live ID and pass it to the function
 		live_id = randint(0, 999999999999999)
 		self.live = live_id
+
 		# Set the time at which to call the live update
 		self.live_update = time() + self.settings["live_update"]
 
@@ -415,14 +423,6 @@ class App(QMainWindow):
 			         {"name": "&Reset Settings", "bind": False, "func": self.utils.reset_system},
 			         {"name": '&Check for Updates', "bind": False}]
 		})
-
-		# Reload live-compile
-		if not self.thread_compile():
-			self.editor_compiled.setStyleSheet(
-				"background-color: #{bgColor};".format(
-					bgColor=self.theme["Live"]["background-color"]
-				)
-			)
 
 		self.status_bar_instance.update_status({"Task": "Idling"})
 

@@ -8,7 +8,7 @@ from io import BytesIO
 
 from PIL import Image
 from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import QAction, QMenu
+from PyQt5.QtWidgets import QAction
 from win32clipboard import OpenClipboard, EmptyClipboard, SetClipboardData, CloseClipboard, CF_DIB
 
 from error import CatchError
@@ -37,8 +37,7 @@ class Status:
 			"Project": "",
 			"Words": 0,
 			"Characters": 0,
-			"Task": "Idling",
-			"File": "Not opened"
+			"Task": "Idling"
 		})
 
 	def refresh_status(self):

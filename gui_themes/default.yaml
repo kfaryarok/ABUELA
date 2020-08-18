@@ -36,7 +36,14 @@ GUI:
     background-color: 323232#
 
   QListWidget-item:
-    background-color: ffffff#
+    color: FFFFFF#
+
+  QListWidget-item-hover:
+    background-color: a8a8a8#
+
+  QListWidget-item-selected:
+    color: 000000#
+    background-color: a8a8a8#
 
 Editor:
   error: FF312E#

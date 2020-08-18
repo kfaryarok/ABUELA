@@ -35,7 +35,10 @@ class Status:
 		self.app_pointer.status_bar_element = self.app_pointer.statusBar()
 		self.app_pointer.status_bar_element.setStyleSheet(self.app_pointer.formatStyle())
 		self.app_pointer.status_bar_element.setFont(
-			QFont(self.app_pointer.settings["menu_bar_font"], self.app_pointer.settings["status_bar_size"])
+			QFont(
+				self.app_pointer.settings["menu_font"],
+				self.app_pointer.settings["status_bar_size"]
+			)
 		)
 
 	def show(self):
@@ -131,7 +134,10 @@ class Menu:
 		self.app_pointer.menu_bar_element.setFixedHeight(int(self.app_pointer.height / 30))
 		self.app_pointer.menu_bar_element.setStyleSheet(self.app_pointer.formatStyle())
 		self.app_pointer.menu_bar_element.setFont(
-			QFont(self.app_pointer.settings["menu_bar_font"], self.app_pointer.settings["menu_bar_size"])
+			QFont(
+				self.app_pointer.settings["menu_font"],
+				self.app_pointer.settings["menu_bar_size"]
+			)
 		)
 
 	def show(self):

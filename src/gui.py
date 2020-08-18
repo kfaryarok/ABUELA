@@ -117,6 +117,12 @@ class App(QMainWindow):
 
 		# Create Settings list element
 		self.settings_list = self.make_list(["Appearance", "Shortcuts", "Advanced"])
+		self.settings_list.setFont(
+			QFont(
+				self.settings["menu_font"],
+				self.width ** 0.5 * 0.5
+			)
+		)
 
 		# Create instance of Menu and Status Bar classes
 		# Initialize it here rather in the above 'attribute initialization section'
@@ -143,12 +149,12 @@ class App(QMainWindow):
 		self.update_timer.timeout.connect(self.check_data_update)
 		self.update_timer.start()
 
-		# Call GUI creation
-		self.initUI()
-
 		# Default to Editor slide being displayed
 		# Call this so that all non-editor elements are hidden
 		self.show_editor()
+
+		# Call GUI creation
+		self.initUI()
 
 		# Set the theme of the whole window
 		self.setStyleSheet("""

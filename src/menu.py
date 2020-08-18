@@ -28,6 +28,33 @@ class Status:
 		self.status_dict = dict()
 		self.status = str()
 
+	def init(self):
+		"""
+		Initializes the Status bar element.
+		"""
+		self.app_pointer.status_bar_element = self.app_pointer.statusBar()
+		self.app_pointer.status_bar_element.setStyleSheet(self.app_pointer.formatStyle())
+		self.app_pointer.status_bar_element.setFont(
+			QFont(self.app_pointer.settings["menu_bar_font"], self.app_pointer.settings["menu_bar_size"]))
+
+	def show(self):
+		"""
+		Reveals the Status bar.
+		"""
+		self.app_pointer.status_bar_element.show()
+
+	def hide(self):
+		"""
+		Hides the Status bar.
+		"""
+		self.app_pointer.status_bar_element.hide()
+
+	def delete(self):
+		"""
+		Removes the Status bar element.
+		"""
+		self.app_pointer.status_bar_element.deleteLater()
+
 	def init_status(self):
 		"""
 		Initializes the status bar with default 0 amounts.
@@ -104,6 +131,24 @@ class Menu:
 		self.app_pointer.menu_bar_element.setStyleSheet(self.app_pointer.formatStyle())
 		self.app_pointer.menu_bar_element.setFont(
 			QFont(self.app_pointer.settings["menu_bar_font"], self.app_pointer.settings["menu_bar_size"]))
+
+	def show(self):
+		"""
+		Reveals the Menu bar.
+		"""
+		self.app_pointer.menu_bar_element.show()
+
+	def hide(self):
+		"""
+		Hides the Menu bar.
+		"""
+		self.app_pointer.menu_bar_element.hide()
+
+	def delete(self):
+		"""
+		Removes the Menu bar element.
+		"""
+		self.app_pointer.menu_bar_element.deleteLater()
 
 	def clear(self):
 		"""

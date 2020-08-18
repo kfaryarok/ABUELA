@@ -106,7 +106,7 @@ class Utility:
 		"""
 		# Clear ../project/current.tex file
 		try:
-			file = open("../project/current.tex", "w")
+			file = open("../project/current.tex", "w", encoding="utf-8")
 			file.write("")
 			file.close()
 		except Exception as e:
@@ -158,7 +158,7 @@ class Utility:
 		Returns a dictionary of the selected theme's settings.
 		"""
 		# Create file pointer to current theme
-		file = open("../gui_themes/{theme}.yaml".format(theme=settings["theme"]), "r")
+		file = open("../gui_themes/{theme}.yaml".format(theme=settings["theme"]), "r", encoding="utf-8")
 		# Read the data from the pointer and convert it to a dictionary
 		theme_data = load(file.read(), Loader=SafeLoader)
 		# Make sure to close the file pointer
@@ -174,7 +174,7 @@ class Utility:
 		Returns a Python dictionary containing the configuration data.
 		"""
 		# Open a connection to the settings file
-		file_pointer = open("../resources/settings.yaml", "r")
+		file_pointer = open("../resources/settings.yaml", "r", encoding="utf-8")
 		# Pull the data from the file and convert it to a Python dict
 		setting_data = load(file_pointer.read(), Loader=SafeLoader)
 		# Close the connection so it is over-writable / usable
@@ -190,7 +190,7 @@ class Utility:
 		:param newSettings: Python dictionary containing the new settings
 		"""
 		# Open a connection to the settings file
-		file_pointer = open("../resources/settings.yaml", "w")
+		file_pointer = open("../resources/settings.yaml", "w", encoding="utf-8")
 		# Convert and write new configuration data
 		file_pointer.write(dump(newSettings))
 		# Close the connection so it is over-writable / usable

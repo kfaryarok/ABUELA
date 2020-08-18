@@ -22,6 +22,12 @@ GUI:
   QMainWindow:
     background-color: 1e1e1e
 
+  QListWidget:
+    background-color: 323232
+
+  QListWidgetItem:
+    background-color: ffffff
+
 Editor:
   error: FF312E
 

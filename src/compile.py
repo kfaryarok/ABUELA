@@ -67,7 +67,14 @@ class Compile:
 		self.kill()
 		# Execute pdflatex with subprocess library
 		self.app_pointer.status_bar_instance.update_status({"Task": "Multiprocessing..."})
-		proc = Popen(['pdflatex', '-quiet', '-job-name=compile', file_path], stdout=PIPE)
+		proc = Popen([
+			'xelatex',
+			'-quiet',
+			'-enable-installer',
+			'-c-style-errors',
+			'-job-name=compile',
+			file_path
+		], stdout=PIPE)
 		# Wait until execution is over, then copy all STDOUT text to an array
 		self.app_pointer.status_bar_instance.update_status({"Task": "Compiling..."})
 		proc.wait()

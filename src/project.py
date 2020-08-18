@@ -75,7 +75,7 @@ class Project:
 		Returns the data as a string.
 		"""
 		# Point to the file
-		file = open(self.file_name, "r")
+		file = open(self.file_name, "r", encoding="utf-8")
 		# Read the data
 		file_data = file.read()
 		# Close the file pointer

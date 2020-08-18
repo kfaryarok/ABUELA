@@ -11,7 +11,7 @@ from time import sleep, time
 from PyQt5 import QtGui
 from PyQt5.QtCore import QEvent, Qt, QCoreApplication, QTimer
 from PyQt5.QtGui import QPixmap, QIcon, QFont, QTextCursor, QTextBlockFormat, QColor
-from PyQt5.QtWidgets import QLabel, QPlainTextEdit, QMainWindow
+from PyQt5.QtWidgets import QLabel, QPlainTextEdit, QMainWindow, QListWidget, QListWidgetItem
 from keyboard import is_pressed as is_key_pressed
 
 from compile import compile_to_image
@@ -23,7 +23,7 @@ from utility import Utility
 
 
 # Initialize class
-# noinspection PyCompatibility
+# noinspection PyCompatibility,PyAttributeOutsideInit
 class App(QMainWindow):
 	"""
 	The App class, for everything-GUI.
@@ -105,7 +105,7 @@ class App(QMainWindow):
 		# Default parameter values are all 0 because self.resizeElements
 		# will update the positioning and size of each element regardless
 		# The editor box which code is written in
-		self.editor_box = self.makeTextBox()
+		self.editor_box = self.make_text_box()
 		self.editor_box.ensureCursorVisible()
 		self.editor_box.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 		self.editor_box.setFont(QFont(self.settings["editor_font"], self.settings["editor_size"]))
@@ -113,7 +113,10 @@ class App(QMainWindow):
 		self.editor_box.installEventFilter(self)
 
 		# The live-compile renderer element
-		self.editor_compiled = self.makePic(background=self.theme["Live"]["background-color"])
+		self.editor_compiled = self.make_pic(background=self.theme["Live"]["background-color"])
+
+		# Create Settings list element
+		self.settings_list = self.make_list(["Appearance", "Shortcuts", "Advanced"])
 
 		# Create instance of Menu and Status Bar classes
 		# Initialize it here rather in the above 'attribute initialization section'
@@ -122,17 +125,13 @@ class App(QMainWindow):
 		self.status_bar_instance = Status(self)
 
 		# MAKE SURE THAT MENU BAR AND STATUS BAR ARE THE LAST 2 ELEMENTS TO BE INITIALIZED
-		# If not, the next element to be created will
-		# overlap the menu bar / status bar
-		# and will cause an unfortunate rendering bug.
-		# The menu bar element
+		# If not, the next element to be created will overlap the menu bar &
+		# status bar and will cause an unfortunate rendering bug.
+		# Initialize the menu bar
 		self.menu_bar_instance.init()
-
-		# The status bar element
-		self.status_bar_element = self.statusBar()
-		self.status_bar_element.setStyleSheet(self.formatStyle())
-
 		# Initialize the status bar
+		self.status_bar_instance.init()
+		# Initialize the status bar data
 		self.status_bar_instance.init_status()
 
 		# Set Project focus to current project
@@ -146,6 +145,10 @@ class App(QMainWindow):
 
 		# Call GUI creation
 		self.initUI()
+
+		# Default to Editor slide being displayed
+		# Call this so that all non-editor elements are hidden
+		self.show_editor()
 
 		# Set the theme of the whole window
 		self.setStyleSheet("""
@@ -336,7 +339,34 @@ class App(QMainWindow):
 		# Set the GUI size
 		self.setGeometry(self.left, self.top, self.width, self.height)
 		# Show the GUI
-		self.show_gui()
+		self.show()
+
+	def show_editor(self):
+		"""
+		Launches the Editor GUI, and hides the Settings GUI.
+		"""
+		# Hide all existing elements
+		self.settings_list.hide()
+
+		# Show Editor elements
+		self.menu_bar_instance.show()
+		self.status_bar_instance.show()
+		self.editor_box.show()
+		self.editor_compiled.show()
+
+	def show_settings(self):
+		"""
+		Launches the Settings GUI, and hides the Editor GUI.
+		"""
+		# Hide all existing elements
+		self.menu_bar_instance.hide()
+		self.status_bar_instance.hide()
+		self.editor_box.hide()
+		self.editor_compiled.hide()
+
+		# Reveal Settings elements
+		self.settings_list.show()
+		self.settings_list.currentRowChanged['int'].connect(lambda: print(self.settings_list.currentRow()))
 
 	def close_project(self):
 		"""
@@ -422,13 +452,35 @@ class App(QMainWindow):
 				• <a href="{base_url}/blob/master/LICENSE">License</a>""".format(
 					base_url=self.updater_instance.get_url()
 				))},
+			         {"name": "&Settings", "bind": False, "func": self.show_settings},
 			         {"name": "&Reset Settings", "bind": False, "func": self.utils.reset_system},
 			         {"name": '&Check for Updates', "bind": False}]
 		})
 
 		self.status_bar_instance.update_status({"Task": "Idling"})
 
-	def makeTextBox(self, xPos=0, yPos=0, width=0, height=0):
+	def make_list(self, items: list, xPos=0, yPos=0, width=0, height=0):
+		"""
+		A method to create a list of items, one of which can be selected at a time.
+
+		:param items: A list of the names of the items.
+		:param xPos: The left-top x position of the element.
+		:param yPos: The left-top y position of the element.
+		:param width: The width of the element.
+		:param height: The height of the element.
+		:return: Returns the created element.
+		"""
+		list_widget = QListWidget(self)
+		list_widget.setStyleSheet(self.formatStyle())
+		list_widget.move(xPos, yPos)
+		list_widget.resize(width, height)
+		for item in items:
+			current_item = QListWidgetItem()
+			current_item.setText(item)
+			list_widget.addItem(current_item)
+		return list_widget
+
+	def make_text_box(self, xPos=0, yPos=0, width=0, height=0):
 		"""
 		A function to create a new multi line edit box.
 
@@ -444,7 +496,7 @@ class App(QMainWindow):
 		text_box.resize(width, height)
 		return text_box
 
-	def makePic(self, file_name: str = False, background: str = False, x_pos=0, y_pos=0, width=0, height=0):
+	def make_pic(self, file_name: str = False, background: str = False, x_pos=0, y_pos=0, width=0, height=0):
 		"""
 		A function to create a new picture element.
 
@@ -515,6 +567,14 @@ class App(QMainWindow):
 			color: #{QPlainTextEditColor};
 		}}
 		
+		QListWidget {{
+			background-color: #{QListWidgetBGColor};
+		}}
+		
+		QListWidget::item {{
+			background-color: #{QListWidgetItemBGColor};
+		}}
+		
 		""".strip().format(
 			QMenuBarBGColor=self.theme["GUI"]["QMenuBar"]["background-color"],
 			QMenuBarColor=self.theme["GUI"]["QMenuBar"]["color"],
@@ -525,22 +585,10 @@ class App(QMainWindow):
 			QMenuBarPadding=self.theme["GUI"]["QMenuBarItem"]["padding"],
 			QPlainTextEditBGColor=self.theme["GUI"]["QPlainTextEdit"]["background-color"],
 			QPlainTextEditBorderColor=self.theme["GUI"]["QPlainTextEdit"]["border"],
-			QPlainTextEditColor=self.theme["GUI"]["QPlainTextEdit"]["color"]
+			QPlainTextEditColor=self.theme["GUI"]["QPlainTextEdit"]["color"],
+			QListWidgetBGColor=self.theme["GUI"]["QListWidget"]["background-color"],
+			QListWidgetItemBGColor=self.theme["GUI"]["QListWidgetItem"]["background-color"]
 		)
-
-	def show_gui(self) -> None:
-		"""
-		A function to display the GUI.
-		"""
-		# Show the GUI
-		self.show()
-
-	# def hide_gui(self):
-	# 	"""
-	# 	A function to hide the GUI.
-	# 	"""
-	# 	# Hide the GUI
-	# 	self.hide()
 
 	def update_fill(self, new_fill_type):
 		"""
@@ -559,6 +607,11 @@ class App(QMainWindow):
 		# Update window size variables
 		self.width = self.frameGeometry().width()
 		self.height = self.frameGeometry().height()
+
+		# Elements that are irrelevant to the editor
+		# or don't interfere with appearance settings
+		self.settings_list.move(0, 0)
+		self.settings_list.resize(self.width * 0.3, self.height)
 
 		# Update each element based on the live_fill setting
 		if self.utils.stringify(self.settings["live_fill"]) in ["fill", "stretch"]:

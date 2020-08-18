@@ -113,7 +113,7 @@ class App(QMainWindow):
 		self.editor_box.installEventFilter(self)
 
 		# The live-compile renderer element
-		self.editor_compiled = self.make_pic(background=self.theme["Live"]["background-color"][:-1])
+		self.editor_compiled = self.make_pic(background=self.theme["Live"]["background-color"])
 
 		# Create Settings list element
 		self.settings_list = self.make_list(["Appearance", "Shortcuts", "Advanced"])
@@ -152,9 +152,9 @@ class App(QMainWindow):
 
 		# Set the theme of the whole window
 		self.setStyleSheet("""
-		background-color: #{QMainWindowBGColor};
+		background-color: {QMainWindowBGColor};
 		""".strip().format(
-			QMainWindowBGColor=self.theme["GUI"]["QMainWindow"]["background-color"][:-1]
+			QMainWindowBGColor=self.utils.hex_format(self.theme["GUI"]["QMainWindow"]["background-color"])
 		))
 
 		# Resize the elements to the current window size
@@ -317,7 +317,7 @@ class App(QMainWindow):
 				# Make a formatter object which colors the background
 				self.status_bar_instance.update_status({"Task": "Parsing..."})
 				color_format = QTextBlockFormat()
-				error_color = self.utils.hex_to_rgb(self.theme["Editor"]["error"][:-1])
+				error_color = self.utils.hex_to_rgb(self.utils.hex_format(self.theme["Editor"]["error"]))
 				color_format.setBackground(QColor(error_color[0], error_color[1], error_color[2]))
 				# For each line which has an error...
 				for line, message in self.utils.parse_errors(compiled_return_data[1]).items():
@@ -514,8 +514,8 @@ class App(QMainWindow):
 			label.setPixmap(pixel_map)
 		if background:
 			label.setStyleSheet(
-				"background-color: #{bgColor};".format(
-					bgColor=background
+				"background-color: {bgColor};".format(
+					bgColor=self.utils.hex_format(background)
 				)
 			)
 		label.setScaledContents(True)
@@ -552,15 +552,12 @@ class App(QMainWindow):
 			formatted_string += " {\n"
 			# Loop over each attribute
 			for attrib, value in data.items():
-				# If the value is a hex code, then update
-				# it to the conventional hex code
-				value = "#{hex}".format(
-					hex=value[:-1]
-				) if value[-1] == "#" else value
 				# Format the attribute and its data
 				formatted_string += "\t{attrib}: {value};\n".format(
 					attrib=attrib,
-					value=value
+					# If the value is a hex code, then update
+					# it to the conventional hex code
+					value=self.utils.hex_format(value)
 				)
 			# End the element's data segment
 			formatted_string += "}\n\n"

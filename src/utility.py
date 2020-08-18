@@ -254,6 +254,18 @@ class Utility:
 		return errors
 
 	@staticmethod
+	def hex_format(value):
+		"""
+		Returns a formatted hex, if the inputted value is our hex string.
+
+		:param value: A hex string formatted as: HEX_STRING#
+		:return: A properly formatted hex string, like so: #HEX_STRING
+		"""
+		return "#{hex}".format(
+					hex=value[:-1]
+				) if value[-1] == "#" else value
+
+	@staticmethod
 	def hex_to_rgb(value):
 		"""
 		Return an RGB Tuple from the given Hex string.

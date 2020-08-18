@@ -113,7 +113,7 @@ class App(QMainWindow):
 		self.editor_box.installEventFilter(self)
 
 		# The live-compile renderer element
-		self.editor_compiled = self.make_pic(background=self.theme["Live"]["background-color"])
+		self.editor_compiled = self.make_pic(background=self.theme["Live"]["background-color"][:-1])
 
 		# Create Settings list element
 		self.settings_list = self.make_list(["Appearance", "Shortcuts", "Advanced"])
@@ -154,7 +154,7 @@ class App(QMainWindow):
 		self.setStyleSheet("""
 		background-color: #{QMainWindowBGColor};
 		""".strip().format(
-			QMainWindowBGColor=self.theme["GUI"]["QMainWindow"]["background-color"]
+			QMainWindowBGColor=self.theme["GUI"]["QMainWindow"]["background-color"][:-1]
 		))
 
 		# Resize the elements to the current window size
@@ -317,7 +317,7 @@ class App(QMainWindow):
 				# Make a formatter object which colors the background
 				self.status_bar_instance.update_status({"Task": "Parsing..."})
 				color_format = QTextBlockFormat()
-				error_color = self.utils.hex_to_rgb(self.theme["Editor"]["error"])
+				error_color = self.utils.hex_to_rgb(self.theme["Editor"]["error"][:-1])
 				color_format.setBackground(QColor(error_color[0], error_color[1], error_color[2]))
 				# For each line which has an error...
 				for line, message in self.utils.parse_errors(compiled_return_data[1]).items():
@@ -529,66 +529,43 @@ class App(QMainWindow):
 
 		Returns the QtCSS as a string.
 		"""
-		return """
-		
-		QMenuBar {{
-			background-color: #{QMenuBarBGColor};
-			color: #{QMenuBarColor};
-			spacing: {QMenuBarSpacing}px;
-		}}
-		
-		QMenuBar::item:selected {{
-			background: #{QMenuBarItemSelected};
-		}}
-		
-		QMenu::item {{
-			background-color: #{QMenuBarItemBGColor};
-			color: #{QMenuBarItemColor};
-			padding: {QMenuBarPadding}px;
-		}}
-		
-		QMenu::item:selected {{
-			background: #{QMenuBarItemSelected};
-		}}
-		
-		QStatusBar {{
-			background: #{QMenuBarBGColor};
-			color: #{QMenuBarColor}
-		}}
-		
-		QStatusBar::item {{
-			border: 4px solid red;
-			border-radius: 4px;
-		}}
-		
-		QPlainTextEdit {{
-			background-color: #{QPlainTextEditBGColor};
-			border: 1px solid #{QPlainTextEditBorderColor};
-			color: #{QPlainTextEditColor};
-		}}
-		
-		QListWidget {{
-			background-color: #{QListWidgetBGColor};
-		}}
-		
-		QListWidget::item {{
-			background-color: #{QListWidgetItemBGColor};
-		}}
-		
-		""".strip().format(
-			QMenuBarBGColor=self.theme["GUI"]["QMenuBar"]["background-color"],
-			QMenuBarColor=self.theme["GUI"]["QMenuBar"]["color"],
-			QMenuBarSpacing=self.theme["GUI"]["QMenuBar"]["spacing"],
-			QMenuBarItemSelected=self.theme["GUI"]["QMenuBarItem"]["selected"],
-			QMenuBarItemBGColor=self.theme["GUI"]["QMenuBarItem"]["background-color"],
-			QMenuBarItemColor=self.theme["GUI"]["QMenuBarItem"]["color"],
-			QMenuBarPadding=self.theme["GUI"]["QMenuBarItem"]["padding"],
-			QPlainTextEditBGColor=self.theme["GUI"]["QPlainTextEdit"]["background-color"],
-			QPlainTextEditBorderColor=self.theme["GUI"]["QPlainTextEdit"]["border"],
-			QPlainTextEditColor=self.theme["GUI"]["QPlainTextEdit"]["color"],
-			QListWidgetBGColor=self.theme["GUI"]["QListWidget"]["background-color"],
-			QListWidgetItemBGColor=self.theme["GUI"]["QListWidgetItem"]["background-color"]
-		)
+		# Initialize the string
+		formatted_string = str()
+		# For each element in the GUI data
+		for element, data in self.theme["GUI"].items():
+			# Split the identifiers
+			split_element = element.split("-")
+			# Add the base element
+			formatted_string += split_element[0]
+			# If there is a selector (e.g., item)
+			if len(split_element) > 1:
+				formatted_string += "::{selector}".format(
+					selector=split_element[1]
+				)
+			# If there is a case selector (e.g., selected)
+			if len(split_element) > 2:
+				formatted_string += ":{case_selector}".format(
+					case_selector=split_element[2]
+				)
+
+			# Start the element's data segment
+			formatted_string += " {\n"
+			# Loop over each attribute
+			for attrib, value in data.items():
+				# If the value is a hex code, then update
+				# it to the conventional hex code
+				value = "#{hex}".format(
+					hex=value[:-1]
+				) if value[-1] == "#" else value
+				# Format the attribute and its data
+				formatted_string += "\t{attrib}: {value};\n".format(
+					attrib=attrib,
+					value=value
+				)
+			# End the element's data segment
+			formatted_string += "}\n\n"
+
+		return formatted_string
 
 	def update_fill(self, new_fill_type):
 		"""

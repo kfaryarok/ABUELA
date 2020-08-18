@@ -53,6 +53,9 @@ menu_bar_font: Segoe UI
 # The text font size to display for menu bar elements
 menu_bar_size: 11
 
+# The text font size to display for status bar elements
+status_bar_size: 9
+
 # The space between 2 adjacent Status Bar items
 status_padding: 10
 

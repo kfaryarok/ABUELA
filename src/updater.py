@@ -5,9 +5,10 @@ with any small helpful variables or
 functions to assist with updating.
 """
 from os import startfile
+from sys import exit as exit_app
 from tempfile import gettempdir
 from zipfile import ZipFile
-from sys import exit as exit_app
+
 from requests import get
 
 
@@ -29,7 +30,7 @@ class Updater:
 		:return: The HTTPS URL to the website.
 		"""
 		# Point to the link file
-		file = open("../link.txt", "r")
+		file = open("../link.txt", "r", encoding="utf-8")
 		# Read the file and retrieve the link
 		link = file.read().strip()
 		# Close the file
@@ -48,7 +49,7 @@ class Updater:
 		latest_version = get("https://raw.githubusercontent.com/kfaryarok/ABUELA/master/version.txt").text
 
 		# Open the current version as the file in the resources folder
-		file = open("../resources/version.txt", "r")
+		file = open("../resources/version.txt", "r", encoding="utf-8")
 		current_version = file.read()
 		file.close()
 
@@ -71,9 +72,11 @@ class Updater:
 			# Close the file pointer
 			file.close()
 			return True
-		except:
+		except Exception as e:
+			print("REPORT THIS ASAP 2 | ", e.__dict__)
 			return False
 
+	# noinspection SpellCheckingInspection
 	def install_updates(self):
 		"""
 		This function is meant to install updates. It will,
@@ -92,7 +95,7 @@ class Updater:
 					zip_ref.extractall(str(gettempdir()))
 
 				# Generate a batch file to install the folder
-				file = open(str(gettempdir()) + "/ABUELA_UPDATER.bat", "w")
+				file = open(str(gettempdir()) + "/ABUELA_UPDATER.bat", "w", encoding="utf-8")
 				file.write("""@echo off
 title ABUELA_UPDATER
 TIMEOUT /T 3 /NOBREAK >nul
@@ -100,7 +103,7 @@ xcopy /E /Y "ABUELA-master" "%1" """)
 				file.close()
 
 				# Generate a VBS file to silently execute the batch file
-				file = open(str(gettempdir()) + "/ABUELA_UPDATER.vbs", "w")
+				file = open(str(gettempdir()) + "/ABUELA_UPDATER.vbs", "w", encoding="utf-8")
 				file.write("""Set WshShell = CreateObject("WScript.Shell") 
 WshShell.Run chr(34) & "ABUELA_UPDATER.bat" & Chr(34), 0
 Set WshShell = Nothing""")

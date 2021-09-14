@@ -32,27 +32,32 @@ cursor_width: 7
 live_fill: fit
 
 # The quality of the live-compiled image
-live_quality: 150
+live_quality: 90
 
 # The quality of a saved image
 compile_quality: 700
 
-# The speed (seconds) for the live-compiled update to occur
-# Not recommended to go under the live_thread_refresh time
+# The delay to wait for a new edit
+live_await: 0.5
+
+# The delay (seconds) for the live-compiled update to occur
+# Not recommended to go under 0.5
 live_update: 0.5
 
-# The speed (seconds) for each compiler thread to check for a new character
-# Not recommended to go under 0.3
+# The time (seconds) between each time a compiler thread checks if it's time to execute
 live_thread_refresh: 0.3
 
 # The text font to display for all menu elements
-menu_bar_font: Segoe UI
+menu_font: Segoe UI
 
 # The text font size to display for menu bar elements
 menu_bar_size: 11
 
+# The text font size to display for status bar elements
+status_bar_size: 9
+
 # The space between 2 adjacent Status Bar items
-status_padding: 10
+status_margin: 10
 
 # The space between a Status Bar item key to it's value
 status_spacing: 5

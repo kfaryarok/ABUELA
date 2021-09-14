@@ -1,0 +1,407 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>560</width>
+    <height>608</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">color: rgb(255, 255, 255)</string>
+  </property>
+  <property name="translate" stdset="0">
+   <string notr="true"/>
+  </property>
+  <widget class="QGroupBox" name="Theme">
+   <property name="geometry">
+    <rect>
+     <x>9</x>
+     <y>9</y>
+     <width>542</width>
+     <height>111</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">color: rgb(0, 0, 0)</string>
+   </property>
+   <property name="title">
+    <string>Theme</string>
+   </property>
+   <widget class="QListWidget" name="ThemeSelect">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>521</width>
+      <height>81</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color: rgb(0, 0, 0)</string>
+    </property>
+    <property name="verticalScrollBarPolicy">
+     <enum>Qt::ScrollBarAlwaysOff</enum>
+    </property>
+    <property name="horizontalScrollBarPolicy">
+     <enum>Qt::ScrollBarAlwaysOff</enum>
+    </property>
+    <property name="translate" stdset="0">
+     <string notr="true"/>
+    </property>
+    <item>
+     <property name="text">
+      <string>B</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>C</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>D</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>E</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>F</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>G</string>
+     </property>
+    </item>
+   </widget>
+  </widget>
+  <widget class="QGroupBox" name="Editor">
+   <property name="geometry">
+    <rect>
+     <x>9</x>
+     <y>406</y>
+     <width>542</width>
+     <height>193</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">color: rgb(0, 0, 0)</string>
+   </property>
+   <property name="title">
+    <string>Editor</string>
+   </property>
+   <widget class="QListWidget" name="FontSelect">
+    <property name="geometry">
+     <rect>
+      <x>310</x>
+      <y>20</y>
+      <width>221</width>
+      <height>81</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color: rgb(0, 0, 0)</string>
+    </property>
+    <property name="verticalScrollBarPolicy">
+     <enum>Qt::ScrollBarAlwaysOff</enum>
+    </property>
+    <property name="horizontalScrollBarPolicy">
+     <enum>Qt::ScrollBarAlwaysOff</enum>
+    </property>
+    <item>
+     <property name="text">
+      <string>Consolas</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Arial</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Comic Sans</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QSpinBox" name="FontSize">
+    <property name="geometry">
+     <rect>
+      <x>420</x>
+      <y>110</y>
+      <width>111</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="minimum">
+     <number>8</number>
+    </property>
+    <property name="maximum">
+     <number>22</number>
+    </property>
+    <property name="singleStep">
+     <number>2</number>
+    </property>
+   </widget>
+   <widget class="QLabel" name="FontSizeLabel">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>110</y>
+      <width>411</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Font Size</string>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="CursorSize">
+    <property name="geometry">
+     <rect>
+      <x>420</x>
+      <y>150</y>
+      <width>111</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="minimum">
+     <number>1</number>
+    </property>
+    <property name="maximum">
+     <number>10</number>
+    </property>
+   </widget>
+   <widget class="QLabel" name="CursorSizeLabel">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>150</y>
+      <width>411</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Cursor Size</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="EditorFont">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>301</width>
+      <height>81</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Editor Font</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QGroupBox" name="Menu">
+   <property name="geometry">
+    <rect>
+     <x>9</x>
+     <y>129</y>
+     <width>542</width>
+     <height>271</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">color: rgb(0, 0, 0)</string>
+   </property>
+   <property name="title">
+    <string>Menu</string>
+   </property>
+   <widget class="QListWidget" name="MenuFontSelect">
+    <property name="geometry">
+     <rect>
+      <x>310</x>
+      <y>20</y>
+      <width>221</width>
+      <height>81</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color: rgb(0, 0, 0)</string>
+    </property>
+    <property name="verticalScrollBarPolicy">
+     <enum>Qt::ScrollBarAlwaysOff</enum>
+    </property>
+    <property name="horizontalScrollBarPolicy">
+     <enum>Qt::ScrollBarAlwaysOff</enum>
+    </property>
+    <item>
+     <property name="text">
+      <string>Consolas</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Arial</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Comic Sans</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QSpinBox" name="MenuBarSizeSelect">
+    <property name="geometry">
+     <rect>
+      <x>420</x>
+      <y>110</y>
+      <width>111</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="minimum">
+     <number>6</number>
+    </property>
+    <property name="maximum">
+     <number>14</number>
+    </property>
+   </widget>
+   <widget class="QLabel" name="MenuBarSize">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>110</y>
+      <width>411</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Menu Bar Size</string>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="StatusBarSizeSelect">
+    <property name="geometry">
+     <rect>
+      <x>420</x>
+      <y>150</y>
+      <width>111</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="minimum">
+     <number>6</number>
+    </property>
+    <property name="maximum">
+     <number>14</number>
+    </property>
+   </widget>
+   <widget class="QLabel" name="StatusBarSize">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>150</y>
+      <width>411</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Status Bar Size</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="MenuFont">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>301</width>
+      <height>81</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Menu Font</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="StatusBarMargin">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>190</y>
+      <width>411</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Status Bar Margin</string>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="StatusBarMarginSelect">
+    <property name="geometry">
+     <rect>
+      <x>420</x>
+      <y>190</y>
+      <width>111</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="minimum">
+     <number>1</number>
+    </property>
+    <property name="maximum">
+     <number>20</number>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="StatusBarSpacingSelect">
+    <property name="geometry">
+     <rect>
+      <x>420</x>
+      <y>230</y>
+      <width>111</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="minimum">
+     <number>1</number>
+    </property>
+    <property name="maximum">
+     <number>10</number>
+    </property>
+   </widget>
+   <widget class="QLabel" name="StatusBarSpacing">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>230</y>
+      <width>411</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true">Status Bar Spacing</string>
+    </property>
+   </widget>
+  </widget>
+ </widget>
+ <tabstops>
+  <tabstop>ThemeSelect</tabstop>
+  <tabstop>MenuFontSelect</tabstop>
+  <tabstop>MenuBarSizeSelect</tabstop>
+  <tabstop>StatusBarSizeSelect</tabstop>
+  <tabstop>StatusBarMarginSelect</tabstop>
+  <tabstop>StatusBarSpacingSelect</tabstop>
+  <tabstop>FontSelect</tabstop>
+  <tabstop>FontSize</tabstop>
+  <tabstop>CursorSize</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

@@ -13,7 +13,6 @@ from pdf2image import convert_from_path
 from pdf2image.exceptions import PDFPageCountError
 from psutil import process_iter
 
-from error import CatchError
 from utility import Utility
 
 
@@ -68,7 +67,14 @@ class Compile:
 		self.kill()
 		# Execute pdflatex with subprocess library
 		self.app_pointer.status_bar_instance.update_status({"Task": "Multiprocessing..."})
-		proc = Popen(['pdflatex', '-quiet', '-job-name=compile', file_path], stdout=PIPE)
+		proc = Popen([
+			'xelatex',
+			'-quiet',
+			'-enable-installer',
+			'-c-style-errors',
+			'-job-name=compile',
+			file_path
+		], stdout=PIPE)
 		# Wait until execution is over, then copy all STDOUT text to an array
 		self.app_pointer.status_bar_instance.update_status({"Task": "Compiling..."})
 		proc.wait()
@@ -95,7 +101,7 @@ class Compile:
 			return [False, stdout_data]
 
 	@staticmethod
-	def safeRemove(file):
+	def safe_remove(file):
 		"""
 		Attempts to remove a file, without the knowledge of whether it exists or not.
 
@@ -103,9 +109,13 @@ class Compile:
 		:return: True if deleted successfully, False if not or an error occurred.
 		"""
 		try:
-			remove(file)
-			return True
-		except:
+			if exists(file):
+				remove(file)
+				return True
+			else:
+				return False
+		except Exception as e:
+			print("REPORT THIS ASAP 4 | ", e.__dict__)
 			return False
 
 	def clean(self):
@@ -114,9 +124,9 @@ class Compile:
 		"""
 		if self.app_pointer:
 			self.app_pointer.status_bar_instance.update_status({"Task": "Cleaning..."})
-		self.safeRemove("compile.pdf")
-		self.safeRemove("compile.aux")
-		self.safeRemove("compile.log")
+		self.safe_remove("compile.pdf")
+		self.safe_remove("compile.aux")
+		self.safe_remove("compile.log")
 
 	@staticmethod
 	def kill():
@@ -154,7 +164,7 @@ class Compile:
 
 		# For each page in the pdf
 		self.app_pointer.status_bar_instance.update_status({"Task": "Converting..."})
-		page_index = 0
+		page_index = int()
 		for page in pages:
 			page_index += 1
 			# Save it as a picture

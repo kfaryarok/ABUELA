@@ -14,6 +14,7 @@ from win32clipboard import OpenClipboard, EmptyClipboard, SetClipboardData, Clos
 from error import CatchError
 
 
+# noinspection PyCompatibility
 class Status:
 	"""
 	Class to assist in the few functions and methods
@@ -22,10 +23,41 @@ class Status:
 
 	def __init__(self, app_pointer):
 		self.app_pointer = app_pointer
-		self.padding = self.app_pointer.settings["status_padding"]
+		self.padding = self.app_pointer.settings["status_margin"]
 		self.spacing = self.app_pointer.settings["status_spacing"]
 		self.status_dict = dict()
-		self.status = ""
+		self.status = str()
+
+	def init(self):
+		"""
+		Initializes the Status bar element.
+		"""
+		self.app_pointer.status_bar_element = self.app_pointer.statusBar()
+		self.app_pointer.status_bar_element.setStyleSheet(self.app_pointer.formatStyle())
+		self.app_pointer.status_bar_element.setFont(
+			QFont(
+				self.app_pointer.settings["menu_font"],
+				self.app_pointer.settings["status_bar_size"]
+			)
+		)
+
+	def show(self):
+		"""
+		Reveals the Status bar.
+		"""
+		self.app_pointer.status_bar_element.show()
+
+	def hide(self):
+		"""
+		Hides the Status bar.
+		"""
+		self.app_pointer.status_bar_element.hide()
+
+	def delete(self):
+		"""
+		Removes the Status bar element.
+		"""
+		self.app_pointer.status_bar_element.deleteLater()
 
 	def init_status(self):
 		"""
@@ -34,21 +66,21 @@ class Status:
 		anything when the GUI is initialized.
 		"""
 		self.update_status({
-			"Project": "",
-			"Words": 0,
-			"Characters": 0,
-			"Task": "Idling",
-			"File": "Not opened"
+			"Project": str(),
+			"Words": int(),
+			"Characters": int(),
+			"Compile Time": int(),
+			"Task": "Idling"
 		})
 
-	def refresh_status(self):
-		"""
-		Refreshes the status (does not change any of the data).
-		Used in case the Status Bar disappears for whatever reason,
-		or glitches / bugs out, and other reasons
-		to force-paint the Status Bar again.
-		"""
-		self.set_status(self.status_dict)
+	# def refresh_status(self):
+	# 	"""
+	# 	Refreshes the status (does not change any of the data).
+	# 	Used in case the Status Bar disappears for whatever reason,
+	# 	or glitches / bugs out, and other reasons
+	# 	to force-paint the Status Bar again.
+	# 	"""
+	# 	self.set_status(self.status_dict)
 
 	@CatchError
 	def update_status(self, status_update):
@@ -92,7 +124,7 @@ class Menu:
 
 	def __init__(self, app_pointer):
 		self.app_pointer = app_pointer
-		self.sub_menu = False
+		self.sub_menu = QMenu()
 
 	def init(self):
 		"""
@@ -102,7 +134,29 @@ class Menu:
 		self.app_pointer.menu_bar_element.setFixedHeight(int(self.app_pointer.height / 30))
 		self.app_pointer.menu_bar_element.setStyleSheet(self.app_pointer.formatStyle())
 		self.app_pointer.menu_bar_element.setFont(
-			QFont(self.app_pointer.settings["menu_bar_font"], self.app_pointer.settings["menu_bar_size"]))
+			QFont(
+				self.app_pointer.settings["menu_font"],
+				self.app_pointer.settings["menu_bar_size"]
+			)
+		)
+
+	def show(self):
+		"""
+		Reveals the Menu bar.
+		"""
+		self.app_pointer.menu_bar_element.show()
+
+	def hide(self):
+		"""
+		Hides the Menu bar.
+		"""
+		self.app_pointer.menu_bar_element.hide()
+
+	def delete(self):
+		"""
+		Removes the Menu bar element.
+		"""
+		self.app_pointer.menu_bar_element.deleteLater()
 
 	def clear(self):
 		"""

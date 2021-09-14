@@ -17,15 +17,26 @@ class Project:
 	def __init__(self, file_name):
 		self.file_name = file_name
 		self.name = split(self.file_name)[-1]
-		self.data = ""
-		self.preamble = ""
-		self.peroration = ""
+		self.data = str()
+		self.preamble = str()
+		self.peroration = str()
+
+	def unload(self):
+		"""
+		Saves memory by unloading data in objects.
+		"""
+		if hasattr(self, "data"):
+			del self.data
+		if hasattr(self, "preamble"):
+			del self.preamble
+		if hasattr(self, "peroration"):
+			del self.peroration
 
 	def new(self):
 		"""
 		Generates a new file as a template for the project
 		"""
-		self.data = ""
+		self.data = str()
 		self.preamble = """\\documentclass[12pt]{article}\n\\begin{document}"""
 		self.peroration = """\n\\end{document}"""
 
@@ -64,7 +75,7 @@ class Project:
 		Returns the data as a string.
 		"""
 		# Point to the file
-		file = open(self.file_name, "r")
+		file = open(self.file_name, "r", encoding="utf-8")
 		# Read the data
 		file_data = file.read()
 		# Close the file pointer

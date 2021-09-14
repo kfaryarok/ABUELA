@@ -6,13 +6,13 @@ from os.path import exists, split, splitext
 from random import randint
 from shutil import rmtree, copyfile
 
-from PyQt5.QtCore import QEvent
 from PyQt5.QtWidgets import QFileDialog
 from yaml import load, dump, SafeLoader
 
 from project import Project
 
 try:
+	# noinspection PyUnresolvedReferences
 	from win32api import GetSystemMetrics
 except ImportError:
 	pass
@@ -39,7 +39,8 @@ class Utility:
 		try:
 			remove(file_name)
 			return True
-		except:
+		except Exception as e:
+			print("REPORT THIS ASAP 1 | ", e.__dict__)
 			return False
 
 	def reset_system(self):
@@ -105,17 +106,19 @@ class Utility:
 		"""
 		# Clear ../project/current.tex file
 		try:
-			file = open("../project/current.tex", "w")
+			file = open("../project/current.tex", "w", encoding="utf-8")
 			file.write("")
 			file.close()
-		except:
+		except Exception as e:
+			print("REPORT THIS ASAP 3 | ", e.__dict__)
 			pass
 
 		# Remove all files from the ../compile folder by deleting and creating it again
 		try:
 			rmtree("../compile")
 			mkdir("../compile")
-		except:
+		except Exception as e:
+			print("REPORT THIS ASAP 5 | ", e.__dict__)
 			return
 
 		# For each folder in the root directory
@@ -155,7 +158,7 @@ class Utility:
 		Returns a dictionary of the selected theme's settings.
 		"""
 		# Create file pointer to current theme
-		file = open("../gui_themes/{theme}.yaml".format(theme=settings["theme"]), "r")
+		file = open("../gui_themes/{theme}.yaml".format(theme=settings["theme"]), "r", encoding="utf-8")
 		# Read the data from the pointer and convert it to a dictionary
 		theme_data = load(file.read(), Loader=SafeLoader)
 		# Make sure to close the file pointer
@@ -171,7 +174,7 @@ class Utility:
 		Returns a Python dictionary containing the configuration data.
 		"""
 		# Open a connection to the settings file
-		file_pointer = open("../resources/settings.yaml", "r")
+		file_pointer = open("../resources/settings.yaml", "r", encoding="utf-8")
 		# Pull the data from the file and convert it to a Python dict
 		setting_data = load(file_pointer.read(), Loader=SafeLoader)
 		# Close the connection so it is over-writable / usable
@@ -187,7 +190,7 @@ class Utility:
 		:param newSettings: Python dictionary containing the new settings
 		"""
 		# Open a connection to the settings file
-		file_pointer = open("../resources/settings.yaml", "w")
+		file_pointer = open("../resources/settings.yaml", "w", encoding="utf-8")
 		# Convert and write new configuration data
 		file_pointer.write(dump(newSettings))
 		# Close the connection so it is over-writable / usable
@@ -249,6 +252,18 @@ class Utility:
 			if line.strip().isnumeric():
 				errors[int(line)] = message
 		return errors
+
+	@staticmethod
+	def hex_format(value):
+		"""
+		Returns a formatted hex, if the inputted value is our hex string.
+
+		:param value: A hex string formatted as: HEX_STRING#
+		:return: A properly formatted hex string, like so: #HEX_STRING
+		"""
+		return "#{hex}".format(
+					hex=value[:-1]
+				) if value[-1] == "#" else value
 
 	@staticmethod
 	def hex_to_rgb(value):

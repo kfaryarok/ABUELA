@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1277</width>
+    <height>1146</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QListWidget" name="listWidget">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>250</width>
+      <height>1141</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>Appearance</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Shortcuts</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Advanced</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit">
+    <property name="geometry">
+     <rect>
+      <x>650</x>
+      <y>318</y>
+      <width>341</width>
+      <height>241</height>
+     </rect>
+    </property>
+   </widget>
+  </widget>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>listWidget</sender>
+   <signal>currentRowChanged(int)</signal>
+   <receiver>lineEdit</receiver>
+   <slot>paste()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>124</x>
+     <y>570</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>820</x>
+     <y>438</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

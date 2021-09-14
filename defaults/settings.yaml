@@ -57,7 +57,7 @@ menu_bar_size: 11
 status_bar_size: 9
 
 # The space between 2 adjacent Status Bar items
-status_padding: 10
+status_margin: 10
 
 # The space between a Status Bar item key to it's value
 status_spacing: 5

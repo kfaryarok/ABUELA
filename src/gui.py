@@ -3,7 +3,7 @@ The GUI file, reserved for all interactions
 GUI-wise and some others that fit within the
 category or are critical / necessary for the GUI to run.
 """
-
+from os import listdir
 from random import randint
 from threading import Thread
 from time import sleep, time
@@ -11,7 +11,7 @@ from time import sleep, time
 from PyQt5 import QtGui
 from PyQt5.QtCore import QEvent, Qt, QCoreApplication, QTimer
 from PyQt5.QtGui import QPixmap, QIcon, QFont, QTextCursor, QTextBlockFormat, QColor
-from PyQt5.QtWidgets import QLabel, QPlainTextEdit, QMainWindow, QListWidget, QListWidgetItem
+from PyQt5.QtWidgets import QLabel, QPlainTextEdit, QMainWindow, QListWidget, QListWidgetItem, QGroupBox, QSpinBox
 from keyboard import is_pressed as is_key_pressed
 
 from compile import compile_to_image
@@ -77,12 +77,13 @@ class App(QMainWindow):
 		self.last_data = str()
 		self.last_update = time()
 		self.status = str()
+		self.settings_opened = False
 
 		# Get screen data
 		self.screen_width = self.utils.get_screen()[0]
 		self.screen_height = self.utils.get_screen()[1]
 
-		# Set min size
+		# Set min_spin size
 		min_width = int(self.screen_width * self.settings["min_ratio"])
 		min_height = int(self.screen_height * self.settings["min_ratio"])
 		self.setMinimumSize(min_width, min_height)
@@ -124,6 +125,145 @@ class App(QMainWindow):
 			)
 		)
 
+		# Create groups for elements
+		self.theme_group = QGroupBox(self)
+		self.editor_group = QGroupBox(self)
+		self.menu_group = QGroupBox(self)
+
+		# Rename the group titles
+		self.theme_group.setTitle("Theme")
+		self.editor_group.setTitle("Editor")
+		self.menu_group.setTitle("Menu")
+
+		# For each theme file in the themes folder...
+		theme_list = list()
+		for file in listdir("../gui_themes"):
+			if file.endswith(".yaml"):
+				# Append it to the theme list
+				theme_list.append(file[:-5])
+
+		# Create the list widget with the themes
+		self.theme_select_element = self.make_list(
+			items=theme_list,
+			parent=self.theme_group
+		)
+
+		# Specify the valid fonts
+		font_list = ["Consolas", "Arial", "Comic Sans"]
+
+		# Create the font selection elements
+		self.font_select_element = self.make_list(
+			items=font_list,
+			parent=self.editor_group
+		)
+
+		self.menu_font_select_element = self.make_list(
+			items=font_list,
+			parent=self.editor_group
+		)
+
+		# Create the spinbox elements
+		self.font_size_element = self.make_spinbox(
+			min_spin=8,
+			max_spin=22,
+			step=2,
+			parent=self.editor_group
+		)
+
+		self.cursor_size_element = self.make_spinbox(
+			min_spin=1,
+			max_spin=10,
+			parent=self.editor_group
+		)
+
+		# Create the text elements
+		self.font_size_label_element = self.make_text(
+			text="Font Size",
+			parent=self.editor_group
+		)
+
+		self.cursor_size_label_element = self.make_text(
+			text="Cursor Size",
+			parent=self.editor_group
+		)
+
+		self.editor_font_element = self.make_text(
+			text="Editor Font",
+			parent=self.editor_group
+		)
+
+		# Create the spinbox elements
+		self.menu_bar_size_select_element = self.make_spinbox(
+			min_spin=6,
+			max_spin=14,
+			parent=self.menu_group
+		)
+
+		self.status_bar_size_select_element = self.make_spinbox(
+			min_spin=6,
+			max_spin=14,
+			parent=self.menu_group
+		)
+
+		self.status_bar_margin_select_element = self.make_spinbox(
+			min_spin=1,
+			max_spin=20,
+			parent=self.menu_group
+		)
+
+		self.status_bar_spacing_select_element = self.make_spinbox(
+			min_spin=1,
+			max_spin=10,
+			parent=self.menu_group
+		)
+
+		# Create the text elements
+		self.menu_bar_size_element = self.make_text(
+			text="Menu Bar Size",
+			parent=self.menu_group
+		)
+
+		self.status_bar_size_element = self.make_text(
+			text="Status Bar Size",
+			parent=self.menu_group
+		)
+
+		self.menu_font_element = self.make_text(
+			text="Menu Font",
+			parent=self.menu_group
+		)
+
+		self.status_bar_margin_element = self.make_text(
+			text="Status Bar Margin",
+			parent=self.menu_group
+		)
+
+		self.status_bar_spacing_element = self.make_text(
+			text="Status Bar Spacing",
+			parent=self.menu_group
+		)
+
+		# Force disable scrolling
+		self.theme_select_element.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+		self.theme_select_element.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+		self.font_select_element.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+		self.font_select_element.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+		self.menu_font_select_element.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+		self.menu_font_select_element.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+
+		# Set the order of how tabs jump through elements
+		self.set_tab_order([
+			self.theme_select_element,
+			self.menu_font_select_element,
+			self.menu_bar_size_select_element,
+			self.status_bar_size_select_element,
+			self.status_bar_margin_select_element,
+			self.status_bar_spacing_select_element,
+			self.font_select_element,
+			self.font_size_element,
+			self.cursor_size_element
+		])
+
 		# Create instance of Menu and Status Bar classes
 		# Initialize it here rather in the above 'attribute initialization section'
 		# because you can't call the Status Bar updating function until
@@ -157,9 +297,7 @@ class App(QMainWindow):
 		self.initUI()
 
 		# Set the theme of the whole window
-		self.setStyleSheet("""
-		background-color: {QMainWindowBGColor};
-		""".strip().format(
+		self.setStyleSheet("background-color: {QMainWindowBGColor};".strip().format(
 			QMainWindowBGColor=self.utils.hex_format(self.theme["GUI"]["QMainWindow"]["background-color"])
 		))
 
@@ -351,8 +489,14 @@ class App(QMainWindow):
 		"""
 		Launches the Editor GUI, and hides the Settings GUI.
 		"""
+		# Update the attribute
+		self.settings_opened = False
+
 		# Hide all existing elements
 		self.settings_list.hide()
+		self.editor_group.hide()
+		self.menu_group.hide()
+		self.theme_group.hide()
 
 		# Show Editor elements
 		self.menu_bar_instance.show()
@@ -360,10 +504,16 @@ class App(QMainWindow):
 		self.editor_box.show()
 		self.editor_compiled.show()
 
+		# Repaint elements
+		self.resizeEvent()
+
 	def show_settings(self):
 		"""
 		Launches the Settings GUI, and hides the Editor GUI.
 		"""
+		# Update the attribute
+		self.settings_opened = True
+
 		# Hide all existing elements
 		self.menu_bar_instance.hide()
 		self.status_bar_instance.hide()
@@ -372,7 +522,31 @@ class App(QMainWindow):
 
 		# Reveal Settings elements
 		self.settings_list.show()
-		self.settings_list.currentRowChanged['int'].connect(lambda: print(self.settings_list.currentRow()))
+		self.settings_list.currentRowChanged['int'].connect(self.change_settings_slide)
+
+		# Repaint elements
+		self.resizeEvent()
+
+	def hide_all_settings(self):
+		"""
+		Hides all settings elements
+		"""
+		self.editor_group.hide()
+		self.menu_group.hide()
+		self.theme_group.hide()
+
+	def change_settings_slide(self):
+		"""
+		Updates the slide of elements in the Settings
+		GUI to the currently selected list item.
+		"""
+		current_row = self.settings_list.currentRow()
+		self.hide_all_settings()
+		# Appearance
+		if current_row == 0:
+			self.editor_group.show()
+			self.menu_group.show()
+			self.theme_group.show()
 
 	def close_project(self):
 		"""
@@ -424,27 +598,27 @@ class App(QMainWindow):
 		# Update the menu data (Specifically, the Projects menu)
 		self.status_bar_instance.update_status({"Task": "Updating menu..."})
 		self.menu_bar_instance.set({
-			"File": [{"name": "&New", "bind": 'Ctrl+N'},
-			         {"name": "&Open", "bind": 'Ctrl+O', "func": self.utils.open_file},
-			         {"name": "&Save As", "bind": 'Ctrl+Shift+S', "func": self.utils.save_file},
-			         {"name": "&Close", "bind": 'Ctrl+W', "func": self.close_project},
-			         {"name": "&Reload", "bind": False, "func": self.restart_app},
-			         {"name": "&Exit", "bind": False, "func": self.exit_app}],
-			"Edit": [{"name": "&Insert", "bind": 'Ctrl+I'}],
-			'Options': [{"name": "&Settings", "bind": False},
-			            {"name": "&Plugins", "bind": False},
-			            {"name": "&Packages", "bind": False}],
-			"View": [{"name": "&Fit", "bind": False,
+			"File": [{"name": "New", "bind": 'Ctrl+N'},
+			         {"name": "Open", "bind": 'Ctrl+O', "func": self.utils.open_file},
+			         {"name": "Save As", "bind": 'Ctrl+Shift+S', "func": self.utils.save_file},
+			         {"name": "Close", "bind": 'Ctrl+W', "func": self.close_project},
+			         {"name": "Reload", "bind": False, "func": self.restart_app},
+			         {"name": "Exit", "bind": False, "func": self.exit_app}],
+			"Edit": [{"name": "Insert", "bind": 'Ctrl+I'}],
+			'Options': [{"name": "Settings", "bind": False},
+			            {"name": "Plugins", "bind": False},
+			            {"name": "Packages", "bind": False}],
+			"View": [{"name": "Fit", "bind": False,
 			          "func": lambda: self.update_fill("fit")},
-			         {"name": "&Fill", "bind": False,
+			         {"name": "Fill", "bind": False,
 			          "func": lambda: self.update_fill("fill")},
 			         {"name": "Split", "bind": False,
 			          "func": lambda: self.update_fill("split")}],
-			"Tools": [{"name": "&Copy Live", "bind": 'Ctrl+Shift+C',
+			"Tools": [{"name": "Copy Live", "bind": 'Ctrl+Shift+C',
 			           "func": lambda: self.menu_bar_instance.copy_to_clipboard(self.live_compile)}],
 			"Projects": [{"name": self.projects[i].name, "bind": False,
 			              "func": lambda state, x=i: self.switch_project(x)} for i in range(len(self.projects))],
-			"Help": [{"name": "&About", "bind": False, "func": lambda: self.error_instance.dialogue(
+			"Help": [{"name": "About", "bind": False, "func": lambda: self.error_instance.dialogue(
 				"../resources/logo.ico",
 				"About",
 				"<b><i>ABUELA</i></b>",
@@ -458,17 +632,75 @@ class App(QMainWindow):
 				• <a href="{base_url}/blob/master/LICENSE">License</a>""".format(
 					base_url=self.updater_instance.get_url()
 				))},
-			         {"name": "&Settings", "bind": False, "func": self.show_settings},
-			         {"name": "&Reset Settings", "bind": False, "func": self.utils.reset_system},
-			         {"name": '&Check for Updates', "bind": False}]
+			         {"name": "Settings", "bind": False, "func": self.show_settings},
+			         {"name": "Reset Settings", "bind": False, "func": self.utils.reset_system},
+			         {"name": 'Check for Updates', "bind": False}]
 		})
 
 		self.status_bar_instance.update_status({"Task": "Idling"})
 
-	def make_list(self, items: list, xPos=0, yPos=0, width=0, height=0):
+	def make_spinbox(self, min_spin=0, max_spin=0, step=1, xPos=0, yPos=0, width=0, height=0, parent=False):
 		"""
 		A method to create a list of items, one of which can be selected at a time.
 
+		:param step: The step / change that the box will spin by.
+		:param max_spin: The maximum value the box can spin to.
+		:param min_spin: The minimum value the box can spin to.
+		:param parent: The parent widget that the element should be placed into.
+		:param xPos: The left-top x position of the element.
+		:param yPos: The left-top y position of the element.
+		:param width: The width of the element.
+		:param height: The height of the element.
+		:return: Returns the created element.
+		"""
+		# If there is a parent element, then set it to it
+		if parent:
+			spin_widget = QSpinBox(parent)
+		# Otherwise, parent the list widget to the main window
+		else:
+			spin_widget = QSpinBox(self)
+		# Set the stylesheet
+		spin_widget.setStyleSheet(self.formatStyle())
+		# Move the element
+		spin_widget.move(xPos, yPos)
+		# Resize it
+		spin_widget.resize(width, height)
+		# Update element data
+		spin_widget.setMinimum(min_spin)
+		spin_widget.setMaximum(max_spin)
+		spin_widget.setSingleStep(step)
+		# Return the element
+		return spin_widget
+
+	def make_text(self, text: str, xPos=0, yPos=0, width=0, height=0, parent=False) -> QLabel:
+		"""
+		A function to create a new multi line edit box.
+
+		:param text: The text that should be displayed in the text label.
+		:param parent: The parent widget that the element should be placed into.
+		:param xPos: The left-top x position of the box.
+		:param yPos: The left-top y position of the box.
+		:param width: The width of the box.
+		:param height: The height of the box.
+		:return: Returns the created element.
+		"""
+		# If there is a parent element, then set it to it
+		if parent:
+			text_label = QLabel(parent)
+		# Otherwise, parent the list widget to the main window
+		else:
+			text_label = QLabel(self)
+		text_label.setText(text)
+		text_label.setStyleSheet(self.formatStyle())
+		text_label.move(xPos, yPos)
+		text_label.resize(width, height)
+		return text_label
+
+	def make_list(self, items: list, xPos=0, yPos=0, width=0, height=0, parent=False):
+		"""
+		A method to create a list of items, one of which can be selected at a time.
+
+		:param parent: The parent widget that the element should be placed into.
 		:param items: A list of the names of the items.
 		:param xPos: The left-top x position of the element.
 		:param yPos: The left-top y position of the element.
@@ -476,14 +708,25 @@ class App(QMainWindow):
 		:param height: The height of the element.
 		:return: Returns the created element.
 		"""
-		list_widget = QListWidget(self)
+		# If there is a parent element, then set it to it
+		if parent:
+			list_widget = QListWidget(parent)
+		# Otherwise, parent the list widget to the main window
+		else:
+			list_widget = QListWidget(self)
+		# Set the stylesheet
 		list_widget.setStyleSheet(self.formatStyle())
+		# Move the element
 		list_widget.move(xPos, yPos)
+		# Resize it
 		list_widget.resize(width, height)
+		# For each item in the items list
 		for item in items:
+			# Create an item widget for it and add it to the list widget
 			current_item = QListWidgetItem()
 			current_item.setText(item)
 			list_widget.addItem(current_item)
+		# Return the element
 		return list_widget
 
 	def make_text_box(self, xPos=0, yPos=0, width=0, height=0):
@@ -588,59 +831,283 @@ class App(QMainWindow):
 		self.width = self.frameGeometry().width()
 		self.height = self.frameGeometry().height()
 
-		# Elements that are irrelevant to the editor
-		# or don't interfere with appearance settings
-		self.settings_list.move(0, 0)
-		self.settings_list.resize(self.width * 0.3, self.height)
+		# Only update relevant elements to improve efficiency
+		# Settings elements
+		if self.settings_opened:
+			# Calculate margin values
+			margin_w = int(self.width * 10 / 600)
 
-		# Update each element based on the live_fill setting
-		if self.utils.stringify(self.settings["live_fill"]) in ["fill", "stretch"]:
-			# Move the edit box
-			self.editor_box.move(0, self.menu_bar_element.height())
-			# Resize the edit box
-			self.editor_box.resize(int(self.width / 2),
-			                       self.height - self.menu_bar_element.height() - 2.5 * self.status_bar_element.height())
-			# Move the live-render
-			self.editor_compiled.move(int(self.width / 2), self.menu_bar_element.height())
-			# Resize the live-render
-			self.editor_compiled.resize(int(self.width / 2),
-			                            self.height - self.menu_bar_element.height() - 2.5 * self.status_bar_element.height())
+			# Settings list sidebar
+			self.settings_list.move(
+				0,
+				0
+			)
+			self.settings_list.resize(
+				int(
+					self.width * 0.3
+				),
+				self.height
+			)
 
-		elif self.utils.stringify(self.settings["live_fill"]) in ["split", "center"]:
-			# Move the edit box
-			self.editor_box.move(0, self.menu_bar_element.height())
-			# Resize the edit box
-			self.editor_box.resize(int(self.width / 2),
-			                       self.height - self.menu_bar_element.height() - 2.5 * self.status_bar_element.height())
-			# Move the live-render
-			self.editor_compiled.move(int((self.width / 2) + (((self.width / 2) - (
-					self.height - self.menu_bar_element.height() - 2.5 * self.status_bar_element.height()) / (
-					                                                   2 ** 0.5)) / 2)),
-			                          self.menu_bar_element.height())
-			# Resize the live-render
-			self.editor_compiled.resize(
-				int((self.height - self.menu_bar_element.height() - 2.5 * self.status_bar_element.height()) / (
-						2 ** 0.5)),
-				self.height - self.menu_bar_element.height() - 2.5 * self.status_bar_element.height())
+			# Appearance settings elements
+			self.theme_group.move(
+				int(
+					self.width * 0.3 + margin_w
+				),
+				int(
+					self.height * 10 / 600
+				)
+			)
+			self.theme_group.resize(
+				int(
+					self.width * 0.7 - margin_w * 2
+				),
+				int(
+					self.height * 110 / 600
+				)
+			)
 
+			self.menu_group.move(
+				int(
+					self.width * 0.3 + margin_w
+				),
+				int(
+					self.height * 130 / 600
+				)
+			)
+			self.menu_group.resize(
+				int(
+					self.width * 0.7 - margin_w * 2
+				),
+				int(
+					self.height * 270 / 600
+				)
+			)
+
+			self.editor_group.move(
+				int(
+					self.width * 0.3 + margin_w
+				),
+				int(
+					self.height * 410 / 600
+				)
+			)
+			self.editor_group.resize(
+				int(
+					self.width * 0.7 - margin_w * 2
+				),
+				int(
+					self.height * 150 / 600
+				)
+			)
+
+			# Grouped elements
+			self.theme_select_element.move(
+				int(
+					self.width * 0.3 + margin_w
+				),
+			)
+			#
+			# # Create the font selection elements
+			# self.font_select_element = self.make_list(
+			# 	items=font_list,
+			# 	parent=self.editor_group
+			# )
+			#
+			# self.menu_font_select_element = self.make_list(
+			# 	items=font_list,
+			# 	parent=self.editor_group
+			# )
+			#
+			# # Create the spinbox elements
+			# self.font_size_element = self.make_spinbox(
+			# 	min_spin=8,
+			# 	max_spin=22,
+			# 	step=2,
+			# 	parent=self.editor_group
+			# )
+			#
+			# self.cursor_size_element = self.make_spinbox(
+			# 	min_spin=1,
+			# 	max_spin=10,
+			# 	parent=self.editor_group
+			# )
+			#
+			# # Create the text elements
+			# self.font_size_label_element = self.make_text(
+			# 	text="Font Size",
+			# 	parent=self.editor_group
+			# )
+			#
+			# self.cursor_size_label_element = self.make_text(
+			# 	text="Cursor Size",
+			# 	parent=self.editor_group
+			# )
+			#
+			# self.editor_font_element = self.make_text(
+			# 	text="Editor Font",
+			# 	parent=self.editor_group
+			# )
+			#
+			# # Create the spinbox elements
+			# self.menu_bar_size_select_element = self.make_spinbox(
+			# 	min_spin=6,
+			# 	max_spin=14,
+			# 	parent=self.menu_group
+			# )
+			#
+			# self.status_bar_size_select_element = self.make_spinbox(
+			# 	min_spin=6,
+			# 	max_spin=14,
+			# 	parent=self.menu_group
+			# )
+			#
+			# self.status_bar_margin_select_element = self.make_spinbox(
+			# 	min_spin=1,
+			# 	max_spin=20,
+			# 	parent=self.menu_group
+			# )
+			#
+			# self.status_bar_spacing_select_element = self.make_spinbox(
+			# 	min_spin=1,
+			# 	max_spin=10,
+			# 	parent=self.menu_group
+			# )
+			#
+			# # Create the text elements
+			# self.menu_bar_size_element = self.make_text(
+			# 	text="Menu Bar Size",
+			# 	parent=self.menu_group
+			# )
+			#
+			# self.status_bar_size_element = self.make_text(
+			# 	text="Status Bar Size",
+			# 	parent=self.menu_group
+			# )
+			#
+			# self.menu_font_element = self.make_text(
+			# 	text="Menu Font",
+			# 	parent=self.menu_group
+			# )
+			#
+			# self.status_bar_margin_element = self.make_text(
+			# 	text="Status Bar Margin",
+			# 	parent=self.menu_group
+			# )
+			#
+			# self.status_bar_spacing_element = self.make_text(
+			# 	text="Status Bar Spacing",
+			# 	parent=self.menu_group
+			# )
+
+
+		# Editor elements
 		else:
-			# Move the edit box
-			self.editor_box.move(0, self.menu_bar_element.height())
-			# Resize the edit box
-			self.editor_box.resize(int(
-				self.width - (self.height - self.menu_bar_element.height() - 2.5 * self.status_bar_element.height()) / (
-						2 ** 0.5)),
-				self.height - self.menu_bar_element.height() - 2.5 * self.status_bar_element.height())
-			# Move the live-render
-			self.editor_compiled.move(int(
-				self.width - (self.height - self.menu_bar_element.height() - 2.5 * self.status_bar_element.height()) / (
-						2 ** 0.5)),
-				self.menu_bar_element.height())
-			# Resize the live-render
-			self.editor_compiled.resize(
-				int((self.height - self.menu_bar_element.height() - 2.5 * self.status_bar_element.height()) / (
-						2 ** 0.5)),
-				self.height - self.menu_bar_element.height() - 2.5 * self.status_bar_element.height())
+			# Update each element based on the live_fill setting
+			if self.utils.stringify(self.settings["live_fill"]) in ["fill", "stretch"]:
+				# Move the edit box
+				self.editor_box.move(
+					0,
+					self.menu_bar_element.height()
+				)
+				# Resize the edit box
+				self.editor_box.resize(
+					int(self.width / 2),
+					self.height - self.menu_bar_element.height() - 2.5 * self.status_bar_element.height()
+				)
+				# Move the live-render
+				self.editor_compiled.move(
+					int(self.width / 2),
+					self.menu_bar_element.height()
+				)
+				# Resize the live-render
+				self.editor_compiled.resize(
+					int(self.width / 2),
+					self.height - self.menu_bar_element.height() - 2.5 * self.status_bar_element.height()
+				)
+
+			elif self.utils.stringify(self.settings["live_fill"]) in ["split", "center"]:
+				# Move the edit box
+				self.editor_box.move(
+					0,
+					self.menu_bar_element.height()
+				)
+				# Resize the edit box
+				self.editor_box.resize(
+					int(self.width / 2),
+					self.height - self.menu_bar_element.height() - 2.5 * self.status_bar_element.height()
+				)
+				# Move the live-render
+				self.editor_compiled.move(
+					int(
+						(self.width / 2) +
+						(((self.width / 2) -
+						  (self.height - self.menu_bar_element.height() -
+						   2.5 * self.status_bar_element.height()) / (2 ** 0.5)) / 2)
+					),
+					self.menu_bar_element.height()
+				)
+				# Resize the live-render
+				self.editor_compiled.resize(
+					int((
+							  self.height - self.menu_bar_element.height() - 2.5 * self.status_bar_element.height()
+					      ) / (
+							  2 ** 0.5
+					      )),
+					self.height - self.menu_bar_element.height() - 2.5 * self.status_bar_element.height()
+				)
+
+			else:
+				# Move the edit box
+				self.editor_box.move(
+					0,
+					self.menu_bar_element.height()
+				)
+				# Resize the edit box
+				self.editor_box.resize(
+					int(
+						self.width -
+						(
+							self.height - self.menu_bar_element.height() - 2.5 * self.status_bar_element.height()
+						) / (
+							2 ** 0.5
+						)
+					),
+					self.height - self.menu_bar_element.height() - 2.5 * self.status_bar_element.height()
+				)
+				# Move the live-render
+				self.editor_compiled.move(
+					int(
+						self.width - (
+							self.height - self.menu_bar_element.height() - 2.5 * self.status_bar_element.height()
+						) / (
+							2 ** 0.5
+						)
+					),
+					self.menu_bar_element.height())
+				# Resize the live-render
+				self.editor_compiled.resize(
+					int(
+						(
+							self.height - self.menu_bar_element.height() - 2.5 * self.status_bar_element.height()
+						) / (
+							2 ** 0.5
+						)
+					),
+					self.height - self.menu_bar_element.height() - 2.5 * self.status_bar_element.height()
+				)
+
+	def set_tab_order(self, *tab_order):
+		"""
+		A method to set the order of how pressing the
+		'TAB' key affects the selected elements.
+
+		:param tab_order: A list of the elements, the list order is the order that the tab key will pass by.
+		"""
+		# For each index in the tab list (starting from the index 1)
+		for i in range(1, len(tab_order)):
+			# Connect the previous tab to the current tab
+			self.setTabOrder(tab_order[i - 1], tab_order[i])
 
 	def restart_app(self):
 		"""

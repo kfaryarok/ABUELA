@@ -23,7 +23,7 @@ class Status:
 
 	def __init__(self, app_pointer):
 		self.app_pointer = app_pointer
-		self.padding = self.app_pointer.settings["status_padding"]
+		self.padding = self.app_pointer.settings["status_margin"]
 		self.spacing = self.app_pointer.settings["status_spacing"]
 		self.status_dict = dict()
 		self.status = str()

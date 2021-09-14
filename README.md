@@ -2,6 +2,8 @@
 
 ABUELA is a LaTeX integrated development environment which attempts to solve all the painful problems with common LaTeX editors. ABUELA achieves this by including a live preview, command predictor, auto save, and many more features and tools in its advanced software.
 
+![banner](https://user-images.githubusercontent.com/46180972/133344477-7a431908-80bd-42c7-baac-bdc151b4f1c0.jpg)
+
 ## Installation
 
 If you have Python installed, you can run a much faster version of the editor by downloading the requisites using the following command:

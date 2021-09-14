@@ -1,0 +1,52 @@
+# Classic dark theme
+
+GUI:
+  QStatusBar:
+    background-color: 323232#
+    color: FFFFFF#
+
+  QMenuBar:
+    background-color: 323232#
+    color: FFFFFF#
+    spacing: 15px
+
+  QMenuBar-item-selected:
+    background: a8a8a8#
+
+  QMenu-item:
+    background-color: 1e1e1e#
+    color: FFFFFF#
+    padding: 15px
+
+  QMenu-selected:
+    background: a8a8a8#
+
+  QMenu-item-selected:
+    background: a8a8a8#
+
+  QPlainTextEdit:
+    background-color: 1e1e1e#
+    border: 1e1e1e#
+    color: FFFFFF#
+
+  QMainWindow:
+    background-color: 1e1e1e#
+
+  QListWidget:
+    background-color: 323232#
+
+  QListWidget-item:
+    color: FFFFFF#
+
+  QListWidget-item-hover:
+    background-color: a8a8a8#
+
+  QListWidget-item-selected:
+    color: 000000#
+    background-color: a8a8a8#
+
+Editor:
+  error: FF312E#
+
+Live:
+  background-color: 323232#

@@ -1,0 +1,20 @@
+compile_quality: 700
+cursor_width: 7
+editor_font: Consolas
+editor_size: 20
+init_x: 100
+init_y: 100
+live_await: 0.5
+live_fill: fit
+live_quality: 90
+live_thread_refresh: 0.3
+live_update: 0.5
+menu_bar_size: 11
+menu_font: Segoe UI
+min_ratio: 0.7
+screen_ratio: 0.9
+status_bar_size: 9
+status_margin: 10
+status_spacing: 5
+theme: default
+window_title: ABUELA

@@ -15,7 +15,7 @@ After that, execute the `main.py` file.
 
 If you don't have Python installed on your computer, you can simply run the executable file located in the `bin` folder.
 
-As of the latest version, you will need to install the LaTeX environment to be able to run the software. You can get a version of said LaTeX environment [here](https://miktex.org/download).
+**As of the latest version**, you will need to install the LaTeX environment to be able to run the software. You can get a version of said LaTeX environment [here](https://miktex.org/download). However, our plan is that in the future, there will be an ABUELA installer of some sort that makes the whole process of installing ABUELA & LaTeX very smooth and simple.
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)

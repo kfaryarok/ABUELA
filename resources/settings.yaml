@@ -1,3 +1,4 @@
+# This folder should be gitignore'd (personal settings)
 compile_quality: 700
 cursor_width: 7
 editor_font: Consolas

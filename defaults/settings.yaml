@@ -1,6 +1,7 @@
 # Settings File
 
 # The title of the GUI's window
+# CONSIDER ADDING [BETA] IF NECESSARY
 window_title: ABUELA
 
 # The selected theme for the GUI window

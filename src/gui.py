@@ -827,6 +827,8 @@ class App(QMainWindow):
 		Resize and move all elements to their new places, and calculate
 		their positions based on the new resolution of the GUI window.
 		"""
+		# There's gotta be a better way to go about resizing the elements... CSS, maybe?
+		
 		# Update window size variables
 		self.width = self.frameGeometry().width()
 		self.height = self.frameGeometry().height()
